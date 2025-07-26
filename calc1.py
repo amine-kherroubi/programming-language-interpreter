@@ -4,19 +4,19 @@ INTEGER, OP, EOF = "INTEGER", "OP", "EOF"
 OPS = ["+", "-", "*", "/"]
 
 
-class Token(object):
+class Token:
     def __init__(self, type: str, value: Optional[Union[int, str]]) -> None:
         self.type: str = type
         self.value: Optional[Union[int, str]] = value
 
     def __str__(self) -> str:
-        return "Token({type}, {value})".format(type=self.type, value=repr(self.value))
+        return f"Token({self.type}, {self.value})"
 
     def __repr__(self) -> str:
         return self.__str__()
 
 
-class Interpreter(object):
+class Interpreter:
     def __init__(self, text: str) -> None:
         self.text: str = text
         self.pos: int = 0
@@ -26,17 +26,14 @@ class Interpreter(object):
         raise Exception("Error parsing input")
 
     def get_next_token(self) -> Token:
-        # Skip whitespace
         while self.pos < len(self.text) and self.text[self.pos] == " ":
             self.pos += 1
 
-        # Check if we've reached the end
         if self.pos >= len(self.text):
             return Token(EOF, None)
 
         current_char: str = self.text[self.pos]
 
-        # Handle multi-digit integers
         if current_char.isdigit():
             integer_str: str = ""
             while self.pos < len(self.text) and self.text[self.pos].isdigit():
@@ -44,7 +41,6 @@ class Interpreter(object):
                 self.pos += 1
             return Token(INTEGER, int(integer_str))
 
-        # Handle operators
         if current_char in OPS:
             self.pos += 1
             return Token(OP, current_char)
@@ -57,43 +53,48 @@ class Interpreter(object):
         else:
             self.error()
 
+    def apply_operation(
+        self, left: Union[int, float], op: Token, right: Union[int, float]
+    ) -> Union[int, float]:
+        if op.value == "+":
+            return left + right
+        elif op.value == "-":
+            return left - right
+        elif op.value == "*":
+            return left * right
+        elif op.value == "/":
+            if right == 0:
+                raise Exception("Division by zero")
+            return left / right
+        raise Exception("Wrong token value types")
+
     def expr(self) -> Union[int, float]:
         self.current_token = self.get_next_token()
-
-        # Get left operand
         left: Token = self.current_token
         self.eat(INTEGER)
-
-        # Get operator
         op: Token = self.current_token
         self.eat(OP)
-
-        # Get right operand
         right: Token = self.current_token
         self.eat(INTEGER)
-
-        # Check that we've consumed all input
-        if self.current_token and self.current_token.type != EOF:
-            self.error()
-
-        # Perform calculation
+        result: Union[int, float]
         if (
             isinstance(left.value, int)
             and isinstance(right.value, int)
             and isinstance(op.value, str)
         ):
-            if op.value == "+":
-                return left.value + right.value
-            elif op.value == "-":
-                return left.value - right.value
-            elif op.value == "*":
-                return left.value * right.value
-            elif op.value == "/":
-                if right.value == 0:
-                    raise Exception("Division by zero")
-                return left.value / right.value
-
-        return 0
+            result = self.apply_operation(left.value, op, right.value)
+        else:
+            raise Exception("Invalid token value type")
+        while self.pos < len(self.text):
+            op: Token = self.current_token
+            self.eat(OP)
+            right: Token = self.current_token
+            self.eat(INTEGER)
+            if isinstance(right.value, int) and isinstance(op.value, str):
+                result = self.apply_operation(result, op, right.value)
+        if self.current_token and self.current_token.type != EOF:
+            self.error()
+        return result
 
 
 def main() -> None:
