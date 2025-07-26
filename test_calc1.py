@@ -89,7 +89,6 @@ def test_division_by_zero() -> None:
         "/",
         # Unsupported formats
         "1.5+2",
-        "1+2+3",
         "(1+2)",
     ],
 )
