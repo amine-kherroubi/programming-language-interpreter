@@ -72,6 +72,10 @@ class Interpreter(object):
         right: Token = self.current_token
         self.eat(INTEGER)
 
+        # Check that we've consumed all input
+        if self.current_token and self.current_token.type != EOF:
+            self.error()
+
         # Perform calculation
         if (
             isinstance(left.value, int)
