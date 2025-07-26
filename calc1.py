@@ -1,7 +1,6 @@
 from typing import Optional, Union, NoReturn
 
-
-INTEGER, OP, MINUS, WHITESPACE, EOF = "INTEGER", "OP", "MINUS", "WHITESPACE", "EOF"
+INTEGER, OP, EOF = "INTEGER", "OP", "EOF"
 OPS = ["+", "-", "*", "/"]
 
 
@@ -27,28 +26,25 @@ class Interpreter(object):
         raise Exception("Error parsing input")
 
     def get_next_token(self) -> Token:
-        current_char: str = self.text[self.pos] if self.pos < len(self.text) else ""
-        while current_char == " ":
+        # Skip whitespace
+        while self.pos < len(self.text) and self.text[self.pos] == " ":
             self.pos += 1
-            if self.pos < len(self.text):
-                current_char = self.text[self.pos]
-            else:
-                break
 
+        # Check if we've reached the end
         if self.pos >= len(self.text):
             return Token(EOF, None)
 
+        current_char: str = self.text[self.pos]
+
+        # Handle multi-digit integers
         if current_char.isdigit():
             integer_str: str = ""
-            while current_char.isdigit():
-                integer_str += current_char
+            while self.pos < len(self.text) and self.text[self.pos].isdigit():
+                integer_str += self.text[self.pos]
                 self.pos += 1
-                if self.pos < len(self.text):
-                    current_char = self.text[self.pos]
-                else:
-                    break
             return Token(INTEGER, int(integer_str))
 
+        # Handle operators
         if current_char in OPS:
             self.pos += 1
             return Token(OP, current_char)
@@ -61,22 +57,39 @@ class Interpreter(object):
         else:
             self.error()
 
-    def expr(self) -> int:
+    def expr(self) -> Union[int, float]:
         self.current_token = self.get_next_token()
 
+        # Get left operand
         left: Token = self.current_token
         self.eat(INTEGER)
 
+        # Get operator
         op: Token = self.current_token
         self.eat(OP)
 
+        # Get right operand
         right: Token = self.current_token
         self.eat(INTEGER)
 
-        result: int = 0
-        if isinstance(left.value, int) and isinstance(right.value, int):
-            result = eval(f"{left.value} {op.value} {right.value}")
-        return result
+        # Perform calculation
+        if (
+            isinstance(left.value, int)
+            and isinstance(right.value, int)
+            and isinstance(op.value, str)
+        ):
+            if op.value == "+":
+                return left.value + right.value
+            elif op.value == "-":
+                return left.value - right.value
+            elif op.value == "*":
+                return left.value * right.value
+            elif op.value == "/":
+                if right.value == 0:
+                    raise Exception("Division by zero")
+                return left.value / right.value
+
+        return 0
 
 
 def main() -> None:
@@ -88,7 +101,7 @@ def main() -> None:
         if not text:
             continue
         interpreter: Interpreter = Interpreter(text)
-        result: int = interpreter.expr()
+        result: Union[int, float] = interpreter.expr()
         print(result)
 
 
