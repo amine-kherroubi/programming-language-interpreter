@@ -1,5 +1,15 @@
 from typing import Optional, NoReturn
-from tokens import Token, INTEGER, PLUS, MINUS, MUL, DIV, EOF
+from tokens import (
+    Token,
+    INTEGER,
+    PLUS,
+    MINUS,
+    MUL,
+    DIV,
+    LEFT_PARENTHESIS,
+    RIGHT_PARENTHESIS,
+    EOF,
+)
 
 
 class Lexer:
@@ -11,24 +21,20 @@ class Lexer:
         self.current_char: Optional[str] = self.text[self.pos] if self.text else None
 
     def error(self) -> NoReturn:
-        """Raise error for invalid characters"""
         raise Exception("Invalid character")
 
     def advance(self) -> None:
-        """Move to next character in input"""
         self.pos += 1
         if self.pos > len(self.text) - 1:
-            self.current_char = None  # End of input
+            self.current_char = None
         else:
             self.current_char = self.text[self.pos]
 
     def skip_whitespace(self) -> None:
-        """Skip over spaces"""
         while self.current_char is not None and self.current_char.isspace():
             self.advance()
 
     def read_number(self) -> int:
-        """Read a multi-digit integer from input"""
         digits = ""
         while self.current_char is not None and self.current_char.isdigit():
             digits += self.current_char
@@ -36,21 +42,22 @@ class Lexer:
         return int(digits)
 
     def next_token(self) -> Token:
-        """
-        Return the next token from input stream.
-        Main lexer method - converts characters to tokens.
-        """
         while self.current_char is not None:
-            # Skip whitespace
             if self.current_char.isspace():
                 self.skip_whitespace()
                 continue
 
-            # Multi-digit numbers
+            if self.current_char == "(":
+                self.advance()
+                return Token(LEFT_PARENTHESIS, "(")
+
+            if self.current_char == ")":
+                self.advance()
+                return Token(RIGHT_PARENTHESIS, ")")
+
             if self.current_char.isdigit():
                 return Token(INTEGER, self.read_number())
 
-            # Single-character operators
             if self.current_char == "+":
                 self.advance()
                 return Token(PLUS, "+")
@@ -67,7 +74,6 @@ class Lexer:
                 self.advance()
                 return Token(DIV, "/")
 
-            # Unknown character - lexical error
             self.error()
 
         return Token(EOF, None)

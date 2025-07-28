@@ -4,7 +4,7 @@ Simple arithmetic calculator using recursive descent parsing.
 Grammar (BNF):
     expr   ::= term ((PLUS | MINUS) term)*
     term   ::= factor ((MUL | DIV) factor)*
-    factor ::= INTEGER
+    factor ::= INTEGER | '(' expr ')'
 """
 
 from lexer import Lexer
@@ -12,10 +12,6 @@ from parser import Parser
 
 
 def main() -> None:
-    """
-    Main REPL (Read-Eval-Print Loop) for the calculator.
-    Continuously reads expressions, parses and evaluates them, then prints results.
-    """
     while True:
         try:
             expr: str = input("calc> ")
@@ -23,7 +19,7 @@ def main() -> None:
             break
         except KeyboardInterrupt:
             break
-        if not expr:  # Skip empty lines
+        if not expr:
             continue
 
         lexer = Lexer(expr)
