@@ -1,6 +1,5 @@
 from typing import Optional, Union, NoReturn
 
-# Token types
 INTEGER, PLUS, MINUS, MUL, DIV, EOF = "INTEGER", "PLUS", "MINUS", "MUL", "DIV", "EOF"
 
 
@@ -18,17 +17,16 @@ class Token:
         return self.__str__()
 
 
-class Interpreter:
-    __slots__ = ("text", "pos", "current_token", "current_char")
+class Lexer:
+    __slots__ = ("text", "pos", "current_char")
 
     def __init__(self, text: str) -> None:
         self.text: str = text
         self.pos: int = 0
-        self.current_token: Optional[Token] = None
         self.current_char: Optional[str] = self.text[self.pos] if self.text else None
 
     def error(self) -> NoReturn:
-        raise Exception("Error parsing input")
+        raise Exception("Invalid character")
 
     def advance(self) -> None:
         self.pos += 1
@@ -41,21 +39,21 @@ class Interpreter:
         while self.current_char is not None and self.current_char.isspace():
             self.advance()
 
-    def integer(self) -> int:
-        result = ""
+    def read_number(self) -> int:
+        digits = ""
         while self.current_char is not None and self.current_char.isdigit():
-            result += self.current_char
+            digits += self.current_char
             self.advance()
-        return int(result)
+        return int(digits)
 
-    def get_next_token(self) -> Token:
+    def next_token(self) -> Token:
         while self.current_char is not None:
             if self.current_char.isspace():
                 self.skip_whitespace()
                 continue
 
             if self.current_char.isdigit():
-                return Token(INTEGER, self.integer())
+                return Token(INTEGER, self.read_number())
 
             if self.current_char == "+":
                 self.advance()
@@ -77,15 +75,26 @@ class Interpreter:
 
         return Token(EOF, None)
 
-    def eat(self, token_type: str) -> None:
+
+class Parser:
+    __slots__ = ("lexer", "current_token")
+
+    def __init__(self, lexer: Lexer) -> None:
+        self.lexer: Lexer = lexer
+        self.current_token: Optional[Token] = self.lexer.next_token()
+
+    def error(self) -> NoReturn:
+        raise Exception("Invalid syntax")
+
+    def consume(self, token_type: str) -> None:
         if self.current_token and self.current_token.type == token_type:
-            self.current_token = self.get_next_token()
+            self.current_token = self.lexer.next_token()
         else:
             self.error()
 
     def factor(self) -> int:
         token: Optional[Token] = self.current_token
-        self.eat(INTEGER)
+        self.consume(INTEGER)
         if token and isinstance(token.value, int):
             return token.value
         self.error()
@@ -94,12 +103,12 @@ class Interpreter:
         result = self.factor()
 
         while self.current_token and self.current_token.type in (MUL, DIV):
-            token = self.current_token
-            if token.type == MUL:
-                self.eat(MUL)
+            op = self.current_token
+            if op.type == MUL:
+                self.consume(MUL)
                 result = result * self.factor()
-            elif token.type == DIV:
-                self.eat(DIV)
+            elif op.type == DIV:
+                self.consume(DIV)
                 divisor = self.factor()
                 if divisor == 0:
                     raise Exception("Division by zero")
@@ -108,21 +117,16 @@ class Interpreter:
         return result
 
     def expr(self) -> Union[int, float]:
-        self.current_token = self.get_next_token()
-
         result = self.term()
 
         while self.current_token and self.current_token.type in (PLUS, MINUS):
-            token = self.current_token
-            if token.type == PLUS:
-                self.eat(PLUS)
+            op = self.current_token
+            if op.type == PLUS:
+                self.consume(PLUS)
                 result = result + self.term()
-            elif token.type == MINUS:
-                self.eat(MINUS)
+            elif op.type == MINUS:
+                self.consume(MINUS)
                 result = result - self.term()
-
-        if self.current_token and self.current_token.type != EOF:
-            self.error()
 
         return result
 
@@ -130,13 +134,14 @@ class Interpreter:
 def main() -> None:
     while True:
         try:
-            text: str = input("calc> ")
+            expr: str = input("calc> ")
         except EOFError:
             break
-        if not text:
+        if not expr:
             continue
-        interpreter = Interpreter(text)
-        result = interpreter.expr()
+        lexer = Lexer(expr)
+        parser = Parser(lexer)
+        result = parser.expr()
         print(result)
 
 

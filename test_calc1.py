@@ -1,6 +1,6 @@
 import pytest
 from typing import Union
-from calc1 import Interpreter
+from calc1 import Lexer, Parser
 
 
 @pytest.mark.parametrize(
@@ -44,15 +44,17 @@ from calc1 import Interpreter
     ],
 )
 def test_basic_arithmetic(expression: str, expected: Union[int, float]) -> None:
-    interpreter = Interpreter(expression)
-    result = interpreter.expr()
+    lexer = Lexer(expression)
+    parser = Parser(lexer)
+    result = parser.expr()
     assert result == expected
 
 
 def test_division_by_zero() -> None:
-    interpreter = Interpreter("5/0")
+    lexer = Lexer("5/0")
+    parser = Parser(lexer)
     with pytest.raises(Exception, match="Division by zero"):
-        interpreter.expr()
+        parser.expr()
 
 
 @pytest.mark.parametrize(
@@ -93,6 +95,7 @@ def test_division_by_zero() -> None:
     ],
 )
 def test_invalid_expressions(invalid_expression: str) -> None:
-    interpreter = Interpreter(invalid_expression)
-    with pytest.raises(Exception, match="Error parsing input"):
-        interpreter.expr()
+    lexer = Lexer(invalid_expression)
+    parser = Parser(lexer)
+    with pytest.raises(Exception):
+        parser.expr()
