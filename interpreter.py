@@ -4,7 +4,7 @@ Simple arithmetic calculator using recursive descent parsing.
 Grammar (BNF):
     expression   ::= term ((PLUS | MINUS) term)*
     term   ::= factor ((MUL | DIV) factor)*
-    factor ::= INTEGER | '(' expression ')'
+    factor ::= (PLUS | MINUS)? (INTEGER | FLOAT | '(' expression ')')
 """
 
 from lexer import Lexer
