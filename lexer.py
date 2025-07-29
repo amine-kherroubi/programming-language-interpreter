@@ -2,6 +2,7 @@ from typing import Optional, NoReturn
 from tokens import (
     Token,
     INTEGER,
+    FLOAT,
     PLUS,
     MINUS,
     MUL,
@@ -31,49 +32,49 @@ class Lexer:
             self.current_char = self.text[self.pos]
 
     def skip_whitespace(self) -> None:
-        while self.current_char is not None and self.current_char.isspace():
+        while self.current_char and self.current_char.isspace():
             self.advance()
 
-    def read_number(self) -> int:
-        digits = ""
-        while self.current_char is not None and self.current_char.isdigit():
-            digits += self.current_char
+    def tokenize_number(self) -> Token:
+        number = ""
+        is_float: bool = False
+        while self.current_char and (
+            self.current_char.isdigit() or self.current_char == "."
+        ):
+            if self.current_char == ".":
+                if is_float:
+                    self.error()
+                is_float = True
+            number += self.current_char
             self.advance()
-        return int(digits)
+        return (
+            Token(type=INTEGER, value=int(number))
+            if not is_float
+            else Token(type=FLOAT, value=float(number))
+        )
 
     def next_token(self) -> Token:
-        while self.current_char is not None:
-            if self.current_char.isspace():
-                self.skip_whitespace()
-                continue
-
-            if self.current_char == "(":
-                self.advance()
-                return Token(LEFT_PARENTHESIS, "(")
-
-            if self.current_char == ")":
-                self.advance()
-                return Token(RIGHT_PARENTHESIS, ")")
-
-            if self.current_char.isdigit():
-                return Token(INTEGER, self.read_number())
-
-            if self.current_char == "+":
-                self.advance()
-                return Token(PLUS, "+")
-
-            if self.current_char == "-":
-                self.advance()
-                return Token(MINUS, "-")
-
-            if self.current_char == "*":
-                self.advance()
-                return Token(MUL, "*")
-
-            if self.current_char == "/":
-                self.advance()
-                return Token(DIV, "/")
-
-            self.error()
-
-        return Token(EOF, None)
+        self.skip_whitespace()
+        if self.current_char is None:
+            return Token(EOF, None)
+        if self.current_char == "(":
+            self.advance()
+            return Token(LEFT_PARENTHESIS, "(")
+        if self.current_char == ")":
+            self.advance()
+            return Token(RIGHT_PARENTHESIS, ")")
+        if self.current_char.isdigit():
+            return self.tokenize_number()
+        if self.current_char == "+":
+            self.advance()
+            return Token(PLUS, "+")
+        if self.current_char == "-":
+            self.advance()
+            return Token(MINUS, "-")
+        if self.current_char == "*":
+            self.advance()
+            return Token(MUL, "*")
+        if self.current_char == "/":
+            self.advance()
+            return Token(DIV, "/")
+        self.error()

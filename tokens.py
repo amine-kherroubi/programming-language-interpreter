@@ -1,6 +1,7 @@
 from typing import Optional, Union
 
 INTEGER = "INTEGER"
+FLOAT = "FLOAT"
 PLUS = "PLUS"
 MINUS = "MINUS"
 MUL = "MUL"
@@ -13,12 +14,12 @@ EOF = "EOF"
 class Token:
     __slots__ = ("type", "value")
 
-    def __init__(self, type: str, value: Optional[Union[int, str]]) -> None:
+    def __init__(self, type: str, value: Optional[Union[int, str, float]]) -> None:
         self.type: str = type
-        self.value: Optional[Union[int, str]] = value
+        self.value: Optional[Union[int, str, float]] = value
 
     def __str__(self) -> str:
-        return f"Token({self.type}, {self.value!r})"
+        return f"({self.type!s}, {self.value!r})"
 
     def __repr__(self) -> str:
-        return self.__str__()
+        return f"Token(type={self.type!s}, value={self.value!r})"
