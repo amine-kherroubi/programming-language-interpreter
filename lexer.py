@@ -14,22 +14,24 @@ from tokens import (
 
 
 class Lexer:
-    __slots__ = ("text", "pos", "current_char")
+    __slots__ = ("text", "position", "current_char")
 
     def __init__(self, text: str) -> None:
         self.text: str = text
-        self.pos: int = 0
-        self.current_char: Optional[str] = self.text[self.pos] if self.text else None
+        self.position: int = 0
+        self.current_char: Optional[str] = (
+            self.text[self.position] if self.text else None
+        )
 
     def error(self) -> NoReturn:
         raise Exception("Invalid character")
 
     def advance(self) -> None:
-        self.pos += 1
-        if self.pos > len(self.text) - 1:
+        self.position += 1
+        if self.position > len(self.text) - 1:
             self.current_char = None
         else:
-            self.current_char = self.text[self.pos]
+            self.current_char = self.text[self.position]
 
     def skip_whitespace(self) -> None:
         while self.current_char and self.current_char.isspace():
