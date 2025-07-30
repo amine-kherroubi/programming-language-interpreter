@@ -56,6 +56,13 @@ class NodeNumber(NodeAST):
 
 
 class Parser:
+    """
+    Grammar (BNF):
+    expression ::= term ((PLUS | MINUS) term)*
+    term ::= factor ((MUL | DIV) factor)*
+    factor ::= (PLUS | MINUS)? (INTEGER | FLOAT | '(' expression ')')
+    """
+
     __slots__ = (
         "lexer",
         "current_token",

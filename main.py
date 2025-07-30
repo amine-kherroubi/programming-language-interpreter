@@ -1,12 +1,3 @@
-"""
-Simple arithmetic calculator using recursive descent parsing.
-
-Grammar (BNF):
-    expression   ::= term ((PLUS | MINUS) term)*
-    term   ::= factor ((MUL | DIV) factor)*
-    factor ::= (PLUS | MINUS)? (INTEGER | FLOAT | '(' expression ')')
-"""
-
 from lexer import Lexer
 from parser import NodeAST, Parser
 from interpreter import Interpreter
@@ -25,8 +16,8 @@ def main() -> None:
         lexer: Lexer = Lexer(expression)
         parser: Parser = Parser(lexer)
         ast: NodeAST = parser.parse()
-        interpreter = Interpreter()
-        print(interpreter.evaluate(node=ast))
+        interpreter: Interpreter = Interpreter()
+        print(interpreter.interpret(tree=ast))
 
 
 if __name__ == "__main__":
