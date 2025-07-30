@@ -14,7 +14,11 @@ from tokens import (
 
 
 class Lexer:
-    __slots__ = ("text", "position", "current_char")
+    __slots__ = (
+        "text",
+        "position",
+        "current_char",
+    )
 
     def __init__(self, text: str) -> None:
         self.text: str = text
@@ -58,7 +62,7 @@ class Lexer:
     def next_token(self) -> Token:
         self.skip_whitespace()
         if self.current_char is None:
-            return Token(EOF, None)
+            return Token(EOF, "")
         if self.current_char == "(":
             self.advance()
             return Token(LEFT_PARENTHESIS, "(")

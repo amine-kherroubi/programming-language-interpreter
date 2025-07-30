@@ -13,8 +13,53 @@ from tokens import (
 )
 
 
+class NodeAST:
+    __slots__ = ()
+    pass
+
+
+class NodeBinaryOp(NodeAST):
+    __slots__ = (
+        "left",
+        "right",
+        "value",
+    )
+
+    def __init__(self, left: NodeAST, token: Token, right: NodeAST) -> None:
+        if not isinstance(token.value, str):
+            raise TypeError(f"Invalid token value type: {type(token.value).__name__}")
+        self.left: NodeAST = left
+        self.right: NodeAST = right
+        self.value: str = token.value
+
+
+class NodeUnaryOp(NodeAST):
+    __slots__ = (
+        "operator",
+        "operand",
+    )
+
+    def __init__(self, token: Token, operand: NodeAST) -> None:
+        if not isinstance(token.value, str):
+            raise TypeError(f"Invalid token value type: {type(token.value).__name__}")
+        self.operator: str = token.value
+        self.operand: NodeAST = operand
+
+
+class NodeNumber(NodeAST):
+    __slots__ = ("value",)
+
+    def __init__(self, token: Token) -> None:
+        if not isinstance(token.value, (int, float)):
+            raise TypeError(f"Invalid token value type: {type(token.value).__name__}")
+        self.value: Union[int, float] = token.value
+
+
 class Parser:
-    __slots__ = ("lexer", "current_token")
+    __slots__ = (
+        "lexer",
+        "current_token",
+    )
 
     def __init__(self, lexer: Lexer) -> None:
         self.lexer: Lexer = lexer
@@ -29,52 +74,50 @@ class Parser:
         else:
             self.error()
 
-    def factor(self) -> Union[int, float]:
+    def factor(self) -> NodeAST:
         token: Token = self.current_token
         if token.type == INTEGER:
             self.consume(INTEGER)
-            if isinstance(token.value, int):
-                return token.value
+            return NodeNumber(token)
         elif token.type == FLOAT:
             self.consume(FLOAT)
-            if isinstance(token.value, float):
-                return token.value
+            return NodeNumber(token)
         elif token.type == LEFT_PARENTHESIS:
             self.consume(LEFT_PARENTHESIS)
-            result: Union[int, float] = self.expression()
+            node = self.expression()
             self.consume(RIGHT_PARENTHESIS)
-            return result
+            return node
         elif token.type == PLUS:
             self.consume(PLUS)
-            return self.factor()
+            node = self.factor()
+            return NodeUnaryOp(token, node)
         elif token.type == MINUS:
             self.consume(MINUS)
-            return -self.factor()
+            node = self.factor()
+            return NodeUnaryOp(token, node)
         self.error()
 
-    def term(self) -> Union[int, float]:
-        result = self.factor()
+    def term(self) -> NodeAST:
+        node = self.factor()
         while self.current_token.type in (MUL, DIV):
-            op = self.current_token
-            if op.type == MUL:
+            token = self.current_token
+            if token.type == MUL:
                 self.consume(MUL)
-                result = result * self.factor()
-            elif op.type == DIV:
+            elif token.type == DIV:
                 self.consume(DIV)
-                divisor = self.factor()
-                if divisor == 0:
-                    raise Exception("Division by zero")
-                result = result / divisor
-        return result
+            node = NodeBinaryOp(left=node, token=token, right=self.factor())
+        return node
 
-    def expression(self) -> Union[int, float]:
-        result = self.term()
+    def expression(self) -> NodeAST:
+        node = self.term()
         while self.current_token.type in (PLUS, MINUS):
-            op = self.current_token
-            if op.type == PLUS:
+            token = self.current_token
+            if token.type == PLUS:
                 self.consume(PLUS)
-                result = result + self.term()
-            elif op.type == MINUS:
+            elif token.type == MINUS:
                 self.consume(MINUS)
-                result = result - self.term()
-        return result
+            node = NodeBinaryOp(left=node, token=token, right=self.term())
+        return node
+
+    def parse(self) -> NodeAST:
+        return self.expression()
