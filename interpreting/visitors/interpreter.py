@@ -2,7 +2,7 @@ from typing import Callable, Union
 import operator
 from interpreting.visitor import NodeVisitor
 from parsing.ast import NodeAST, NodeBinaryOp, NodeNumber, NodeUnaryOp
-from util.exceptions import InterpreterError
+from utils.exceptions import InterpreterError
 
 
 class Interpreter(NodeVisitor[Union[int, float]]):

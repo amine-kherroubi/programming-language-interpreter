@@ -5,7 +5,7 @@ from parsing.parser import Parser
 from interpreting.visitors.interpreter import Interpreter
 from interpreting.visitors.postfix_translator import PostfixTranslator
 from interpreting.visitors.prefix_translator import PrefixTranslator
-from util.exceptions import InterpreterError
+from utils.exceptions import InterpreterError
 
 
 def format_result(value: Union[int, float]) -> str:

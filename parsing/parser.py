@@ -1,7 +1,7 @@
 from lexical_analysis.lexer import Lexer
 from lexical_analysis.tokens import Token, TokenType
 from parsing.ast import NodeAST, NodeBinaryOp, NodeNumber, NodeUnaryOp
-from util.exceptions import ParserError
+from utils.exceptions import ParserError
 
 
 class Parser:
