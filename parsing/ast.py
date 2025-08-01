@@ -1,6 +1,5 @@
 from typing import Union
 from abc import ABC, abstractmethod
-
 from lexical_analysis.tokens import Token
 
 
@@ -8,7 +7,7 @@ class NodeAST(ABC):
     __slots__ = ()
 
     @abstractmethod
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         pass
 
 
@@ -22,7 +21,7 @@ class NodeBinaryOp(NodeAST):
         self.right: NodeAST = right
         self.operator: str = token.value
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f"({self.left} {self.operator} {self.right})"
 
 
@@ -35,7 +34,7 @@ class NodeUnaryOp(NodeAST):
         self.operator: str = token.value
         self.operand: NodeAST = operand
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f"({self.operator}{self.operand})"
 
 
@@ -47,5 +46,5 @@ class NodeNumber(NodeAST):
             raise TypeError(f"Invalid token value type: {type(token.value).__name__}")
         self.value: Union[int, float] = token.value
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return str(self.value)

@@ -35,7 +35,6 @@ class Interpreter(NodeVisitor[Union[int, float]]):
 
     def visit_NodeUnaryOp(self, node: NodeUnaryOp) -> Union[int, float]:
         operand_val = self.visit(node.operand)
-
         if node.operator in self.UNARY_OPERATORS:
             return self.UNARY_OPERATORS[node.operator](operand_val)
         else:

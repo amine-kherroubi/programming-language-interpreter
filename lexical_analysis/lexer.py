@@ -1,5 +1,4 @@
 from typing import Optional
-
 from lexical_analysis.tokens import Token, TokenType
 from utils.exceptions import LexerError
 
