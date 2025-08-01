@@ -3,13 +3,13 @@ from lexical_analysis.lexer import Lexer
 from lexical_analysis.tokens import Token, TokenType
 from parsing.ast import (
     NodeAST,
-    NodeNoOp,
-    NodeVar,
-    NodeAssign,
+    NodeEmptyStatement,
+    NodeVariable,
+    NodeAssignmentStatement,
     NodeCompoundStatement,
-    NodeBinaryOp,
+    NodeBinaryOperation,
     NodeNumber,
-    NodeUnaryOp,
+    NodeUnaryOperation,
 )
 from utils.exceptions import ParserError
 
@@ -17,7 +17,7 @@ from utils.exceptions import ParserError
 class Parser:
     """Grammar (in Backus-Naur Form):
     program ::= compound_statement DOT
-    compound_statement ::= START statement_list END
+    compound_statement ::= BEGIN statement_list END
     statement_list ::= statement | statement SEMICOLON statement_list
     statement ::= compound_statement | assignment_statement | empty_statement
     assignment_statement ::= variable ASSIGN expression
@@ -47,8 +47,10 @@ class Parser:
         self.consume(TokenType.DOT)
         return node
 
-    def statement(self) -> Union[NodeCompoundStatement, NodeAssign, NodeNoOp]:
-        if self.current_token.type == TokenType.START:
+    def statement(
+        self,
+    ) -> Union[NodeCompoundStatement, NodeAssignmentStatement, NodeEmptyStatement]:
+        if self.current_token.type == TokenType.BEGIN:
             return self.compound_statement()
         elif self.current_token.type == TokenType.ID:
             return self.assignment_statement()
@@ -56,43 +58,42 @@ class Parser:
             return self.empty_statement()
 
     def compound_statement(self) -> NodeCompoundStatement:
-        self.consume(TokenType.START)
-        children: list[Union[NodeCompoundStatement, NodeAssign, NodeNoOp]] = (
-            self.statement_list()
-        )
+        self.consume(TokenType.BEGIN)
+        children: list[
+            Union[NodeCompoundStatement, NodeAssignmentStatement, NodeEmptyStatement]
+        ] = self.statement_list()
         self.consume(TokenType.END)
         return NodeCompoundStatement(children)
 
-    def assignment_statement(self) -> NodeAssign:
-        variable: NodeVar = self.variable()
+    def assignment_statement(self) -> NodeAssignmentStatement:
+        variable: NodeVariable = self.variable()
         self.consume(TokenType.ASSIGN)
-        return NodeAssign(variable, self.expression())
+        return NodeAssignmentStatement(variable, self.expression())
 
-    def empty_statement(self) -> NodeNoOp:
-        return NodeNoOp()
+    def empty_statement(self) -> NodeEmptyStatement:
+        return NodeEmptyStatement()
 
     def statement_list(
         self,
-    ) -> list[Union[NodeCompoundStatement, NodeAssign, NodeNoOp]]:
-        nodes: list[Union[NodeCompoundStatement, NodeAssign, NodeNoOp]] = [
-            self.statement()
-        ]
+    ) -> list[
+        Union[NodeCompoundStatement, NodeAssignmentStatement, NodeEmptyStatement]
+    ]:
+        nodes: list[
+            Union[NodeCompoundStatement, NodeAssignmentStatement, NodeEmptyStatement]
+        ] = [self.statement()]
         while self.current_token.type == TokenType.SEMICOLON:
             self.consume(TokenType.SEMICOLON)
             nodes.append(self.statement())
-        if self.current_token.type == TokenType.ID:
-            pass
         return nodes
 
-    def variable(self) -> NodeVar:
+    def variable(self) -> NodeVariable:
         token: Token = self.current_token
         self.consume(TokenType.ID)
-        return NodeVar(token)
+        return NodeVariable(token)
 
     def factor(self) -> NodeAST:
         token: Token = self.current_token
         if token.type == TokenType.ID:
-            self.consume(TokenType.ID)
             return self.variable()
         elif token.type == TokenType.INTEGER:
             self.consume(TokenType.INTEGER)
@@ -108,7 +109,7 @@ class Parser:
         elif token.type in (TokenType.PLUS, TokenType.MINUS):
             self.consume(token.type)
             operand = self.factor()
-            return NodeUnaryOp(token, operand)
+            return NodeUnaryOperation(token, operand)
         else:
             raise ParserError("Expected number, unary operator, or '('", token)
 
@@ -118,7 +119,7 @@ class Parser:
             token: Token = self.current_token
             self.consume(token.type)
             right: NodeAST = self.factor()
-            node = NodeBinaryOp(node, token, right)
+            node = NodeBinaryOperation(node, token, right)
         return node
 
     def expression(self) -> NodeAST:
@@ -127,7 +128,7 @@ class Parser:
             token: Token = self.current_token
             self.consume(token.type)
             right: NodeAST = self.term()
-            node = NodeBinaryOp(node, token, right)
+            node = NodeBinaryOperation(node, token, right)
         return node
 
     def parse(self) -> NodeAST:

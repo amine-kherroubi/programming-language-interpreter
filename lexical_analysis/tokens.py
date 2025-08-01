@@ -12,7 +12,7 @@ class TokenType(Enum):
     LEFT_PARENTHESIS = "LEFT_PARENTHESIS"
     RIGHT_PARENTHESIS = "RIGHT_PARENTHESIS"
     ID = "ID"
-    START = "START"
+    BEGIN = "BEGIN"
     END = "END"
     DOT = "DOT"
     ASSIGN = "ASSIGN"

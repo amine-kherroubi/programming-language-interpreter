@@ -7,8 +7,8 @@ class Lexer:
     __slots__ = ("text", "position", "current_char")
 
     RESERVED_KEYWORD_TYPES: dict[str, TokenType] = {
-        "start": TokenType.START,
-        "end": TokenType.END,
+        "BEGIN": TokenType.BEGIN,
+        "END": TokenType.END,
     }
 
     SINGLE_CHAR_TOKEN_TYPES: dict[str, TokenType] = {
@@ -83,8 +83,8 @@ class Lexer:
             id_str += self.current_char
             self._advance()
         return (
-            Token(self.RESERVED_KEYWORD_TYPES[id_str], id_str)
-            if id_str in self.RESERVED_KEYWORD_TYPES
+            Token(self.RESERVED_KEYWORD_TYPES[id_str.upper()], id_str)
+            if id_str.upper() in self.RESERVED_KEYWORD_TYPES
             else Token(TokenType.ID, id_str)
         )
 

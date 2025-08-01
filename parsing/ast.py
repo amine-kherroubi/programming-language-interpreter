@@ -11,15 +11,15 @@ class NodeAST(ABC):
         pass
 
 
-class NodeNoOp(NodeAST):
+class NodeEmptyStatement(NodeAST):
     __slots__ = ()
 
     def __repr__(self) -> str:
-        return "NodeNoOp()"
+        return "NodeEmptyStatement()"
 
 
-class NodeVar(NodeAST):
-    __slots__ = "id"
+class NodeVariable(NodeAST):
+    __slots__ = ("id",)
 
     def __init__(self, token: Token):
         if not token.type == TokenType.ID:
@@ -29,35 +29,38 @@ class NodeVar(NodeAST):
         self.id: str = token.value
 
     def __repr__(self) -> str:
-        return f"NodeVar(id={self.id})"
+        return f"NodeVariable(id={self.id})"
 
 
-class NodeAssign(NodeAST):
+class NodeAssignmentStatement(NodeAST):
     __slots__ = ("left", "right")
 
-    def __init__(self, left: NodeVar, right: NodeAST):
-        self.left: NodeVar = left
+    def __init__(self, left: NodeVariable, right: NodeAST):
+        self.left: NodeVariable = left
         self.right: NodeAST = right
 
     def __repr__(self) -> str:
-        return f"NodeAssign(left={self.left}, right={self.right})"
+        return f"NodeAssignmentStatement(left={self.left}, right={self.right})"
 
 
 class NodeCompoundStatement(NodeAST):
-    __slots__ = "children"
+    __slots__ = ("children",)
 
     def __init__(
-        self, children: list[Union["NodeCompoundStatement", NodeAssign, NodeNoOp]]
+        self,
+        children: list[
+            Union["NodeCompoundStatement", NodeAssignmentStatement, NodeEmptyStatement]
+        ],
     ) -> None:
-        self.children: list[Union["NodeCompoundStatement", NodeAssign, NodeNoOp]] = (
-            children
-        )
+        self.children: list[
+            Union["NodeCompoundStatement", NodeAssignmentStatement, NodeEmptyStatement]
+        ] = children
 
     def __repr__(self) -> str:
         return f"NodeCompoundStatement(children={str(self.children)})"
 
 
-class NodeBinaryOp(NodeAST):
+class NodeBinaryOperation(NodeAST):
     __slots__ = ("left", "right", "operator")
 
     def __init__(self, left: NodeAST, token: Token, right: NodeAST) -> None:
@@ -68,10 +71,10 @@ class NodeBinaryOp(NodeAST):
         self.operator: str = token.value
 
     def __repr__(self) -> str:
-        return f"NodeBinaryOp(left={self.left}, operator={self.operator}, right={self.right})"
+        return f"NodeBinaryOperation(left={self.left}, operator={self.operator}, right={self.right})"
 
 
-class NodeUnaryOp(NodeAST):
+class NodeUnaryOperation(NodeAST):
     __slots__ = ("operator", "operand")
 
     def __init__(self, token: Token, operand: NodeAST) -> None:
@@ -81,11 +84,11 @@ class NodeUnaryOp(NodeAST):
         self.operand: NodeAST = operand
 
     def __repr__(self) -> str:
-        return f"NodeUnaryOp(operator={self.operator}, operand={self.operand})"
+        return f"NodeUnaryOperation(operator={self.operator}, operand={self.operand})"
 
 
 class NodeNumber(NodeAST):
-    __slots__ = "value"
+    __slots__ = ("value",)
 
     def __init__(self, token: Token) -> None:
         if not isinstance(token.value, (int, float)):
