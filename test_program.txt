@@ -1,1 +1,1 @@
-BEGIN x = 2; y = 3; z = x + y; END.
+BEGIN x = 2; y = 3; z = 32 / y; END.

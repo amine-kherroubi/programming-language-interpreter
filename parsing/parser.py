@@ -115,7 +115,12 @@ class Parser:
 
     def term(self) -> NodeAST:
         node: NodeAST = self.factor()
-        while self.current_token.type in (TokenType.MUL, TokenType.DIV):
+        while self.current_token.type in (
+            TokenType.MUL,
+            TokenType.TRUE_DIV,
+            TokenType.INTEGER_DIV,
+            TokenType.MOD,
+        ):
             token: Token = self.current_token
             self.consume(token.type)
             right: NodeAST = self.factor()

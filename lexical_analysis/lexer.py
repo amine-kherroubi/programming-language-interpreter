@@ -9,13 +9,15 @@ class Lexer:
     RESERVED_KEYWORD_TYPES: dict[str, TokenType] = {
         "BEGIN": TokenType.BEGIN,
         "END": TokenType.END,
+        "DIV": TokenType.INTEGER_DIV,
+        "MOD": TokenType.MOD,
     }
 
     SINGLE_CHAR_TOKEN_TYPES: dict[str, TokenType] = {
         "+": TokenType.PLUS,
         "-": TokenType.MINUS,
         "*": TokenType.MUL,
-        "/": TokenType.DIV,
+        "/": TokenType.TRUE_DIV,
         "(": TokenType.LEFT_PARENTHESIS,
         ")": TokenType.RIGHT_PARENTHESIS,
         ";": TokenType.SEMICOLON,

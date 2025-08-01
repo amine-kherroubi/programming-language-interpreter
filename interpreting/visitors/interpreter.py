@@ -27,6 +27,8 @@ class Interpreter(NodeVisitor[Optional[Union[int, float]]]):
         "-": operator.sub,
         "*": operator.mul,
         "/": operator.truediv,
+        "DIV": operator.floordiv,
+        "MOD": operator.mod,
     }
 
     UNARY_OPERATORS: dict[str, Callable[[Union[int, float]], Union[int, float]]] = {
@@ -64,8 +66,8 @@ class Interpreter(NodeVisitor[Optional[Union[int, float]]]):
             raise InterpreterError("Expression evaluation returned None")
         if node.operator == "/" and right_val == 0:
             raise ZeroDivisionError("Cannot divide by zero")
-        if node.operator in self.BINARY_OPERATORS:
-            return self.BINARY_OPERATORS[node.operator](left_val, right_val)
+        if node.operator.upper() in self.BINARY_OPERATORS:
+            return self.BINARY_OPERATORS[node.operator.upper()](left_val, right_val)
         else:
             raise InterpreterError(f"Unknown binary operator: {node.operator}")
 
