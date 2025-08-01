@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional, Union
 from enum import Enum
 
 
@@ -11,15 +11,23 @@ class TokenType(Enum):
     DIV = "DIV"
     LEFT_PARENTHESIS = "LEFT_PARENTHESIS"
     RIGHT_PARENTHESIS = "RIGHT_PARENTHESIS"
+    ID = "ID"
+    START = "START"
+    END = "END"
+    DOT = "DOT"
+    ASSIGN = "ASSIGN"
+    SEMICOLON = "SEMICOLON"
     EOF = "EOF"
 
 
 class Token:
     __slots__ = ("type", "value")
 
-    def __init__(self, token_type: TokenType, value: Union[int, str, float]) -> None:
+    def __init__(
+        self, token_type: TokenType, value: Optional[Union[int, str, float]]
+    ) -> None:
         self.type: TokenType = token_type
-        self.value: Union[int, str, float] = value
+        self.value: Optional[Union[int, str, float]] = value
 
     def __str__(self) -> str:
         return f"({self.type.value}, {self.value!r})"

@@ -6,6 +6,8 @@ from utils.exceptions import InterpreterError
 
 
 class Interpreter(NodeVisitor[Union[int, float]]):
+    __slots__ = ()
+
     BINARY_OPERATORS: dict[
         str, Callable[[Union[int, float], Union[int, float]], Union[int, float]]
     ] = {
@@ -19,6 +21,8 @@ class Interpreter(NodeVisitor[Union[int, float]]):
         "+": operator.pos,
         "-": operator.neg,
     }
+
+    SYMBOL_TABLE: dict[str, Union[int, float]] = {}
 
     def visit_NodeNumber(self, node: NodeNumber) -> Union[int, float]:
         return node.value

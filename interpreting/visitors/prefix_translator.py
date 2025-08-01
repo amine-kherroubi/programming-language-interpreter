@@ -3,6 +3,8 @@ from parsing.ast import NodeAST, NodeBinaryOp, NodeNumber, NodeUnaryOp
 
 
 class PrefixTranslator(NodeVisitor[str]):
+    __slots__ = ()
+
     def visit_NodeNumber(self, node: NodeNumber) -> str:
         return str(node.value)
 
