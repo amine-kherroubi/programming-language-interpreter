@@ -9,8 +9,8 @@ class Lexer:
     RESERVED_KEYWORD_TOKEN_TYPES: Dict[str, TokenType] = {
         "PROGRAM": TokenType.PROGRAM,
         "VAR": TokenType.VAR,
-        "INTEGER": TokenType.INTEGER_TYPE,
-        "REAL": TokenType.REAL_TYPE,
+        "INTEGER": TokenType.INTEGER,
+        "REAL": TokenType.REAL,
         "BEGIN": TokenType.BEGIN,
         "END": TokenType.END,
         "DIV": TokenType.INTEGER_DIV,
@@ -80,9 +80,9 @@ class Lexer:
                 "Invalid number format: lone decimal point", self.position - 1
             )
         if has_decimal_point:
-            return Token(TokenType.REAL, float(number_string))
+            return Token(TokenType.REAL_CONSTANT, float(number_string))
         else:
-            return Token(TokenType.INTEGER, int(number_string))
+            return Token(TokenType.INTEGER_CONSTANT, int(number_string))
 
     def _tokenize_identifier(self) -> Token:
         identifier_string: str = ""

@@ -1,9 +1,11 @@
 PROGRAM d;
 VAR
     a, _z: REAL;
-    b, x, ___2y: IntEGER
+    b, x, ___2y: IntEGER;
+    M: integer
 BEGIN
     x = 2;
     ___2y = 3;
     _z = 32 / ___2y;
+    M = 2
 eND.

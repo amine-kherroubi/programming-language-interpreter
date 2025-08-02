@@ -66,11 +66,11 @@ class Parser:
 
     def _type(self) -> NodeType:
         token: Token = self.current_token
-        if token.type == TokenType.INTEGER_TYPE:
-            self._consume(TokenType.INTEGER_TYPE)
+        if token.type == TokenType.INTEGER:
+            self._consume(TokenType.INTEGER)
             return NodeType(token)
-        elif token.type == TokenType.REAL_TYPE:
-            self._consume(TokenType.REAL_TYPE)
+        elif token.type == TokenType.REAL:
+            self._consume(TokenType.REAL)
             return NodeType(token)
         else:
             raise ParserError("Expected INTEGER or REAL", token)
@@ -121,11 +121,11 @@ class Parser:
         token: Token = self.current_token
         if token.type == TokenType.ID:
             return self._variable()
-        elif token.type == TokenType.INTEGER:
-            self._consume(TokenType.INTEGER)
+        elif token.type == TokenType.INTEGER_CONSTANT:
+            self._consume(TokenType.INTEGER_CONSTANT)
             return NodeNumber(token)
-        elif token.type == TokenType.REAL:
-            self._consume(TokenType.REAL)
+        elif token.type == TokenType.REAL_CONSTANT:
+            self._consume(TokenType.REAL_CONSTANT)
             return NodeNumber(token)
         elif token.type == TokenType.LEFT_PARENTHESIS:
             self._consume(TokenType.LEFT_PARENTHESIS)

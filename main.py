@@ -2,7 +2,9 @@ import sys
 from lexical_analysis.lexer import Lexer
 from parsing.ast import NodeAST
 from parsing.parser import Parser
-from interpreting.interpreter import Interpreter
+from interpreting.visitors.interpreter import Interpreter
+from interpreting.visitors.symbol_table_builder import SymbolTableBuilder
+from interpreting.symbols import SymbolTable_
 
 
 def main() -> None:
@@ -20,10 +22,12 @@ def main() -> None:
         lexer: Lexer = Lexer(program_text)
         parser: Parser = Parser(lexer)
         ast: NodeAST = parser.parse()
+        symbol_table: SymbolTable_ = SymbolTable_()
+        symbol_table_builder: SymbolTableBuilder = SymbolTableBuilder(symbol_table)
+        symbol_table_builder.build(ast)
         interpreter: Interpreter = Interpreter()
         interpreter.interpret(ast)
-        for var_name, var_value in interpreter.symbol_table.items():
-            print(f"{var_name} = {var_value}")
+        print(interpreter)
     except Exception as e:
         print(f"Error: {e}")
 

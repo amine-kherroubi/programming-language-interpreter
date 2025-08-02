@@ -22,7 +22,7 @@ NumericType = Union[int, float]
 
 
 class Interpreter(NodeVisitor[Optional[ValueType]]):
-    __slots__ = ("symbol_table",)
+    __slots__ = ("_global_memory",)
 
     BINARY_OPERATORS: dict[str, Callable[[NumericType, NumericType], NumericType]] = {
         "+": operator.add,
@@ -39,15 +39,21 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
     }
 
     TYPES_DEFAULT_VALUES: dict[str, ValueType] = {
-        "INTEGER_TYPE": 0,
-        "REAL_TYPE": 0.0,
+        "INTEGER": 0,
+        "REAL": 0.0,
     }
 
     def __init__(self) -> None:
-        self.symbol_table: dict[str, ValueType] = {}
+        self._global_memory: dict[str, ValueType] = {}
+
+    def __repr__(self) -> str:
+        return f"Interpreter()"
+
+    def __str__(self) -> str:
+        return str(self._global_memory)
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
-        self.symbol_table[node.program_name] = node.program_name
+        self._global_memory[node.program_name] = node.program_name
         self.visit(node.variable_declaration_section)
         self.visit(node.main_block)
 
@@ -59,7 +65,7 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         node_type: str = self.visit(node.type)
         default_value: ValueType = self.TYPES_DEFAULT_VALUES[node_type]
         for variable in node.variables:
-            self.symbol_table[variable.id] = default_value
+            self._global_memory[variable.id] = default_value
 
     def visit_NodeType(self, node: NodeType) -> str:
         return node.type.name
@@ -69,19 +75,13 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
 
     def visit_NodeAssignmentStatement(self, node: NodeAssignmentStatement) -> None:
         variable_name: str = node.left.id
-        if variable_name not in self.symbol_table:
-            raise InterpreterError(
-                f"Cannot assign to undeclared variable: {variable_name}"
-            )
         result: Optional[ValueType] = self.visit(node.right)
         if result is not None:
-            self.symbol_table[variable_name] = result
+            self._global_memory[variable_name] = result
 
     def visit_NodeVariable(self, node: NodeVariable) -> ValueType:
         variable_name: str = node.id
-        if variable_name not in self.symbol_table:
-            raise InterpreterError(f"Variable '{variable_name}' is not defined")
-        return self.symbol_table[variable_name]
+        return self._global_memory[variable_name]
 
     def visit_NodeCompoundStatement(self, node: NodeCompoundStatement) -> None:
         for child in node.children:
