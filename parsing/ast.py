@@ -2,6 +2,8 @@ from typing import Union
 from abc import ABC, abstractmethod
 from lexical_analysis.tokens import Token, TokenType
 
+ValueType = Union[int, float, str]
+
 
 class NodeAST(ABC):
     __slots__ = ()
@@ -14,11 +16,7 @@ class NodeAST(ABC):
 class NodeVariable(NodeAST):
     __slots__ = ("id",)
 
-    def __init__(self, token: Token):
-        if not token.type == TokenType.ID:
-            raise TypeError(f"Invalid token type: {token.type}")
-        if not isinstance(token.value, str):
-            raise TypeError(f"Invalid token value type: {type(token.value).__name__}")
+    def __init__(self, token: Token) -> None:
         self.id: str = token.value
 
     def __repr__(self) -> str:
@@ -29,8 +27,6 @@ class NodeType(NodeAST):
     __slots__ = ("type",)
 
     def __init__(self, token: Token) -> None:
-        if token.type not in (TokenType.INTEGER_TYPE, TokenType.REAL_TYPE):
-            raise TypeError(f"Invalid token type: {token.type}")
         self.type: TokenType = token.type
 
     def __repr__(self) -> str:
@@ -40,9 +36,9 @@ class NodeType(NodeAST):
 class NodeVariableDeclaration(NodeAST):
     __slots__ = ("variables", "type")
 
-    def __init__(self, variables: list[NodeVariable], type: NodeType) -> None:
+    def __init__(self, variables: list[NodeVariable], node_type: NodeType) -> None:
         self.variables: list[NodeVariable] = variables
-        self.type: NodeType = type
+        self.type: NodeType = node_type
 
     def __repr__(self) -> str:
         return f"NodeVariableDeclaration(variables={self.variables}, type={self.type})"
@@ -68,7 +64,7 @@ class NodeEmpty(NodeAST):
 class NodeAssignmentStatement(NodeAST):
     __slots__ = ("left", "right")
 
-    def __init__(self, left: NodeVariable, right: NodeAST):
+    def __init__(self, left: NodeVariable, right: NodeAST) -> None:
         self.left: NodeVariable = left
         self.right: NodeAST = right
 
@@ -86,7 +82,7 @@ class NodeCompoundStatement(NodeAST):
         ],
     ) -> None:
         self.children: list[
-            Union["NodeCompoundStatement", NodeAssignmentStatement, NodeEmpty]
+            Union[NodeCompoundStatement, NodeAssignmentStatement, NodeEmpty]
         ] = children
 
     def __repr__(self) -> str:
@@ -97,8 +93,6 @@ class NodeBinaryOperation(NodeAST):
     __slots__ = ("left", "right", "operator")
 
     def __init__(self, left: NodeAST, token: Token, right: NodeAST) -> None:
-        if not isinstance(token.value, str):
-            raise TypeError(f"Invalid token value type: {type(token.value).__name__}")
         self.left: NodeAST = left
         self.right: NodeAST = right
         self.operator: str = token.value
@@ -111,8 +105,6 @@ class NodeUnaryOperation(NodeAST):
     __slots__ = ("operator", "operand")
 
     def __init__(self, token: Token, operand: NodeAST) -> None:
-        if not isinstance(token.value, str):
-            raise TypeError(f"Invalid token value type: {type(token.value).__name__}")
         self.operator: str = token.value
         self.operand: NodeAST = operand
 
@@ -124,8 +116,6 @@ class NodeNumber(NodeAST):
     __slots__ = ("value",)
 
     def __init__(self, token: Token) -> None:
-        if not isinstance(token.value, (int, float)):
-            raise TypeError(f"Invalid token value type: {type(token.value).__name__}")
         self.value: Union[int, float] = token.value
 
     def __repr__(self) -> str:
@@ -140,7 +130,7 @@ class NodeProgram(NodeAST):
         program_name: str,
         variable_declaration_section: Union[NodeDeclarations, NodeEmpty],
         main_block: NodeCompoundStatement,
-    ):
+    ) -> None:
         self.program_name: str = program_name
         self.variable_declaration_section: Union[NodeDeclarations, NodeEmpty] = (
             variable_declaration_section

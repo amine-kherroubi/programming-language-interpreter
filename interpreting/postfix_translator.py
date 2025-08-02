@@ -6,12 +6,12 @@ class PostfixTranslator(NodeVisitor[str]):
     __slots__ = ()
 
     def visit_NodeBinaryOperation(self, node: NodeBinaryOperation) -> str:
-        left_str = self.visit(node.left)
-        right_str = self.visit(node.right)
+        left_str: str = self.visit(node.left)
+        right_str: str = self.visit(node.right)
         return f"{left_str} {right_str} {node.operator}"
 
     def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> str:
-        operand_str = self.visit(node.operand)
+        operand_str: str = self.visit(node.operand)
         if node.operator == "+":
             return operand_str
         else:

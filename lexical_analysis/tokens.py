@@ -2,6 +2,9 @@ from typing import Optional, Union
 from enum import Enum
 
 
+ValueType = Union[int, str, float]
+
+
 class TokenType(Enum):
     PROGRAM = "PROGRAM"
     VAR = "VAR"
@@ -31,11 +34,9 @@ class TokenType(Enum):
 class Token:
     __slots__ = ("type", "value")
 
-    def __init__(
-        self, token_type: TokenType, value: Optional[Union[int, str, float]]
-    ) -> None:
+    def __init__(self, token_type: TokenType, value: Optional[ValueType]) -> None:
         self.type: TokenType = token_type
-        self.value: Optional[Union[int, str, float]] = value
+        self.value: Optional[ValueType] = value
 
     def __str__(self) -> str:
         return f"({self.type.value}, {self.value!r})"

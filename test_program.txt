@@ -1,7 +1,7 @@
 PROGRAM d;
 VAR
-    a: REAL;
-    b: IntEGER
+    a, _z: REAL;
+    b, x, ___2y: IntEGER
 BEGIN
     x = 2;
     ___2y = 3;

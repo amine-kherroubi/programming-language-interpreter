@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict
 from lexical_analysis.tokens import Token, TokenType
 from utils.exceptions import LexerError
 
@@ -6,7 +6,7 @@ from utils.exceptions import LexerError
 class Lexer:
     __slots__ = ("text", "position", "current_char")
 
-    RESERVED_KEYWORD_TOKEN_TYPES: dict[str, TokenType] = {
+    RESERVED_KEYWORD_TOKEN_TYPES: Dict[str, TokenType] = {
         "PROGRAM": TokenType.PROGRAM,
         "VAR": TokenType.VAR,
         "INTEGER": TokenType.INTEGER_TYPE,
@@ -17,7 +17,7 @@ class Lexer:
         "MOD": TokenType.MOD,
     }
 
-    SINGLE_CHAR_TOKEN_TYPES: dict[str, TokenType] = {
+    SINGLE_CHAR_TOKEN_TYPES: Dict[str, TokenType] = {
         "+": TokenType.PLUS,
         "-": TokenType.MINUS,
         "*": TokenType.MUL,
@@ -39,84 +39,85 @@ class Lexer:
         )
 
     def _advance(self) -> None:
-        self.position += 1
+        self.position: int = self.position + 1
         if self.position >= len(self.text):
-            self.current_char = None
+            self.current_char: Optional[str] = None
         else:
-            self.current_char = self.text[self.position]
+            self.current_char: Optional[str] = self.text[self.position]
 
     def _peek(self, offset: int = 1) -> Optional[str]:
-        peek_pos: int = self.position + offset
-        if peek_pos >= len(self.text):
+        peek_position: int = self.position + offset
+        if peek_position >= len(self.text):
             return None
-        return self.text[peek_pos]
+        return self.text[peek_position]
 
     def _skip_whitespace(self) -> None:
-        while self.current_char and self.current_char.isspace():
+        while self.current_char is not None and self.current_char.isspace():
             self._advance()
 
     def _skip_comment(self) -> None:
-        while self.current_char != "}":
+        while self.current_char is not None and self.current_char != "}":
             self._advance()
-        self._advance()
+        if self.current_char == "}":
+            self._advance()
 
     def _tokenize_number(self) -> Token:
-        number_str: str = ""
-        has_dot: bool = False
-        while self.current_char and (
+        number_string: str = ""
+        has_decimal_point: bool = False
+        while self.current_char is not None and (
             self.current_char.isdigit() or self.current_char == "."
         ):
             if self.current_char == ".":
-                if has_dot:
+                if has_decimal_point:
                     raise LexerError(
                         "Invalid number format: multiple decimal points", self.position
                     )
-                has_dot = True
-            number_str += self.current_char
+                has_decimal_point = True
+            number_string += self.current_char
             self._advance()
-        if number_str == ".":
+        if number_string == ".":
             raise LexerError(
                 "Invalid number format: lone decimal point", self.position - 1
             )
-        try:
-            if has_dot:
-                return Token(TokenType.REAL, float(number_str))
-            else:
-                return Token(TokenType.INTEGER, int(number_str))
-        except ValueError:
-            raise LexerError(
-                f"Invalid number format: {number_str}", self.position - len(number_str)
-            )
+        if has_decimal_point:
+            return Token(TokenType.REAL, float(number_string))
+        else:
+            return Token(TokenType.INTEGER, int(number_string))
 
-    def _tokenize_id(self) -> Token:
-        id_str: str = ""
-        while self.current_char and (
+    def _tokenize_identifier(self) -> Token:
+        identifier_string: str = ""
+        while self.current_char is not None and (
             self.current_char.isalnum() or self.current_char == "_"
         ):
-            id_str += self.current_char
+            identifier_string += self.current_char
             self._advance()
-        return (
-            Token(self.RESERVED_KEYWORD_TOKEN_TYPES[id_str.upper()], id_str)
-            if id_str.upper() in self.RESERVED_KEYWORD_TOKEN_TYPES
-            else Token(TokenType.ID, id_str)
-        )
+        uppercase_identifier: str = identifier_string.upper()
+        if uppercase_identifier in self.RESERVED_KEYWORD_TOKEN_TYPES:
+            return Token(
+                self.RESERVED_KEYWORD_TOKEN_TYPES[uppercase_identifier],
+                identifier_string,
+            )
+        else:
+            return Token(TokenType.ID, identifier_string)
 
     def next_token(self) -> Token:
         self._skip_whitespace()
         if self.current_char == "{":
-            self._skip_comment
+            self._skip_comment()
+            return self.next_token()
         if not self.current_char:
             return Token(TokenType.EOF, None)
         if self.current_char.isdigit():
             return self._tokenize_number()
-        if self.current_char == "." and (next_char := self._peek(1)):
-            if next_char.isdigit():
+        if self.current_char == ".":
+            next_character: Optional[str] = self._peek()
+            if next_character is not None and next_character.isdigit():
                 return self._tokenize_number()
         if self.current_char.isalpha() or self.current_char == "_":
-            return self._tokenize_id()
+            return self._tokenize_identifier()
         if self.current_char in self.SINGLE_CHAR_TOKEN_TYPES:
             token_type: TokenType = self.SINGLE_CHAR_TOKEN_TYPES[self.current_char]
-            char: str = self.current_char
+            character: str = self.current_char
             self._advance()
-            return Token(token_type, char)
+            return Token(token_type, character)
         raise LexerError(f"Invalid character: '{self.current_char}'", self.position)

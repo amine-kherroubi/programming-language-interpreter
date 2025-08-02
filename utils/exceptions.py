@@ -3,18 +3,20 @@ from lexical_analysis.tokens import Token
 
 class InterpreterError(Exception):
     __slots__ = ()
-    pass
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
 
 
-class LexerError(InterpreterError):
+class LexerError(Exception):
     __slots__ = ("position",)
 
     def __init__(self, message: str, position: int) -> None:
         super().__init__(f"{message} at position {position}")
-        self.position = position
+        self.position: int = position
 
 
-class ParserError(InterpreterError):
+class ParserError(Exception):
     __slots__ = ("token",)
 
     def __init__(self, message: str, token: Token) -> None:
