@@ -9,16 +9,10 @@ class InterpreterError(Exception):
 
 
 class LexerError(Exception):
-    __slots__ = ("position",)
-
     def __init__(self, message: str, position: int) -> None:
         super().__init__(f"{message} at position {position}")
-        self.position: int = position
 
 
 class ParserError(Exception):
-    __slots__ = ("token",)
-
     def __init__(self, message: str, token: Token) -> None:
         super().__init__(f"{message}: unexpected token {token}")
-        self.token: Token = token

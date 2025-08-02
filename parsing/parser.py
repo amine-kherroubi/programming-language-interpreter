@@ -68,11 +68,12 @@ class Parser:
         token: Token = self.current_token
         if token.type == TokenType.INTEGER_TYPE:
             self._consume(TokenType.INTEGER_TYPE)
+            return NodeType(token)
         elif token.type == TokenType.REAL_TYPE:
             self._consume(TokenType.REAL_TYPE)
+            return NodeType(token)
         else:
-            raise ParserError("Expected INTEGER_TYPE or REAL_TYPE", token)
-        return NodeType(token)
+            raise ParserError("Expected INTEGER or REAL", token)
 
     def _statement(
         self,
@@ -164,5 +165,5 @@ class Parser:
     def parse(self) -> NodeAST:
         node: NodeAST = self._program()
         if self.current_token.type != TokenType.EOF:
-            raise ParserError("Unexpected token after _expression", self.current_token)
+            raise ParserError("Unexpected token after program", self.current_token)
         return node

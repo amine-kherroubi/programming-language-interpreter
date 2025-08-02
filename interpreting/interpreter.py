@@ -57,8 +57,6 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
 
     def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:
         node_type: str = self.visit(node.type)
-        if node_type not in self.TYPES_DEFAULT_VALUES:
-            raise InterpreterError(f"Unknown type: {node_type}")
         default_value: ValueType = self.TYPES_DEFAULT_VALUES[node_type]
         for variable in node.variables:
             self.symbol_table[variable.id] = default_value
@@ -70,8 +68,6 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         pass
 
     def visit_NodeAssignmentStatement(self, node: NodeAssignmentStatement) -> None:
-        if not hasattr(node.left, "id"):
-            raise InterpreterError("Invalid assignment target")
         variable_name: str = node.left.id
         if variable_name not in self.symbol_table:
             raise InterpreterError(
@@ -97,15 +93,11 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         operator_symbol: str = node.operator.upper()
         if operator_symbol in ("/", "DIV", "MOD") and right_val == 0:
             raise InterpreterError("Cannot divide by zero")
-        if operator_symbol not in self.BINARY_OPERATORS:
-            raise InterpreterError(f"Unknown binary operator: {operator_symbol}")
         return self.BINARY_OPERATORS[operator_symbol](left_val, right_val)
 
     def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> NumericType:
         operand_val: NumericType = self.visit(node.operand)
         operator_symbol: str = node.operator.upper()
-        if operator_symbol not in self.UNARY_OPERATORS:
-            raise InterpreterError(f"Unknown unary operator: {operator_symbol}")
         return self.UNARY_OPERATORS[operator_symbol](operand_val)
 
     def visit_NodeNumber(self, node: NodeNumber) -> NumericType:
