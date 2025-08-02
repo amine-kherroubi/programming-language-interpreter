@@ -6,7 +6,11 @@ from utils.exceptions import LexerError
 class Lexer:
     __slots__ = ("text", "position", "current_char")
 
-    RESERVED_KEYWORD_TYPES: dict[str, TokenType] = {
+    RESERVED_KEYWORD_TOKEN_TYPES: dict[str, TokenType] = {
+        "PROGRAM": TokenType.PROGRAM,
+        "VAR": TokenType.VAR,
+        "INTEGER": TokenType.INTEGER_TYPE,
+        "REAL": TokenType.REAL_TYPE,
         "BEGIN": TokenType.BEGIN,
         "END": TokenType.END,
         "DIV": TokenType.INTEGER_DIV,
@@ -23,6 +27,8 @@ class Lexer:
         ";": TokenType.SEMICOLON,
         "=": TokenType.ASSIGN,
         ".": TokenType.DOT,
+        ":": TokenType.COLON,
+        ",": TokenType.COMMA,
     }
 
     def __init__(self, text: str) -> None:
@@ -49,6 +55,11 @@ class Lexer:
         while self.current_char and self.current_char.isspace():
             self._advance()
 
+    def _skip_comment(self) -> None:
+        while self.current_char != "}":
+            self._advance()
+        self._advance()
+
     def _tokenize_number(self) -> Token:
         number_str: str = ""
         has_dot: bool = False
@@ -69,7 +80,7 @@ class Lexer:
             )
         try:
             if has_dot:
-                return Token(TokenType.FLOAT, float(number_str))
+                return Token(TokenType.REAL, float(number_str))
             else:
                 return Token(TokenType.INTEGER, int(number_str))
         except ValueError:
@@ -85,13 +96,15 @@ class Lexer:
             id_str += self.current_char
             self._advance()
         return (
-            Token(self.RESERVED_KEYWORD_TYPES[id_str.upper()], id_str)
-            if id_str.upper() in self.RESERVED_KEYWORD_TYPES
+            Token(self.RESERVED_KEYWORD_TOKEN_TYPES[id_str.upper()], id_str)
+            if id_str.upper() in self.RESERVED_KEYWORD_TOKEN_TYPES
             else Token(TokenType.ID, id_str)
         )
 
     def next_token(self) -> Token:
         self._skip_whitespace()
+        if self.current_char == "{":
+            self._skip_comment
         if not self.current_char:
             return Token(TokenType.EOF, None)
         if self.current_char.isdigit():

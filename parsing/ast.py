@@ -11,13 +11,6 @@ class NodeAST(ABC):
         pass
 
 
-class NodeEmptyStatement(NodeAST):
-    __slots__ = ()
-
-    def __repr__(self) -> str:
-        return "NodeEmptyStatement()"
-
-
 class NodeVariable(NodeAST):
     __slots__ = ("id",)
 
@@ -30,6 +23,46 @@ class NodeVariable(NodeAST):
 
     def __repr__(self) -> str:
         return f"NodeVariable(id={self.id})"
+
+
+class NodeType(NodeAST):
+    __slots__ = ("type",)
+
+    def __init__(self, token: Token) -> None:
+        if token.type not in (TokenType.INTEGER_TYPE, TokenType.REAL_TYPE):
+            raise TypeError(f"Invalid token type: {token.type}")
+        self.type: TokenType = token.type
+
+    def __repr__(self) -> str:
+        return f"NodeType(type={self.type})"
+
+
+class NodeVariableDeclaration(NodeAST):
+    __slots__ = ("variables", "type")
+
+    def __init__(self, variables: list[NodeVariable], type: NodeType) -> None:
+        self.variables: list[NodeVariable] = variables
+        self.type: NodeType = type
+
+    def __repr__(self) -> str:
+        return f"NodeVariableDeclaration(variables={self.variables}, type={self.type})"
+
+
+class NodeDeclarations(NodeAST):
+    __slots__ = ("declarations",)
+
+    def __init__(self, declarations: list[NodeVariableDeclaration]) -> None:
+        self.declarations: list[NodeVariableDeclaration] = declarations
+
+    def __repr__(self) -> str:
+        return f"NodeDeclarations(declarations={self.declarations})"
+
+
+class NodeEmpty(NodeAST):
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return "NodeEmpty()"
 
 
 class NodeAssignmentStatement(NodeAST):
@@ -49,15 +82,15 @@ class NodeCompoundStatement(NodeAST):
     def __init__(
         self,
         children: list[
-            Union["NodeCompoundStatement", NodeAssignmentStatement, NodeEmptyStatement]
+            Union["NodeCompoundStatement", NodeAssignmentStatement, NodeEmpty]
         ],
     ) -> None:
         self.children: list[
-            Union["NodeCompoundStatement", NodeAssignmentStatement, NodeEmptyStatement]
+            Union["NodeCompoundStatement", NodeAssignmentStatement, NodeEmpty]
         ] = children
 
     def __repr__(self) -> str:
-        return f"NodeCompoundStatement(children={str(self.children)})"
+        return f"NodeCompoundStatement(children={self.children})"
 
 
 class NodeBinaryOperation(NodeAST):
@@ -97,3 +130,22 @@ class NodeNumber(NodeAST):
 
     def __repr__(self) -> str:
         return f"NodeNumber(value={self.value})"
+
+
+class NodeProgram(NodeAST):
+    __slots__ = ("program_name", "variable_declaration_section", "main_block")
+
+    def __init__(
+        self,
+        program_name: str,
+        variable_declaration_section: Union[NodeDeclarations, NodeEmpty],
+        main_block: NodeCompoundStatement,
+    ):
+        self.program_name: str = program_name
+        self.variable_declaration_section: Union[NodeDeclarations, NodeEmpty] = (
+            variable_declaration_section
+        )
+        self.main_block: NodeCompoundStatement = main_block
+
+    def __repr__(self) -> str:
+        return f"NodeProgram(program_name={self.program_name}, variable_declaration_section={self.variable_declaration_section}, main_block={self.main_block})"

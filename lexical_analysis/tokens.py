@@ -3,8 +3,12 @@ from enum import Enum
 
 
 class TokenType(Enum):
+    PROGRAM = "PROGRAM"
+    VAR = "VAR"
+    INTEGER_TYPE = "INTEGER_TYPE"
+    REAL_TYPE = "REAL_TYPE"
     INTEGER = "INTEGER"
-    FLOAT = "FLOAT"
+    REAL = "REAL"
     PLUS = "PLUS"
     MINUS = "MINUS"
     MUL = "MUL"
@@ -19,6 +23,8 @@ class TokenType(Enum):
     DOT = "DOT"
     ASSIGN = "ASSIGN"
     SEMICOLON = "SEMICOLON"
+    COLON = "COLON"
+    COMMA = "COMMA"
     EOF = "EOF"
 
 

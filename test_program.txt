@@ -1,1 +1,9 @@
-BEGIN x = 2; y = 3; z = 32 / y; END.
+PROGRAM d;
+VAR
+    a: REAL;
+    b: IntEGER
+BEGIN
+    x = 2;
+    ___2y = 3;
+    _z = 32 / ___2y;
+eND.

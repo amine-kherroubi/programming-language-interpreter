@@ -1,15 +1,8 @@
 import sys
-from typing import Union
 from lexical_analysis.lexer import Lexer
 from parsing.ast import NodeAST
 from parsing.parser import Parser
 from interpreting.visitors.interpreter import Interpreter
-
-
-def format_result(value: Union[int, float]) -> str:
-    if isinstance(value, float) and value.is_integer():
-        return str(int(value))
-    return str(value)
 
 
 def main() -> None:
@@ -34,7 +27,7 @@ def main() -> None:
         interpreter.interpret(ast)
 
         for var_name, var_value in interpreter.symbol_table.items():
-            print(f"{var_name} = {format_result(var_value)}")
+            print(f"{var_name} = {var_value}")
 
     except Exception as e:
         print(f"Error: {e}")
