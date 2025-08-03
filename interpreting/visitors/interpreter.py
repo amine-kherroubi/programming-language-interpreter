@@ -4,7 +4,8 @@ from interpreting.visitor import NodeVisitor
 from parsing.ast import (
     NodeAST,
     NodeBinaryOperation,
-    NodeDeclarations,
+    NodeBlock,
+    NodeVariableDeclarations,
     NodeEmpty,
     NodeAssignmentStatement,
     NodeProgram,
@@ -53,12 +54,15 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         return str(self._global_memory)
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
-        self._global_memory[node.program_name] = node.program_name
-        self.visit(node.variable_declaration_section)
+        self._global_memory["PROGRAM_NAME"] = node.program_name
         self.visit(node.main_block)
 
-    def visit_NodeDeclarations(self, node: NodeDeclarations) -> None:
-        for declaration in node.declarations:
+    def visit_NodeBlock(self, node: NodeBlock) -> None:
+        self.visit(node.variable_declarations)
+        self.visit(node.compound_statement)
+
+    def visit_NodeVariableDeclarations(self, node: NodeVariableDeclarations) -> None:
+        for declaration in node.variable_declarations:
             self.visit(declaration)
 
     def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:

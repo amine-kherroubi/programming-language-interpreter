@@ -9,6 +9,8 @@ class Lexer:
     RESERVED_KEYWORD_TOKEN_TYPES: Dict[str, TokenType] = {
         "PROGRAM": TokenType.PROGRAM,
         "VAR": TokenType.VAR,
+        "PROCEDURE": TokenType.PROCEDURE,
+        "FUNCTION": TokenType.FUNCTION,
         "INTEGER": TokenType.INTEGER,
         "REAL": TokenType.REAL,
         "BEGIN": TokenType.BEGIN,

@@ -8,6 +8,8 @@ ValueType = Union[int, str, float]
 class TokenType(Enum):
     PROGRAM = "PROGRAM"
     VAR = "VAR"
+    PROCEDURE = "PROCEDURE"
+    FUNCTION = "FUNCTION"
     INTEGER = "INTEGER"
     REAL = "REAL"
     INTEGER_CONSTANT = "INTEGER_CONSTANT"

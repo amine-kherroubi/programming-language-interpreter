@@ -3,7 +3,11 @@ from lexical_analysis.lexer import Lexer
 from lexical_analysis.tokens import Token, TokenType
 from parsing.ast import (
     NodeAST,
-    NodeDeclarations,
+    NodeBlock,
+    NodeFunctionDeclaration,
+    NodeProcedureAndFunctionDeclarations,
+    NodeProcedureDeclaration,
+    NodeVariableDeclarations,
     NodeEmpty,
     NodeProgram,
     NodeType,
@@ -19,6 +23,29 @@ from utils.exceptions import ParserError
 
 
 class Parser:
+    """
+    Grammar (in Backus-Naur Form):
+    program ::= PROGRAM variable SEMICOLON block DOT
+    block ::= variable_declarations procedures_and_functions_declarations compound_statement
+    variable_declarations ::= VAR (variable_declaration SEMICOLON)+ | empty
+    variable_declaration ::= variable (COMMA variable)* COLON type
+    procedures_and_functions_declarations ::= ((procedure_declaration | function_declaration) SEMICOLON)*
+    procedure_declaration ::= PROCEDURE variable (LEFT_PARENTHESIS parameter_list RIGHT_PARENTHESIS)? SEMICOLON block
+    function_declaration ::= FUNCTION variable (LEFT_PARENTHESIS parameter_list RIGHT_PARENTHESIS)? COLON type SEMICOLON block
+    parameter_list ::= parameter (SEMICOLON parameter)*
+    parameter ::= variable (COMMA variable)* COLON type
+    type ::= INTEGER | REAL
+    compound_statement ::= BEGIN statement_list END
+    statement_list ::= statement | statement SEMICOLON statement_list
+    statement ::= compound_statement | assignment_statement | empty
+    assignment_statement ::= variable ASSIGN expression
+    expression ::= term ((PLUS | MINUS) term)*
+    term ::= factor ((MUL | TRUE_DIV | INTEGER_DIV | MOD) factor)*
+    factor ::= (PLUS | MINUS)? (INTEGER | REAL | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS | variable)
+    variable ::= ID
+    empty ::=
+    """
+
     __slots__ = ("lexer", "current_token")
 
     def __init__(self, lexer: Lexer) -> None:
@@ -36,22 +63,62 @@ class Parser:
     def _program(self) -> NodeProgram:
         self._consume(TokenType.PROGRAM)
         program_name: str = self._variable().id
-        variable_declaration_section: Union[NodeDeclarations, NodeEmpty]
         self._consume(TokenType.SEMICOLON)
-        variable_declaration_section = self._declarations()
-        main_block: NodeCompoundStatement = self._compound_statement()
+        block: NodeBlock = self._block()
         self._consume(TokenType.DOT)
-        return NodeProgram(program_name, variable_declaration_section, main_block)
+        return NodeProgram(program_name, block)
 
-    def _declarations(self) -> Union[NodeDeclarations, NodeEmpty]:
+    def _block(self) -> NodeBlock:
+        variable_declarations: Union[NodeVariableDeclarations, NodeEmpty] = (
+            self._variable_declarations()
+        )
+        procedure_and_function_declarations: NodeProcedureAndFunctionDeclarations = (
+            self._procedure_and_function_declarations()
+        )
+        compound_statement: NodeCompoundStatement = self._compound_statement()
+        return NodeBlock(
+            variable_declarations,
+            procedure_and_function_declarations,
+            compound_statement,
+        )
+
+    def _procedure_and_function_declarations(
+        self,
+    ) -> NodeProcedureAndFunctionDeclarations:
+        procedure_and_function_declarations: list[
+            Union[NodeProcedureDeclaration, NodeFunctionDeclaration]
+        ] = []
+        while self.current_token.type in (TokenType.PROCEDURE, TokenType.FUNCTION):
+            if self.current_token.type == TokenType.PROCEDURE:
+                procedure_and_function_declarations.append(
+                    self._procedure_declaration()
+                )
+            else:
+                procedure_and_function_declarations.append(self._function_declaration())
+            self._consume(TokenType.SEMICOLON)
+        return NodeProcedureAndFunctionDeclarations(procedure_and_function_declarations)
+
+    def _procedure_declaration(self) -> NodeProcedureDeclaration:
+        self._consume(TokenType.PROCEDURE)
+        procedure_name: str = self._variable().id
+        self._consume(TokenType.SEMICOLON)
+        block: NodeBlock = self._block()
+        return NodeProcedureDeclaration(procedure_name, block)
+
+    def _function_declaration(self) -> NodeFunctionDeclaration:
+        return NodeFunctionDeclaration()
+
+    def _variable_declarations(self) -> Union[NodeVariableDeclarations, NodeEmpty]:
         if self.current_token.type == TokenType.VAR:
             self._consume(TokenType.VAR)
-            declarations: list[NodeVariableDeclaration] = [self._variable_declaration()]
+            variable_declarations: list[NodeVariableDeclaration] = [
+                self._variable_declaration()
+            ]
             while self.current_token.type == TokenType.SEMICOLON:
                 self._consume(TokenType.SEMICOLON)
                 if self.current_token.type == TokenType.ID:
-                    declarations.append(self._variable_declaration())
-            return NodeDeclarations(declarations)
+                    variable_declarations.append(self._variable_declaration())
+            return NodeVariableDeclarations(variable_declarations)
         else:
             return self._empty()
 

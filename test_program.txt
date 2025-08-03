@@ -2,7 +2,7 @@ PROGRAM d;
 VAR
     a, _z: REAL;
     b, x, ___2y: IntEGER;
-    M: integer
+    M: integer {Hello};
 BEGIN
     x = 2;
     ___2y = 3;

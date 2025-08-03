@@ -4,8 +4,9 @@ from parsing.ast import (
     NodeAST,
     NodeAssignmentStatement,
     NodeBinaryOperation,
+    NodeBlock,
     NodeCompoundStatement,
-    NodeDeclarations,
+    NodeVariableDeclarations,
     NodeEmpty,
     NodeNumber,
     NodeUnaryOperation,
@@ -23,11 +24,14 @@ class SymbolTableBuilder(NodeVisitor[None]):
         self._symbol_table: SymbolTable_ = symbol_table
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
-        self.visit(node.variable_declaration_section)
         self.visit(node.main_block)
 
-    def visit_NodeDeclarations(self, node: NodeDeclarations) -> None:
-        for declaration in node.declarations:
+    def visit_NodeBlock(self, node: NodeBlock) -> None:
+        self.visit(node.variable_declarations)
+        self.visit(node.compound_statement)
+
+    def visit_NodeVariableDeclarations(self, node: NodeVariableDeclarations) -> None:
+        for declaration in node.variable_declarations:
             self.visit(declaration)
 
     def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:

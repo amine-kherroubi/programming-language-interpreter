@@ -44,14 +44,16 @@ class NodeVariableDeclaration(NodeAST):
         return f"NodeVariableDeclaration(variables={self.variables}, type={self.type})"
 
 
-class NodeDeclarations(NodeAST):
-    __slots__ = ("declarations",)
+class NodeVariableDeclarations(NodeAST):
+    __slots__ = ("variable_declarations",)
 
-    def __init__(self, declarations: list[NodeVariableDeclaration]) -> None:
-        self.declarations: list[NodeVariableDeclaration] = declarations
+    def __init__(self, variable_declarations: list[NodeVariableDeclaration]) -> None:
+        self.variable_declarations: list[NodeVariableDeclaration] = (
+            variable_declarations
+        )
 
     def __repr__(self) -> str:
-        return f"NodeDeclarations(declarations={self.declarations})"
+        return f"NodeVariableDeclarations(variable_declarations={self.variable_declarations})"
 
 
 class NodeEmpty(NodeAST):
@@ -122,20 +124,70 @@ class NodeNumber(NodeAST):
         return f"NodeNumber(value={self.value})"
 
 
-class NodeProgram(NodeAST):
-    __slots__ = ("program_name", "variable_declaration_section", "main_block")
+class NodeBlock(NodeAST):
+    __slots__ = (
+        "variable_declarations",
+        "procedure_and_function_declarations",
+        "compound_statement",
+    )
 
     def __init__(
         self,
-        program_name: str,
-        variable_declaration_section: Union[NodeDeclarations, NodeEmpty],
-        main_block: NodeCompoundStatement,
+        variable_declarations: Union[NodeVariableDeclarations, NodeEmpty],
+        procedure_and_function_declarations: Union[
+            "NodeProcedureAndFunctionDeclarations", NodeEmpty
+        ],
+        compound_statement: NodeCompoundStatement,
     ) -> None:
-        self.program_name: str = program_name
-        self.variable_declaration_section: Union[NodeDeclarations, NodeEmpty] = (
-            variable_declaration_section
+        self.variable_declarations: Union[NodeVariableDeclarations, NodeEmpty] = (
+            variable_declarations
         )
-        self.main_block: NodeCompoundStatement = main_block
+        self.procedure_and_function_declarations: Union[
+            NodeProcedureAndFunctionDeclarations, NodeEmpty
+        ] = procedure_and_function_declarations
+        self.compound_statement: NodeCompoundStatement = compound_statement
 
     def __repr__(self) -> str:
-        return f"NodeProgram(program_name={self.program_name}, variable_declaration_section={self.variable_declaration_section}, main_block={self.main_block})"
+        return f"NodeBlock(variable_declarations={self.variable_declarations}, compound_statement={self.compound_statement})"
+
+
+class NodeProcedureDeclaration(NodeAST):
+    __slots__ = ("procedure_name", "block")
+
+    def __init__(self, procedure_name: str, block: NodeBlock) -> None:
+        self.procedure_name: str = procedure_name
+        self.block: NodeBlock = block
+
+    def __repr__(self) -> str:
+        return f"NodeProcedureDeclaration(procedure_name={self.procedure_name}, block={self.block})"
+
+
+class NodeFunctionDeclaration(NodeAST):
+    def __repr__(self) -> str:
+        return f"NodeFunctionDeclaration()"
+
+
+class NodeProcedureAndFunctionDeclarations(NodeAST):
+    __slots__ = ("declarations",)
+
+    def __init__(
+        self,
+        declarations: list[Union[NodeProcedureDeclaration, NodeFunctionDeclaration]],
+    ) -> None:
+        self.declarations: list[
+            Union[NodeProcedureDeclaration, NodeFunctionDeclaration]
+        ] = declarations
+
+    def __repr__(self) -> str:
+        return f"NodeProcedureAndFunctionDeclarations(declarations={self.declarations})"
+
+
+class NodeProgram(NodeAST):
+    __slots__ = ("program_name", "main_block")
+
+    def __init__(self, program_name: str, main_block: NodeBlock) -> None:
+        self.program_name: str = program_name
+        self.main_block: NodeBlock = main_block
+
+    def __repr__(self) -> str:
+        return f"NodeProgram(program_name={self.program_name}, main_block={self.main_block})"
