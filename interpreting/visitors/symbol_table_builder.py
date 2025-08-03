@@ -6,6 +6,9 @@ from parsing.ast import (
     NodeBinaryOperation,
     NodeBlock,
     NodeCompoundStatement,
+    NodeFunctionDeclaration,
+    NodeProcedureAndFunctionDeclarations,
+    NodeProcedureDeclaration,
     NodeVariableDeclarations,
     NodeEmpty,
     NodeNumber,
@@ -24,6 +27,7 @@ class SymbolTableBuilder(NodeVisitor[None]):
         self._symbol_table: SymbolTable_ = symbol_table
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
+        # SHOULDNT BE A VARIABLE SYMBOL: self._symbol_table.define(VariableSymbol(node.program_name, None))
         self.visit(node.main_block)
 
     def visit_NodeBlock(self, node: NodeBlock) -> None:
@@ -63,6 +67,20 @@ class SymbolTableBuilder(NodeVisitor[None]):
 
     def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> None:
         self.visit(node.operand)
+
+    def visit_NodeProcedureAndFunctionDeclarations(
+        self, node: NodeProcedureAndFunctionDeclarations
+    ) -> None:
+        for declaration in node.declarations:
+            self.visit(declaration)
+
+    def visit_NodeProcedureDeclaration(self, node: NodeProcedureDeclaration) -> None:
+        # SHOULDNT BE A VARIABLE SYMBOL: self._symbol_table.define(VariableSymbol(node.procedure_name, None))
+        pass
+
+    def visit_NodeFunctionDeclaration(self, node: NodeFunctionDeclaration) -> None:
+        # SHOULDNT BE A VARIABLE SYMBOL: self._symbol_table.define(VariableSymbol(node.function_name, None))
+        pass
 
     def build(self, tree: NodeAST) -> None:
         self.visit(tree)

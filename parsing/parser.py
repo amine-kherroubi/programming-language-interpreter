@@ -106,7 +106,11 @@ class Parser:
         return NodeProcedureDeclaration(procedure_name, block)
 
     def _function_declaration(self) -> NodeFunctionDeclaration:
-        return NodeFunctionDeclaration()
+        self._consume(TokenType.FUNCTION)
+        function_name: str = self._variable().id
+        self._consume(TokenType.SEMICOLON)
+        block: NodeBlock = self._block()
+        return NodeFunctionDeclaration(function_name, block)
 
     def _variable_declarations(self) -> Union[NodeVariableDeclarations, NodeEmpty]:
         if self.current_token.type == TokenType.VAR:

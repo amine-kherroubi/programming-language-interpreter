@@ -1,11 +1,24 @@
 PROGRAM d;
+
 VAR
     a, _z: REAL;
-    b, x, ___2y: IntEGER;
-    M: integer {Hello};
+    b, x, ___2y: INTEGER;
+    M: INTEGER  { Hello }
+
+procedure a92;
+VAR 
+    k: REAL
+BEGIN
+    k = k + 2;
+end;
+
+function a2;
+BEGIN
+end;
+
 BEGIN
     x = 2;
     ___2y = 3;
     _z = 32 / ___2y;
-    M = 2
-eND.
+    M = 2;
+END.

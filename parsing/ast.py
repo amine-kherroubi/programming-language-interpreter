@@ -163,6 +163,12 @@ class NodeProcedureDeclaration(NodeAST):
 
 
 class NodeFunctionDeclaration(NodeAST):
+    __slots__ = ("function_name", "block")
+
+    def __init__(self, function_name: str, block: NodeBlock) -> None:
+        self.function_name: str = function_name
+        self.block: NodeBlock = block
+
     def __repr__(self) -> str:
         return f"NodeFunctionDeclaration()"
 

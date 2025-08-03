@@ -5,6 +5,9 @@ from parsing.ast import (
     NodeAST,
     NodeBinaryOperation,
     NodeBlock,
+    NodeFunctionDeclaration,
+    NodeProcedureAndFunctionDeclarations,
+    NodeProcedureDeclaration,
     NodeVariableDeclarations,
     NodeEmpty,
     NodeAssignmentStatement,
@@ -70,6 +73,20 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         default_value: ValueType = self.TYPES_DEFAULT_VALUES[node_type]
         for variable in node.variables:
             self._global_memory[variable.id] = default_value
+
+    def visit_NodeProcedureAndFunctionDeclarations(
+        self, node: NodeProcedureAndFunctionDeclarations
+    ) -> None:
+        for declaration in node.declarations:
+            self.visit(declaration)
+
+    def visit_NodeProcedureDeclaration(self, node: NodeProcedureDeclaration) -> None:
+        # SHOULDNT BE A VARIABLE SYMBOL: self._symbol_table.define(VariableSymbol(node.procedure_name, None))
+        pass
+
+    def visit_NodeFunctionDeclaration(self, node: NodeFunctionDeclaration) -> None:
+        # SHOULDNT BE A VARIABLE SYMBOL: self._symbol_table.define(VariableSymbol(node.function_name, None))
+        pass
 
     def visit_NodeType(self, node: NodeType) -> str:
         return node.type.name
