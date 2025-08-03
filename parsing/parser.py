@@ -115,13 +115,12 @@ class Parser:
     def _variable_declarations(self) -> Union[NodeVariableDeclarations, NodeEmpty]:
         if self.current_token.type == TokenType.VAR:
             self._consume(TokenType.VAR)
-            variable_declarations: list[NodeVariableDeclaration] = [
-                self._variable_declaration()
-            ]
-            while self.current_token.type == TokenType.SEMICOLON:
+            variable_declarations: list[NodeVariableDeclaration] = []
+
+            while self.current_token.type == TokenType.ID:
+                variable_declarations.append(self._variable_declaration())
                 self._consume(TokenType.SEMICOLON)
-                if self.current_token.type == TokenType.ID:
-                    variable_declarations.append(self._variable_declaration())
+
             return NodeVariableDeclarations(variable_declarations)
         else:
             return self._empty()
