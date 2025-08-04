@@ -42,6 +42,7 @@ class SymbolTable_(object):
 
     def __init__(self) -> None:
         self._symbols: dict[str, Symbol] = {}
+        self._init_builtins()
 
     def __repr__(self) -> str:
         return f"SymbolTable()"

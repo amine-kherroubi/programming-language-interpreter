@@ -27,7 +27,8 @@ def main() -> None:
         symbol_table_builder.build(ast)
         interpreter: Interpreter = Interpreter()
         interpreter.interpret(ast)
-        print(interpreter)
+        # print(interpreter)
+        print(symbol_table)
     except Exception as e:
         print(f"Error: {e}")
 

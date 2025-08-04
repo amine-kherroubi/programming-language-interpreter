@@ -26,6 +26,12 @@ class SymbolTableBuilder(NodeVisitor[None]):
     def __init__(self, symbol_table: SymbolTable_) -> None:
         self._symbol_table: SymbolTable_ = symbol_table
 
+    def __repr__(self) -> str:
+        return f"SymbolTableBuilder(_symbol_table={self._symbol_table!r})"
+
+    def __str__(self) -> str:
+        return str(self._symbol_table)
+
     def visit_NodeProgram(self, node: NodeProgram) -> None:
         # SHOULDNT BE A VARIABLE SYMBOL: self._symbol_table.define(VariableSymbol(node.program_name, None))
         self.visit(node.main_block)
