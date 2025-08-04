@@ -21,9 +21,6 @@ class Symbol(ABC):
 class TypelessSymbol(Symbol):
     __slots__ = ()
 
-    def __init__(self, name: str) -> None:
-        super().__init__(name)
-
 
 class TypedSymbol(Symbol):
     __slots__ = ("type",)
@@ -31,6 +28,14 @@ class TypedSymbol(Symbol):
     def __init__(self, name: str, type: str) -> None:
         super().__init__(name)
         self.type: str = type
+
+
+class ProgramSymbol(TypelessSymbol):
+    def __repr__(self) -> str:
+        return f"ProgramSymbol(name='{self.name}')"
+
+    def __str__(self) -> str:
+        return f"Program: {self.name}"
 
 
 class BuiltInTypeSymbol(TypelessSymbol):
@@ -49,7 +54,37 @@ class VariableSymbol(TypedSymbol):
         return f"Variable: {self.name} -> {self.type}"
 
 
-class SymbolTable_(object):
+class ProcedureSymbol(TypelessSymbol):
+    __slots__ = ("parameters",)
+
+    def __init__(self, name: str, parameters: list[VariableSymbol]) -> None:
+        super().__init__(name)
+        self.parameters: list[VariableSymbol] = parameters
+
+    def __repr__(self) -> str:
+        return f"ProcedureSymbol(name={self.name}, parameters={self.parameters})"
+
+    def __str__(self) -> str:
+        params_str = ", ".join([param.name for param in self.parameters])
+        return f"Procedure: {self.name}({params_str})"
+
+
+class FunctionSymbol(TypedSymbol):
+    __slots__ = ("parameters",)
+
+    def __init__(self, name: str, parameters: list[VariableSymbol], type: str) -> None:
+        super().__init__(name, type)
+        self.parameters: list[VariableSymbol] = parameters
+
+    def __repr__(self) -> str:
+        return f"FunctionSymbol(name={self.name}, parameters={self.parameters}, type={self.type})"
+
+    def __str__(self) -> str:
+        params_str = ", ".join([param.name for param in self.parameters])
+        return f"Function: {self.name}({params_str}) -> {self.type}"
+
+
+class SymbolTable_:
     BUILT_IN_TYPES: list[BuiltInTypeSymbol] = [
         BuiltInTypeSymbol(TokenType.INTEGER.name),
         BuiltInTypeSymbol(TokenType.REAL.name),

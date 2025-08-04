@@ -1,4 +1,3 @@
-from semantic_analysis.symbol_table import SymbolTable_, VariableSymbol
 from visitor_pattern.visitor import NodeVisitor
 from syntactic_analysis.ast import (
     NodeAST,
@@ -14,40 +13,50 @@ from syntactic_analysis.ast import (
     NodeNumber,
     NodeUnaryOperation,
     NodeVariable,
-    NodeVariableDeclaration,
+    NodeVariableDeclarationGroup,
     NodeProgram,
+)
+from semantic_analysis.symbol_table import (
+    SymbolTable_,
+    VariableSymbol,
+    ProgramSymbol,
+    ProcedureSymbol,
+    FunctionSymbol,
 )
 from utils.exceptions import SemanticAnalyzerError
 
 
 class SemanticAnalyzer(NodeVisitor[None]):
-    __slots__ = ()
+    __slots__ = ("_symbol_table",)
 
     def __init__(self, symbol_table: SymbolTable_) -> None:
         self._symbol_table: SymbolTable_ = symbol_table
 
     def __repr__(self) -> str:
-        return f"SymbolTableBuilder(_symbol_table={self._symbol_table!r})"
+        return f"SemanticAnalyzer(_symbol_table={self._symbol_table!r})"
 
     def __str__(self) -> str:
         return str(self._symbol_table)
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
-        # SHOULDNT BE A VARIABLE SYMBOL: self._symbol_table.define(VariableSymbol(node.program_name, None))
-        self.visit(node.main_block)
+        self._symbol_table.define(ProgramSymbol(node.name))
+        self.visit(node.block)
 
     def visit_NodeBlock(self, node: NodeBlock) -> None:
         self.visit(node.variable_declarations)
+        self.visit(node.subroutine_declarations)
         self.visit(node.compound_statement)
 
     def visit_NodeVariableDeclarations(self, node: NodeVariableDeclarations) -> None:
         for declaration in node.variable_declarations:
             self.visit(declaration)
 
-    def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:
-        type: str = node.type.type
-        for variable in node.variables:
-            if not self._symbol_table.lookup(variable_name := variable.id):
+    def visit_NodeVariableDeclarationGroup(
+        self, node: NodeVariableDeclarationGroup
+    ) -> None:
+        type: str = node.type.name
+        for variable in node.members:
+            if not self._symbol_table.lookup(variable_name := variable.name):
                 self._symbol_table.define(VariableSymbol(variable_name, type))
             else:
                 raise SemanticAnalyzerError(
@@ -66,7 +75,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         pass
 
     def visit_NodeVariable(self, node: NodeVariable) -> None:
-        if self._symbol_table.lookup(variable_name := node.id) is None:
+        if self._symbol_table.lookup(variable_name := node.name) is None:
             raise SemanticAnalyzerError(f"Undeclared variable {variable_name}")
 
     def visit_NodeNumber(self, node: NodeNumber) -> None:
@@ -86,12 +95,26 @@ class SemanticAnalyzer(NodeVisitor[None]):
             self.visit(declaration)
 
     def visit_NodeProcedureDeclaration(self, node: NodeProcedureDeclaration) -> None:
-        # SHOULDNT BE A VARIABLE SYMBOL: self._symbol_table.define(VariableSymbol(node.procedure_name, None))
-        pass
+        parameters: list[VariableSymbol] = []
+        if not isinstance(node.parameters, NodeEmpty):
+            for parameter_group in node.parameters:
+                parameters += [
+                    VariableSymbol(member.name, parameter_group.type.name)
+                    for member in parameter_group.members
+                ]
+        self._symbol_table.define(ProcedureSymbol(node.name, parameters))
+        self.visit(node.block)
 
     def visit_NodeFunctionDeclaration(self, node: NodeFunctionDeclaration) -> None:
-        # SHOULDNT BE A VARIABLE SYMBOL: self._symbol_table.define(VariableSymbol(node.function_name, None))
-        pass
+        parameters: list[VariableSymbol] = []
+        if not isinstance(node.parameters, NodeEmpty):
+            for parameter_group in node.parameters:
+                parameters += [
+                    VariableSymbol(variable.name, parameter_group.type.name)
+                    for variable in parameter_group.members
+                ]
+        self._symbol_table.define(FunctionSymbol(node.name, parameters, node.type.name))
+        self.visit(node.block)
 
     def build(self, tree: NodeAST) -> None:
         self.visit(tree)

@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from lexical_analysis.tokens import Token
 
 ValueType = Union[int, float, str]
+NumericType = Union[int, float]
 
 
 class NodeAST(ABC):
@@ -14,41 +15,43 @@ class NodeAST(ABC):
 
 
 class NodeVariable(NodeAST):
-    __slots__ = ("id",)
+    __slots__ = ("name",)
 
     def __init__(self, token: Token) -> None:
-        self.id: str = token.value
+        self.name: str = token.value
 
     def __repr__(self) -> str:
-        return f"NodeVariable(id={self.id})"
+        return f"NodeVariable(name={self.name})"
 
 
 class NodeType(NodeAST):
-    __slots__ = ("type",)
+    __slots__ = ("name",)
 
     def __init__(self, token: Token) -> None:
-        self.type: str = token.type.name
+        self.name: str = token.type.name
 
     def __repr__(self) -> str:
-        return f"NodeType(type={self.type})"
+        return f"NodeType(name={self.name})"
 
 
-class NodeVariableDeclaration(NodeAST):
-    __slots__ = ("variables", "type")
+class NodeVariableDeclarationGroup(NodeAST):
+    __slots__ = ("members", "type")
 
-    def __init__(self, variables: list[NodeVariable], node_type: NodeType) -> None:
-        self.variables: list[NodeVariable] = variables
+    def __init__(self, members: list[NodeVariable], node_type: NodeType) -> None:
+        self.members: list[NodeVariable] = members
         self.type: NodeType = node_type
 
     def __repr__(self) -> str:
-        return f"NodeVariableDeclaration(variables={self.variables}, type={self.type})"
+        return f"NodeVariableDeclarationGroup(members={self.members}, type={self.type})"
 
 
 class NodeVariableDeclarations(NodeAST):
     __slots__ = ("variable_declarations",)
 
-    def __init__(self, variable_declarations: list[NodeVariableDeclaration]) -> None:
-        self.variable_declarations: list[NodeVariableDeclaration] = (
+    def __init__(
+        self, variable_declarations: list[NodeVariableDeclarationGroup]
+    ) -> None:
+        self.variable_declarations: list[NodeVariableDeclarationGroup] = (
             variable_declarations
         )
 
@@ -118,7 +121,7 @@ class NodeNumber(NodeAST):
     __slots__ = ("value",)
 
     def __init__(self, token: Token) -> None:
-        self.value: Union[int, float] = token.value
+        self.value: NumericType = token.value
 
     def __repr__(self) -> str:
         return f"NodeNumber(value={self.value})"
@@ -146,57 +149,61 @@ class NodeBlock(NodeAST):
         self.compound_statement: NodeCompoundStatement = compound_statement
 
     def __repr__(self) -> str:
-        return f"NodeBlock(variable_declarations={self.variable_declarations}, compound_statement={self.compound_statement})"
+        return "NodeBlock(variable_declarations={}, subroutine_declarations={}, compound_statement={})".format(
+            self.variable_declarations,
+            self.subroutine_declarations,
+            self.compound_statement,
+        )
 
 
 class NodeParameterGroup(NodeAST):
-    __slots__ = ("parameters", "type")
+    __slots__ = ("members", "type")
 
-    def __init__(self, parameter: list[NodeVariable], type: NodeType) -> None:
-        self.parameters: list[NodeVariable] = parameter
+    def __init__(self, members: list[NodeVariable], type: NodeType) -> None:
+        self.members: list[NodeVariable] = members
         self.type: NodeType = type
 
     def __repr__(self) -> str:
-        return f"NodeParameterGroup(parameter={self.parameters}, type={self.type})"
+        return f"NodeParameterGroup(members={self.members}, type={self.type})"
 
 
 class NodeProcedureDeclaration(NodeAST):
-    __slots__ = ("procedure_name", "parameters", "block")
+    __slots__ = ("name", "parameters", "block")
 
     def __init__(
         self,
-        procedure_name: str,
+        name: str,
         parameters: Union[NodeEmpty, list[NodeParameterGroup]],
         block: NodeBlock,
     ) -> None:
-        self.procedure_name: str = procedure_name
+        self.name: str = name
         self.parameters: Union[NodeEmpty, list[NodeParameterGroup]] = parameters
         self.block: NodeBlock = block
 
     def __repr__(self) -> str:
-        return "NodeProcedureDeclaration(procedure_name={}, parameters={}, block={})".format(
-            self.procedure_name, self.parameters, self.block
+        return "NodeProcedureDeclaration(name={}, parameters={}, block={})".format(
+            self.name, self.parameters, self.block
         )
 
 
 class NodeFunctionDeclaration(NodeAST):
-    __slots__ = ("function_name", "parameters", "return_type", "block")
+    __slots__ = ("name", "parameters", "type", "block")
 
     def __init__(
         self,
-        function_name: str,
+        name: str,
         parameters: Union[NodeEmpty, list[NodeParameterGroup]],
-        return_type: NodeType,
+        type: NodeType,
         block: NodeBlock,
     ) -> None:
-        self.function_name: str = function_name
+        self.name: str = name
         self.parameters: Union[NodeEmpty, list[NodeParameterGroup]] = parameters
-        self.return_type: NodeType = return_type
+        self.type: NodeType = type
         self.block: NodeBlock = block
 
     def __repr__(self) -> str:
-        return "NodeFunctionDeclaration(function_name={}, parameters={}, return_type= {}, block={})".format(
-            self.function_name, self.parameters, self.return_type, self.block
+        return "NodeFunctionDeclaration(name={}, parameters={}, type= {}, block={})".format(
+            self.name, self.parameters, self.type, self.block
         )
 
 
@@ -216,11 +223,11 @@ class NodeSubroutineDeclarations(NodeAST):
 
 
 class NodeProgram(NodeAST):
-    __slots__ = ("program_name", "main_block")
+    __slots__ = ("name", "block")
 
-    def __init__(self, program_name: str, main_block: NodeBlock) -> None:
-        self.program_name: str = program_name
-        self.main_block: NodeBlock = main_block
+    def __init__(self, name: str, block: NodeBlock) -> None:
+        self.name: str = name
+        self.block: NodeBlock = block
 
     def __repr__(self) -> str:
-        return f"NodeProgram(program_name={self.program_name}, main_block={self.main_block})"
+        return f"NodeProgram(name={self.name}, block={self.block})"

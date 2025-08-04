@@ -18,7 +18,7 @@ from syntactic_analysis.ast import (
     NodeBinaryOperation,
     NodeNumber,
     NodeUnaryOperation,
-    NodeVariableDeclaration,
+    NodeVariableDeclarationGroup,
 )
 from utils.exceptions import SyntacticAnalyzerError
 
@@ -65,7 +65,7 @@ class SyntacticAnalyzer(object):
 
     def _program(self) -> NodeProgram:
         self._consume(TokenType.PROGRAM)
-        program_name: str = self._variable().id
+        program_name: str = self._variable().name
         self._consume(TokenType.SEMICOLON)
         block: NodeBlock = self._block()
         self._consume(TokenType.DOT)
@@ -101,7 +101,7 @@ class SyntacticAnalyzer(object):
 
     def _procedure_declaration(self) -> NodeProcedureDeclaration:
         self._consume(TokenType.PROCEDURE)
-        procedure_name: str = self._variable().id
+        procedure_name: str = self._variable().name
         parameters: Union[NodeEmpty, list[NodeParameterGroup]] = NodeEmpty()
         if self._current_token.type == TokenType.LEFT_PARENTHESIS:
             self._consume(TokenType.LEFT_PARENTHESIS)
@@ -113,7 +113,7 @@ class SyntacticAnalyzer(object):
 
     def _function_declaration(self) -> NodeFunctionDeclaration:
         self._consume(TokenType.FUNCTION)
-        function_name: str = self._variable().id
+        function_name: str = self._variable().name
         parameters: Union[NodeEmpty, list[NodeParameterGroup]] = NodeEmpty()
         if self._current_token.type == TokenType.LEFT_PARENTHESIS:
             self._consume(TokenType.LEFT_PARENTHESIS)
@@ -144,7 +144,7 @@ class SyntacticAnalyzer(object):
     def _variable_declarations(self) -> Union[NodeVariableDeclarations, NodeEmpty]:
         if self._current_token.type == TokenType.VAR:
             self._consume(TokenType.VAR)
-            variable_declarations: list[NodeVariableDeclaration] = []
+            variable_declarations: list[NodeVariableDeclarationGroup] = []
             while self._current_token.type == TokenType.ID:
                 variable_declarations.append(self._variable_declaration())
                 self._consume(TokenType.SEMICOLON)
@@ -152,14 +152,14 @@ class SyntacticAnalyzer(object):
         else:
             return self._empty()
 
-    def _variable_declaration(self) -> NodeVariableDeclaration:
+    def _variable_declaration(self) -> NodeVariableDeclarationGroup:
         variables: list[NodeVariable] = [self._variable()]
         while self._current_token.type == TokenType.COMMA:
             self._consume(TokenType.COMMA)
             variables.append(self._variable())
         self._consume(TokenType.COLON)
         node_type: NodeType = self._type()
-        return NodeVariableDeclaration(variables, node_type)
+        return NodeVariableDeclarationGroup(variables, node_type)
 
     def _type(self) -> NodeType:
         token: Token = self._current_token

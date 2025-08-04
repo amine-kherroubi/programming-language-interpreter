@@ -12,12 +12,11 @@ from syntactic_analysis.ast import (
     NodeEmpty,
     NodeAssignmentStatement,
     NodeProgram,
-    NodeType,
     NodeVariable,
     NodeCompoundStatement,
     NodeNumber,
     NodeUnaryOperation,
-    NodeVariableDeclaration,
+    NodeVariableDeclarationGroup,
 )
 from utils.exceptions import InterpreterError
 
@@ -57,22 +56,23 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         return str(self._global_memory)
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
-        self._global_memory["PROGRAM_NAME"] = node.program_name
-        self.visit(node.main_block)
+        self.visit(node.block)
 
     def visit_NodeBlock(self, node: NodeBlock) -> None:
         self.visit(node.variable_declarations)
+        self.visit(node.subroutine_declarations)
         self.visit(node.compound_statement)
 
     def visit_NodeVariableDeclarations(self, node: NodeVariableDeclarations) -> None:
         for declaration in node.variable_declarations:
             self.visit(declaration)
 
-    def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:
-        node_type: str = self.visit(node.type)
-        default_value: ValueType = self.TYPES_DEFAULT_VALUES[node_type]
-        for variable in node.variables:
-            self._global_memory[variable.id] = default_value
+    def visit_NodeVariableDeclarationGroup(
+        self, node: NodeVariableDeclarationGroup
+    ) -> None:
+        default_value: ValueType = self.TYPES_DEFAULT_VALUES[node.type.name]
+        for variable in node.members:
+            self._global_memory[variable.name] = default_value
 
     def visit_NodeSubroutineDeclarations(
         self, node: NodeSubroutineDeclarations
@@ -81,27 +81,22 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
             self.visit(declaration)
 
     def visit_NodeProcedureDeclaration(self, node: NodeProcedureDeclaration) -> None:
-        # SHOULDNT BE A VARIABLE SYMBOL: self._symbol_table.define(VariableSymbol(node.procedure_name, None))
         pass
 
     def visit_NodeFunctionDeclaration(self, node: NodeFunctionDeclaration) -> None:
-        # SHOULDNT BE A VARIABLE SYMBOL: self._symbol_table.define(VariableSymbol(node.function_name, None))
         pass
-
-    def visit_NodeType(self, node: NodeType) -> str:
-        return node.type
 
     def visit_NodeEmpty(self, node: NodeEmpty) -> None:
         pass
 
     def visit_NodeAssignmentStatement(self, node: NodeAssignmentStatement) -> None:
-        variable_name: str = node.left.id
+        variable_name: str = node.left.name
         result: Optional[ValueType] = self.visit(node.right)
         if result is not None:
             self._global_memory[variable_name] = result
 
     def visit_NodeVariable(self, node: NodeVariable) -> ValueType:
-        variable_name: str = node.id
+        variable_name: str = node.name
         return self._global_memory[variable_name]
 
     def visit_NodeCompoundStatement(self, node: NodeCompoundStatement) -> None:
@@ -112,7 +107,7 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         left_val: NumericType = self.visit(node.left)
         right_val: NumericType = self.visit(node.right)
         operator_symbol: str = node.operator.upper()
-        if operator_symbol in ("/", "DIV", "MOD") and right_val == 0:
+        if operator_symbol in ("/", "DIV", "MOD") and right_val in (0, 0.0):
             raise InterpreterError("Cannot divide by zero")
         return self.BINARY_OPERATORS[operator_symbol](left_val, right_val)
 

@@ -12,7 +12,7 @@ BEGIN
     k = k + 2;
 end;
 
-function a2: INTEGER;
+function a2(x:REAL): INTEGER;
 BEGIN
 end;
 
