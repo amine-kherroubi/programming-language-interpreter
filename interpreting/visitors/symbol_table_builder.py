@@ -7,7 +7,7 @@ from parsing.ast import (
     NodeBlock,
     NodeCompoundStatement,
     NodeFunctionDeclaration,
-    NodeProcedureAndFunctionDeclarations,
+    NodeSubroutineDeclarations,
     NodeProcedureDeclaration,
     NodeVariableDeclarations,
     NodeEmpty,
@@ -74,8 +74,8 @@ class SymbolTableBuilder(NodeVisitor[None]):
     def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> None:
         self.visit(node.operand)
 
-    def visit_NodeProcedureAndFunctionDeclarations(
-        self, node: NodeProcedureAndFunctionDeclarations
+    def visit_NodeSubroutineDeclarations(
+        self, node: NodeSubroutineDeclarations
     ) -> None:
         for declaration in node.declarations:
             self.visit(declaration)

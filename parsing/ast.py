@@ -127,24 +127,24 @@ class NodeNumber(NodeAST):
 class NodeBlock(NodeAST):
     __slots__ = (
         "variable_declarations",
-        "procedure_and_function_declarations",
+        "subroutine_declarations",
         "compound_statement",
     )
 
     def __init__(
         self,
         variable_declarations: Union[NodeVariableDeclarations, NodeEmpty],
-        procedure_and_function_declarations: Union[
-            "NodeProcedureAndFunctionDeclarations", NodeEmpty
+        subroutine_declarations: Union[
+            "NodeSubroutineDeclarations", NodeEmpty
         ],
         compound_statement: NodeCompoundStatement,
     ) -> None:
         self.variable_declarations: Union[NodeVariableDeclarations, NodeEmpty] = (
             variable_declarations
         )
-        self.procedure_and_function_declarations: Union[
-            NodeProcedureAndFunctionDeclarations, NodeEmpty
-        ] = procedure_and_function_declarations
+        self.subroutine_declarations: Union[
+            NodeSubroutineDeclarations, NodeEmpty
+        ] = subroutine_declarations
         self.compound_statement: NodeCompoundStatement = compound_statement
 
     def __repr__(self) -> str:
@@ -173,7 +173,7 @@ class NodeFunctionDeclaration(NodeAST):
         return f"NodeFunctionDeclaration()"
 
 
-class NodeProcedureAndFunctionDeclarations(NodeAST):
+class NodeSubroutineDeclarations(NodeAST):
     __slots__ = ("declarations",)
 
     def __init__(
@@ -185,7 +185,7 @@ class NodeProcedureAndFunctionDeclarations(NodeAST):
         ] = declarations
 
     def __repr__(self) -> str:
-        return f"NodeProcedureAndFunctionDeclarations(declarations={self.declarations})"
+        return f"NodeSubroutineDeclarations(declarations={self.declarations})"
 
 
 class NodeProgram(NodeAST):

@@ -6,7 +6,7 @@ from parsing.ast import (
     NodeBinaryOperation,
     NodeBlock,
     NodeFunctionDeclaration,
-    NodeProcedureAndFunctionDeclarations,
+    NodeSubroutineDeclarations,
     NodeProcedureDeclaration,
     NodeVariableDeclarations,
     NodeEmpty,
@@ -74,8 +74,8 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         for variable in node.variables:
             self._global_memory[variable.id] = default_value
 
-    def visit_NodeProcedureAndFunctionDeclarations(
-        self, node: NodeProcedureAndFunctionDeclarations
+    def visit_NodeSubroutineDeclarations(
+        self, node: NodeSubroutineDeclarations
     ) -> None:
         for declaration in node.declarations:
             self.visit(declaration)

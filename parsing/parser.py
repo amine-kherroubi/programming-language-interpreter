@@ -5,7 +5,7 @@ from parsing.ast import (
     NodeAST,
     NodeBlock,
     NodeFunctionDeclaration,
-    NodeProcedureAndFunctionDeclarations,
+    NodeSubroutineDeclarations,
     NodeProcedureDeclaration,
     NodeVariableDeclarations,
     NodeEmpty,
@@ -26,10 +26,10 @@ class Parser:
     """
     Grammar (in Backus-Naur Form):
     program ::= PROGRAM variable SEMICOLON block DOT
-    block ::= variable_declarations procedures_and_functions_declarations compound_statement
+    block ::= variable_declarations subroutine_declarations compound_statement
     variable_declarations ::= VAR (variable_declaration SEMICOLON)+ | empty
     variable_declaration ::= variable (COMMA variable)* COLON type
-    procedures_and_functions_declarations ::= ((procedure_declaration | function_declaration) SEMICOLON)*
+    subroutine_declarations ::= ((procedure_declaration | function_declaration) SEMICOLON)*
     procedure_declaration ::= PROCEDURE variable (LEFT_PARENTHESIS parameter_list RIGHT_PARENTHESIS)? SEMICOLON block
     function_declaration ::= FUNCTION variable (LEFT_PARENTHESIS parameter_list RIGHT_PARENTHESIS)? COLON type SEMICOLON block
     parameter_list ::= parameter (SEMICOLON parameter)*
@@ -72,31 +72,31 @@ class Parser:
         variable_declarations: Union[NodeVariableDeclarations, NodeEmpty] = (
             self._variable_declarations()
         )
-        procedure_and_function_declarations: NodeProcedureAndFunctionDeclarations = (
-            self._procedure_and_function_declarations()
+        subroutine_declarations: NodeSubroutineDeclarations = (
+            self._subroutine_declarations()
         )
         compound_statement: NodeCompoundStatement = self._compound_statement()
         return NodeBlock(
             variable_declarations,
-            procedure_and_function_declarations,
+            subroutine_declarations,
             compound_statement,
         )
 
-    def _procedure_and_function_declarations(
+    def _subroutine_declarations(
         self,
-    ) -> NodeProcedureAndFunctionDeclarations:
-        procedure_and_function_declarations: list[
+    ) -> NodeSubroutineDeclarations:
+        subroutine_declarations: list[
             Union[NodeProcedureDeclaration, NodeFunctionDeclaration]
         ] = []
         while self.current_token.type in (TokenType.PROCEDURE, TokenType.FUNCTION):
             if self.current_token.type == TokenType.PROCEDURE:
-                procedure_and_function_declarations.append(
+                subroutine_declarations.append(
                     self._procedure_declaration()
                 )
             else:
-                procedure_and_function_declarations.append(self._function_declaration())
+                subroutine_declarations.append(self._function_declaration())
             self._consume(TokenType.SEMICOLON)
-        return NodeProcedureAndFunctionDeclarations(procedure_and_function_declarations)
+        return NodeSubroutineDeclarations(subroutine_declarations)
 
     def _procedure_declaration(self) -> NodeProcedureDeclaration:
         self._consume(TokenType.PROCEDURE)
