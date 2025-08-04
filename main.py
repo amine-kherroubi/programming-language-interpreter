@@ -1,10 +1,10 @@
 import sys
-from lexical_analysis.lexer import Lexer
-from parsing.ast import NodeAST
-from parsing.parser import Parser
-from interpreting.visitors.interpreter import Interpreter
-from interpreting.visitors.symbol_table_builder import SymbolTableBuilder
-from interpreting.symbols import SymbolTable_
+from lexical_analysis.lexical_analyzer import LexicalAnalyzer
+from syntactic_analysis.ast import NodeAST
+from syntactic_analysis.parser import SyntacticAnalyzer
+from interpreting.interpreter import Interpreter
+from semantic_analysis.semantic_analyzer import SemanticAnalyzer
+from semantic_analysis.symbol_table import SymbolTable_
 
 
 def main() -> None:
@@ -19,15 +19,14 @@ def main() -> None:
         print(f"File '{filename}' not found")
         return
     try:
-        lexer: Lexer = Lexer(program_text)
-        parser: Parser = Parser(lexer)
-        ast: NodeAST = parser.parse()
+        lexical_analyzer: LexicalAnalyzer = LexicalAnalyzer(program_text)
+        syntactic_analyzer: SyntacticAnalyzer = SyntacticAnalyzer(lexical_analyzer)
+        ast: NodeAST = syntactic_analyzer.parse()
         symbol_table: SymbolTable_ = SymbolTable_()
-        symbol_table_builder: SymbolTableBuilder = SymbolTableBuilder(symbol_table)
-        symbol_table_builder.build(ast)
+        semantic_analyzer: SemanticAnalyzer = SemanticAnalyzer(symbol_table)
+        semantic_analyzer.build(ast)
         interpreter: Interpreter = Interpreter()
         interpreter.interpret(ast)
-        # print(interpreter)
         print(symbol_table)
     except Exception as e:
         print(f"Error: {e}")

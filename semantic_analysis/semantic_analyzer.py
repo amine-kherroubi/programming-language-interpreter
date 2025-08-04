@@ -1,6 +1,6 @@
-from interpreting.symbols import SymbolTable_, VariableSymbol
-from interpreting.visitor import NodeVisitor
-from parsing.ast import (
+from semantic_analysis.symbol_table import SymbolTable_, VariableSymbol
+from visitor_pattern.visitor import NodeVisitor
+from syntactic_analysis.ast import (
     NodeAST,
     NodeAssignmentStatement,
     NodeBinaryOperation,
@@ -17,10 +17,10 @@ from parsing.ast import (
     NodeVariableDeclaration,
     NodeProgram,
 )
-from utils.exceptions import SymbolTableError
+from utils.exceptions import SemanticAnalyzerError
 
 
-class SymbolTableBuilder(NodeVisitor[None]):
+class SemanticAnalyzer(NodeVisitor[None]):
     __slots__ = ()
 
     def __init__(self, symbol_table: SymbolTable_) -> None:
@@ -62,7 +62,7 @@ class SymbolTableBuilder(NodeVisitor[None]):
 
     def visit_NodeVariable(self, node: NodeVariable) -> None:
         if self._symbol_table.lookup(variable_name := node.id) is None:
-            raise SymbolTableError(f"Undeclared variable: {variable_name}")
+            raise SemanticAnalyzerError(f"Undeclared variable: {variable_name}")
 
     def visit_NodeNumber(self, node: NodeNumber) -> None:
         pass

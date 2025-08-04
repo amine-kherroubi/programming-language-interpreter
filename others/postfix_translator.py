@@ -1,21 +1,26 @@
-from interpreting.visitor import NodeVisitor
-from parsing.ast import NodeAST, NodeBinaryOperation, NodeNumber, NodeUnaryOperation
+from visitor_pattern.visitor import NodeVisitor
+from syntactic_analysis.ast import (
+    NodeAST,
+    NodeBinaryOperation,
+    NodeNumber,
+    NodeUnaryOperation,
+)
 
 
-class PrefixTranslator(NodeVisitor[str]):
+class PostfixTranslator(NodeVisitor[str]):
     __slots__ = ()
 
     def visit_NodeBinaryOperation(self, node: NodeBinaryOperation) -> str:
         left_str: str = self.visit(node.left)
         right_str: str = self.visit(node.right)
-        return f"({node.operator} {left_str} {right_str})"
+        return f"{left_str} {right_str} {node.operator}"
 
     def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> str:
         operand_str: str = self.visit(node.operand)
         if node.operator == "+":
             return operand_str
         else:
-            return f"({node.operator} {operand_str})"
+            return f"{operand_str} {node.operator}"
 
     def visit_NodeNumber(self, node: NodeNumber) -> str:
         return str(node.value)

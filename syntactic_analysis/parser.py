@@ -1,7 +1,7 @@
 from typing import Union
-from lexical_analysis.lexer import Lexer
+from lexical_analysis.lexical_analyzer import LexicalAnalyzer
 from lexical_analysis.tokens import Token, TokenType
-from parsing.ast import (
+from syntactic_analysis.ast import (
     NodeAST,
     NodeBlock,
     NodeFunctionDeclaration,
@@ -19,10 +19,10 @@ from parsing.ast import (
     NodeUnaryOperation,
     NodeVariableDeclaration,
 )
-from utils.exceptions import ParserError
+from utils.exceptions import SyntacticAnalyzerError
 
 
-class Parser(object):
+class SyntacticAnalyzer(object):
     """
     Grammar (in Backus-Naur Form):
     program ::= PROGRAM variable SEMICOLON block DOT
@@ -48,8 +48,8 @@ class Parser(object):
 
     __slots__ = ("lexer", "current_token")
 
-    def __init__(self, lexer: Lexer) -> None:
-        self.lexer: Lexer = lexer
+    def __init__(self, lexer: LexicalAnalyzer) -> None:
+        self.lexer: LexicalAnalyzer = lexer
         self.current_token: Token = self.lexer.next_token()
 
     def _consume(self, expected_type: TokenType) -> Token:
@@ -58,7 +58,9 @@ class Parser(object):
             self.current_token = self.lexer.next_token()
             return token
         else:
-            raise ParserError(f"Expected {expected_type.value}", self.current_token)
+            raise SyntacticAnalyzerError(
+                f"Expected {expected_type.value}", self.current_token
+            )
 
     def _program(self) -> NodeProgram:
         self._consume(TokenType.PROGRAM)
@@ -141,7 +143,7 @@ class Parser(object):
             self._consume(TokenType.REAL)
             return NodeType(token)
         else:
-            raise ParserError("Expected INTEGER or REAL", token)
+            raise SyntacticAnalyzerError("Expected INTEGER or REAL", token)
 
     def _statement(
         self,
@@ -205,7 +207,9 @@ class Parser(object):
             operand: NodeAST = self._factor()
             return NodeUnaryOperation(token, operand)
         else:
-            raise ParserError("Expected number, unary operator, or '('", token)
+            raise SyntacticAnalyzerError(
+                "Expected number, unary operator, or '('", token
+            )
 
     def _term(self) -> NodeAST:
         node: NodeAST = self._factor()
@@ -233,5 +237,7 @@ class Parser(object):
     def parse(self) -> NodeAST:
         node: NodeAST = self._program()
         if self.current_token.type != TokenType.EOF:
-            raise ParserError("Unexpected token after program", self.current_token)
+            raise SyntacticAnalyzerError(
+                "Unexpected token after program", self.current_token
+            )
         return node

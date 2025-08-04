@@ -1,9 +1,9 @@
 from typing import Optional, Dict
 from lexical_analysis.tokens import Token, TokenType
-from utils.exceptions import LexerError
+from utils.exceptions import LexicalAnalyzerError
 
 
-class Lexer(object):
+class LexicalAnalyzer(object):
     __slots__ = ("text", "position", "current_char")
 
     RESERVED_KEYWORD_TOKEN_TYPES: Dict[str, TokenType] = {
@@ -71,14 +71,14 @@ class Lexer(object):
         ):
             if self.current_char == ".":
                 if has_decimal_point:
-                    raise LexerError(
+                    raise LexicalAnalyzerError(
                         "Invalid number format: multiple decimal points", self.position
                     )
                 has_decimal_point = True
             number_string += self.current_char
             self._advance()
         if number_string == ".":
-            raise LexerError(
+            raise LexicalAnalyzerError(
                 "Invalid number format: lone decimal point", self.position - 1
             )
         if has_decimal_point:
@@ -122,4 +122,6 @@ class Lexer(object):
             character: str = self.current_char
             self._advance()
             return Token(token_type, character)
-        raise LexerError(f"Invalid character: '{self.current_char}'", self.position)
+        raise LexicalAnalyzerError(
+            f"Invalid character: '{self.current_char}'", self.position
+        )

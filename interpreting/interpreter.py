@@ -1,7 +1,7 @@
 from typing import Callable, Optional, Union
 import operator
-from interpreting.visitor import NodeVisitor
-from parsing.ast import (
+from visitor_pattern.visitor import NodeVisitor
+from syntactic_analysis.ast import (
     NodeAST,
     NodeBinaryOperation,
     NodeBlock,
