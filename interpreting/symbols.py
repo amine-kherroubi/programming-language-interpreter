@@ -4,34 +4,49 @@ from lexical_analysis.tokens import TokenType
 
 
 class Symbol(ABC):
-    __slots__ = ("name", "type")
+    __slots__ = ("name",)
 
-    def __init__(self, name: str, type: Optional[str] = None) -> None:
+    def __init__(self, name: str) -> None:
         self.name: str = name
-        self.type: Optional[str] = type
 
     @abstractmethod
     def __repr__(self) -> str:
         pass
 
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
 
-class BuiltInTypeSymbol(Symbol):
+
+class TypelessSymbol(Symbol):
+    __slots__ = ()
+
     def __init__(self, name: str) -> None:
         super().__init__(name)
 
+
+class TypedSymbol(Symbol):
+    __slots__ = ("type",)
+
+    def __init__(self, name: str, type: str) -> None:
+        super().__init__(name)
+        self.type: str = type
+
+
+class BuiltInTypeSymbol(TypelessSymbol):
     def __repr__(self) -> str:
-        return f"BuiltInTypeSymbol(name={self.name}, type={self.type})"
+        return f"BuiltInTypeSymbol(name='{self.name}')"
 
     def __str__(self) -> str:
-        return f"Built-in: {self.name}"
+        return f"Built-in type: {self.name}"
 
 
-class VariableSymbol(Symbol):
+class VariableSymbol(TypedSymbol):
     def __repr__(self) -> str:
-        return f"VariableSymbol(name={self.name}, type={self.type})"
+        return f"VariableSymbol(name='{self.name}', type='{self.type}')"
 
     def __str__(self) -> str:
-        return f"Variable: {self.name}, {self.type}"
+        return f"Variable: {self.name} -> {self.type}"
 
 
 class SymbolTable_(object):
@@ -45,14 +60,14 @@ class SymbolTable_(object):
         self._init_builtins()
 
     def __repr__(self) -> str:
-        return f"SymbolTable()"
+        return "SymbolTable()"
 
     def __str__(self) -> str:
         return f"Symbols: {[str(value) for value in self._symbols.values()]}"
 
-    def _init_builtins(self):
-        for type in self.BUILT_IN_TYPES:
-            self.define(type)
+    def _init_builtins(self) -> None:
+        for builtin_type in self.BUILT_IN_TYPES:
+            self.define(builtin_type)
 
     def define(self, symbol: Symbol) -> None:
         self._symbols[symbol.name] = symbol

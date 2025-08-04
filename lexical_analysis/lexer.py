@@ -3,7 +3,7 @@ from lexical_analysis.tokens import Token, TokenType
 from utils.exceptions import LexerError
 
 
-class Lexer:
+class Lexer(object):
     __slots__ = ("text", "position", "current_char")
 
     RESERVED_KEYWORD_TOKEN_TYPES: Dict[str, TokenType] = {

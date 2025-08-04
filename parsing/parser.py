@@ -22,7 +22,7 @@ from parsing.ast import (
 from utils.exceptions import ParserError
 
 
-class Parser:
+class Parser(object):
     """
     Grammar (in Backus-Naur Form):
     program ::= PROGRAM variable SEMICOLON block DOT
@@ -90,9 +90,7 @@ class Parser:
         ] = []
         while self.current_token.type in (TokenType.PROCEDURE, TokenType.FUNCTION):
             if self.current_token.type == TokenType.PROCEDURE:
-                subroutine_declarations.append(
-                    self._procedure_declaration()
-                )
+                subroutine_declarations.append(self._procedure_declaration())
             else:
                 subroutine_declarations.append(self._function_declaration())
             self._consume(TokenType.SEMICOLON)

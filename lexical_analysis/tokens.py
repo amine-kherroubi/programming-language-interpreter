@@ -33,7 +33,7 @@ class TokenType(Enum):
     EOF = "EOF"
 
 
-class Token:
+class Token(object):
     __slots__ = ("type", "value")
 
     def __init__(self, token_type: TokenType, value: Optional[ValueType]) -> None:
