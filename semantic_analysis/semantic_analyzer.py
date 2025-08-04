@@ -47,7 +47,12 @@ class SemanticAnalyzer(NodeVisitor[None]):
     def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:
         type: str = node.type.type.name
         for variable in node.variables:
-            self._symbol_table.define(VariableSymbol(variable.id, type))
+            if not self._symbol_table.lookup(variable_name := variable.id):
+                self._symbol_table.define(VariableSymbol(variable_name, type))
+            else:
+                raise SemanticAnalyzerError(
+                    f"Duplicate declaration for variable {variable_name}"
+                )
 
     def visit_NodeCompoundStatement(self, node: NodeCompoundStatement) -> None:
         for child in node.children:
@@ -62,7 +67,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
 
     def visit_NodeVariable(self, node: NodeVariable) -> None:
         if self._symbol_table.lookup(variable_name := node.id) is None:
-            raise SemanticAnalyzerError(f"Undeclared variable: {variable_name}")
+            raise SemanticAnalyzerError(f"Undeclared variable {variable_name}")
 
     def visit_NodeNumber(self, node: NodeNumber) -> None:
         pass
