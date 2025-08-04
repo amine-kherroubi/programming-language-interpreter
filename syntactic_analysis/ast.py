@@ -1,6 +1,6 @@
 from typing import Union
 from abc import ABC, abstractmethod
-from lexical_analysis.tokens import Token, TokenType
+from lexical_analysis.tokens import Token
 
 ValueType = Union[int, float, str]
 
@@ -27,7 +27,7 @@ class NodeType(NodeAST):
     __slots__ = ("type",)
 
     def __init__(self, token: Token) -> None:
-        self.type: TokenType = token.type
+        self.type: str = token.type.name
 
     def __repr__(self) -> str:
         return f"NodeType(type={self.type})"
@@ -134,43 +134,70 @@ class NodeBlock(NodeAST):
     def __init__(
         self,
         variable_declarations: Union[NodeVariableDeclarations, NodeEmpty],
-        subroutine_declarations: Union[
-            "NodeSubroutineDeclarations", NodeEmpty
-        ],
+        subroutine_declarations: Union["NodeSubroutineDeclarations", NodeEmpty],
         compound_statement: NodeCompoundStatement,
     ) -> None:
         self.variable_declarations: Union[NodeVariableDeclarations, NodeEmpty] = (
             variable_declarations
         )
-        self.subroutine_declarations: Union[
-            NodeSubroutineDeclarations, NodeEmpty
-        ] = subroutine_declarations
+        self.subroutine_declarations: Union[NodeSubroutineDeclarations, NodeEmpty] = (
+            subroutine_declarations
+        )
         self.compound_statement: NodeCompoundStatement = compound_statement
 
     def __repr__(self) -> str:
         return f"NodeBlock(variable_declarations={self.variable_declarations}, compound_statement={self.compound_statement})"
 
 
-class NodeProcedureDeclaration(NodeAST):
-    __slots__ = ("procedure_name", "block")
+class NodeParameterGroup(NodeAST):
+    __slots__ = ("parameters", "type")
 
-    def __init__(self, procedure_name: str, block: NodeBlock) -> None:
+    def __init__(self, parameter: list[NodeVariable], type: NodeType) -> None:
+        self.parameters: list[NodeVariable] = parameter
+        self.type: NodeType = type
+
+    def __repr__(self) -> str:
+        return f"NodeParameterGroup(parameter={self.parameters}, type={self.type})"
+
+
+class NodeProcedureDeclaration(NodeAST):
+    __slots__ = ("procedure_name", "parameters", "block")
+
+    def __init__(
+        self,
+        procedure_name: str,
+        parameters: Union[NodeEmpty, list[NodeParameterGroup]],
+        block: NodeBlock,
+    ) -> None:
         self.procedure_name: str = procedure_name
+        self.parameters: Union[NodeEmpty, list[NodeParameterGroup]] = parameters
         self.block: NodeBlock = block
 
     def __repr__(self) -> str:
-        return f"NodeProcedureDeclaration(procedure_name={self.procedure_name}, block={self.block})"
+        return "NodeProcedureDeclaration(procedure_name={}, parameters={}, block={})".format(
+            self.procedure_name, self.parameters, self.block
+        )
 
 
 class NodeFunctionDeclaration(NodeAST):
-    __slots__ = ("function_name", "block")
+    __slots__ = ("function_name", "parameters", "return_type", "block")
 
-    def __init__(self, function_name: str, block: NodeBlock) -> None:
+    def __init__(
+        self,
+        function_name: str,
+        parameters: Union[NodeEmpty, list[NodeParameterGroup]],
+        return_type: NodeType,
+        block: NodeBlock,
+    ) -> None:
         self.function_name: str = function_name
+        self.parameters: Union[NodeEmpty, list[NodeParameterGroup]] = parameters
+        self.return_type: NodeType = return_type
         self.block: NodeBlock = block
 
     def __repr__(self) -> str:
-        return f"NodeFunctionDeclaration()"
+        return "NodeFunctionDeclaration(function_name={}, parameters={}, return_type= {}, block={})".format(
+            self.function_name, self.parameters, self.return_type, self.block
+        )
 
 
 class NodeSubroutineDeclarations(NodeAST):

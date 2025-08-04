@@ -5,6 +5,7 @@ from syntactic_analysis.ast import (
     NodeAST,
     NodeBlock,
     NodeFunctionDeclaration,
+    NodeParameterGroup,
     NodeSubroutineDeclarations,
     NodeProcedureDeclaration,
     NodeVariableDeclarations,
@@ -30,10 +31,10 @@ class SyntacticAnalyzer(object):
     variable_declarations ::= VAR (variable_declaration SEMICOLON)+ | empty
     variable_declaration ::= variable (COMMA variable)* COLON type
     subroutine_declarations ::= ((procedure_declaration | function_declaration) SEMICOLON)*
-    procedure_declaration ::= PROCEDURE variable (LEFT_PARENTHESIS parameter_list RIGHT_PARENTHESIS)? SEMICOLON block
-    function_declaration ::= FUNCTION variable (LEFT_PARENTHESIS parameter_list RIGHT_PARENTHESIS)? COLON type SEMICOLON block
-    parameter_list ::= parameter (SEMICOLON parameter)*
-    parameter ::= variable (COMMA variable)* COLON type
+    procedure_declaration ::= PROCEDURE variable (LEFT_PARENTHESIS parameters RIGHT_PARENTHESIS)? SEMICOLON block
+    function_declaration ::= FUNCTION variable (LEFT_PARENTHESIS parameters RIGHT_PARENTHESIS)? COLON type SEMICOLON block
+    parameters ::= parameter_group (SEMICOLON parameter_group)*
+    parameter_group ::= variable (COMMA variable)* COLON type
     type ::= INTEGER | REAL
     compound_statement ::= BEGIN statement_list END
     statement_list ::= statement | statement SEMICOLON statement_list
@@ -46,20 +47,20 @@ class SyntacticAnalyzer(object):
     empty ::=
     """
 
-    __slots__ = ("lexer", "current_token")
+    __slots__ = ("_lexical_analyzer", "_current_token")
 
     def __init__(self, lexer: LexicalAnalyzer) -> None:
-        self.lexer: LexicalAnalyzer = lexer
-        self.current_token: Token = self.lexer.next_token()
+        self._lexical_analyzer: LexicalAnalyzer = lexer
+        self._current_token: Token = self._lexical_analyzer.next_token()
 
     def _consume(self, expected_type: TokenType) -> Token:
-        if self.current_token.type == expected_type:
-            token: Token = self.current_token
-            self.current_token = self.lexer.next_token()
+        if self._current_token.type == expected_type:
+            token: Token = self._current_token
+            self._current_token = self._lexical_analyzer.next_token()
             return token
         else:
             raise SyntacticAnalyzerError(
-                f"Expected {expected_type.value}", self.current_token
+                f"Expected {expected_type.value}", self._current_token
             )
 
     def _program(self) -> NodeProgram:
@@ -90,8 +91,8 @@ class SyntacticAnalyzer(object):
         subroutine_declarations: list[
             Union[NodeProcedureDeclaration, NodeFunctionDeclaration]
         ] = []
-        while self.current_token.type in (TokenType.PROCEDURE, TokenType.FUNCTION):
-            if self.current_token.type == TokenType.PROCEDURE:
+        while self._current_token.type in (TokenType.PROCEDURE, TokenType.FUNCTION):
+            if self._current_token.type == TokenType.PROCEDURE:
                 subroutine_declarations.append(self._procedure_declaration())
             else:
                 subroutine_declarations.append(self._function_declaration())
@@ -101,33 +102,59 @@ class SyntacticAnalyzer(object):
     def _procedure_declaration(self) -> NodeProcedureDeclaration:
         self._consume(TokenType.PROCEDURE)
         procedure_name: str = self._variable().id
+        parameters: Union[NodeEmpty, list[NodeParameterGroup]] = NodeEmpty()
+        if self._current_token.type == TokenType.LEFT_PARENTHESIS:
+            self._consume(TokenType.LEFT_PARENTHESIS)
+            parameters = self._parameters()
+            self._consume(TokenType.RIGHT_PARENTHESIS)
         self._consume(TokenType.SEMICOLON)
         block: NodeBlock = self._block()
-        return NodeProcedureDeclaration(procedure_name, block)
+        return NodeProcedureDeclaration(procedure_name, parameters, block)
 
     def _function_declaration(self) -> NodeFunctionDeclaration:
         self._consume(TokenType.FUNCTION)
         function_name: str = self._variable().id
+        parameters: Union[NodeEmpty, list[NodeParameterGroup]] = NodeEmpty()
+        if self._current_token.type == TokenType.LEFT_PARENTHESIS:
+            self._consume(TokenType.LEFT_PARENTHESIS)
+            parameters = self._parameters()
+            self._consume(TokenType.RIGHT_PARENTHESIS)
+        self._consume(TokenType.COLON)
+        return_type: NodeType = self._type()
         self._consume(TokenType.SEMICOLON)
         block: NodeBlock = self._block()
-        return NodeFunctionDeclaration(function_name, block)
+        return NodeFunctionDeclaration(function_name, parameters, return_type, block)
+
+    def _parameters(self) -> list[NodeParameterGroup]:
+        parameters: list[NodeParameterGroup] = [self._parameter_group()]
+        while self._current_token.type == TokenType.SEMICOLON:
+            self._consume(TokenType.SEMICOLON)
+            parameters.append(self._parameter_group())
+        return parameters
+
+    def _parameter_group(self) -> NodeParameterGroup:
+        variables: list[NodeVariable] = [self._variable()]
+        while self._current_token.type == TokenType.COMMA:
+            self._consume(TokenType.COMMA)
+            variables.append(self._variable())
+        self._consume(TokenType.COLON)
+        type: NodeType = self._type()
+        return NodeParameterGroup(variables, type)
 
     def _variable_declarations(self) -> Union[NodeVariableDeclarations, NodeEmpty]:
-        if self.current_token.type == TokenType.VAR:
+        if self._current_token.type == TokenType.VAR:
             self._consume(TokenType.VAR)
             variable_declarations: list[NodeVariableDeclaration] = []
-
-            while self.current_token.type == TokenType.ID:
+            while self._current_token.type == TokenType.ID:
                 variable_declarations.append(self._variable_declaration())
                 self._consume(TokenType.SEMICOLON)
-
             return NodeVariableDeclarations(variable_declarations)
         else:
             return self._empty()
 
     def _variable_declaration(self) -> NodeVariableDeclaration:
         variables: list[NodeVariable] = [self._variable()]
-        while self.current_token.type == TokenType.COMMA:
+        while self._current_token.type == TokenType.COMMA:
             self._consume(TokenType.COMMA)
             variables.append(self._variable())
         self._consume(TokenType.COLON)
@@ -135,7 +162,7 @@ class SyntacticAnalyzer(object):
         return NodeVariableDeclaration(variables, node_type)
 
     def _type(self) -> NodeType:
-        token: Token = self.current_token
+        token: Token = self._current_token
         if token.type == TokenType.INTEGER:
             self._consume(TokenType.INTEGER)
             return NodeType(token)
@@ -148,9 +175,9 @@ class SyntacticAnalyzer(object):
     def _statement(
         self,
     ) -> Union[NodeCompoundStatement, NodeAssignmentStatement, NodeEmpty]:
-        if self.current_token.type == TokenType.BEGIN:
+        if self._current_token.type == TokenType.BEGIN:
             return self._compound_statement()
-        elif self.current_token.type == TokenType.ID:
+        elif self._current_token.type == TokenType.ID:
             return self._assignment_statement()
         else:
             return self._empty()
@@ -177,18 +204,18 @@ class SyntacticAnalyzer(object):
         nodes: list[
             Union[NodeCompoundStatement, NodeAssignmentStatement, NodeEmpty]
         ] = [self._statement()]
-        while self.current_token.type == TokenType.SEMICOLON:
+        while self._current_token.type == TokenType.SEMICOLON:
             self._consume(TokenType.SEMICOLON)
             nodes.append(self._statement())
         return nodes
 
     def _variable(self) -> NodeVariable:
-        token: Token = self.current_token
+        token: Token = self._current_token
         self._consume(TokenType.ID)
         return NodeVariable(token)
 
     def _factor(self) -> NodeAST:
-        token: Token = self.current_token
+        token: Token = self._current_token
         if token.type == TokenType.ID:
             return self._variable()
         elif token.type == TokenType.INTEGER_CONSTANT:
@@ -213,13 +240,13 @@ class SyntacticAnalyzer(object):
 
     def _term(self) -> NodeAST:
         node: NodeAST = self._factor()
-        while self.current_token.type in (
+        while self._current_token.type in (
             TokenType.MUL,
             TokenType.TRUE_DIV,
             TokenType.INTEGER_DIV,
             TokenType.MOD,
         ):
-            token: Token = self.current_token
+            token: Token = self._current_token
             self._consume(token.type)
             right: NodeAST = self._factor()
             node = NodeBinaryOperation(node, token, right)
@@ -227,8 +254,8 @@ class SyntacticAnalyzer(object):
 
     def _expression(self) -> NodeAST:
         node: NodeAST = self._term()
-        while self.current_token.type in (TokenType.PLUS, TokenType.MINUS):
-            token: Token = self.current_token
+        while self._current_token.type in (TokenType.PLUS, TokenType.MINUS):
+            token: Token = self._current_token
             self._consume(token.type)
             right: NodeAST = self._term()
             node = NodeBinaryOperation(node, token, right)
@@ -236,8 +263,8 @@ class SyntacticAnalyzer(object):
 
     def parse(self) -> NodeAST:
         node: NodeAST = self._program()
-        if self.current_token.type != TokenType.EOF:
+        if self._current_token.type != TokenType.EOF:
             raise SyntacticAnalyzerError(
-                "Unexpected token after program", self.current_token
+                "Unexpected token after program", self._current_token
             )
         return node

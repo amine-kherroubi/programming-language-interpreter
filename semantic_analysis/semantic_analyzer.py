@@ -45,7 +45,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
             self.visit(declaration)
 
     def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:
-        type: str = node.type.type.name
+        type: str = node.type.type
         for variable in node.variables:
             if not self._symbol_table.lookup(variable_name := variable.id):
                 self._symbol_table.define(VariableSymbol(variable_name, type))

@@ -89,7 +89,7 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         pass
 
     def visit_NodeType(self, node: NodeType) -> str:
-        return node.type.name
+        return node.type
 
     def visit_NodeEmpty(self, node: NodeEmpty) -> None:
         pass
