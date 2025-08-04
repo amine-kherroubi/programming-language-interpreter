@@ -1,7 +1,7 @@
 import sys
 from lexical_analysis.lexical_analyzer import LexicalAnalyzer
 from syntactic_analysis.ast import NodeAST
-from syntactic_analysis.parser import SyntacticAnalyzer
+from syntactic_analysis.syntactic_analyser import SyntacticAnalyzer
 from interpreting.interpreter import Interpreter
 from semantic_analysis.semantic_analyzer import SemanticAnalyzer
 from semantic_analysis.symbol_table import SymbolTable_
