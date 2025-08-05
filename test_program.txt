@@ -12,6 +12,16 @@ BEGIN
     k = k + 2;
 end;
 
+procedure a921(n,b:INteger);
+VAR 
+    k: REAL;
+function a2(f:REAL): INTEGER;
+BEGIN
+end;
+BEGIN
+    k = k + 2;
+end;
+
 function a2(f:REAL): INTEGER;
 BEGIN
 end;

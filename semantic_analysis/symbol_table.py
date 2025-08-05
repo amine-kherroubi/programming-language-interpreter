@@ -122,10 +122,12 @@ class ScopedSymbolTable:
     def define(self, symbol: Symbol) -> None:
         self._symbols[symbol.name] = symbol
 
-    def lookup(self, name: str) -> Optional[Symbol]:
+    def lookup(self, name: str, current_scope_only: bool = False) -> Optional[Symbol]:
         symbol: Optional[Symbol] = self._symbols.get(name)
         if symbol is not None:
             return symbol
+        if current_scope_only:
+            return None
         if self.enclosing_scope is not None:
             return self.enclosing_scope.lookup(name)
         return None

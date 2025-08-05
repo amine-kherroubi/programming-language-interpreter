@@ -61,7 +61,12 @@ class SemanticAnalyzer(NodeVisitor[None]):
     ) -> None:
         type_name: str = node.type.name
         for variable in node.members:
-            if self._current_scope.lookup(variable_name := variable.name) is None:
+            if (
+                self._current_scope.lookup(
+                    variable_name := variable.name, current_scope_only=True
+                )
+                is None
+            ):
                 self._current_scope.define(VariableSymbol(variable_name, type_name))
             else:
                 raise SemanticAnalyzerError(
@@ -100,6 +105,15 @@ class SemanticAnalyzer(NodeVisitor[None]):
             self.visit(declaration)
 
     def visit_NodeProcedureDeclaration(self, node: NodeProcedureDeclaration) -> None:
+        if (
+            self._current_scope.lookup(
+                procedure_name := node.name, current_scope_only=True
+            )
+            is not None
+        ):
+            raise SemanticAnalyzerError(
+                f"Duplicate declaration for procedure {procedure_name}"
+            )
         parameters: list[VariableSymbol] = []
         if not isinstance(node.parameters, NodeEmpty):
             for parameter_group in node.parameters:
@@ -124,6 +138,15 @@ class SemanticAnalyzer(NodeVisitor[None]):
         self._current_scope = previous_scope
 
     def visit_NodeFunctionDeclaration(self, node: NodeFunctionDeclaration) -> None:
+        if (
+            self._current_scope.lookup(
+                function_name := node.name, current_scope_only=True
+            )
+            is not None
+        ):
+            raise SemanticAnalyzerError(
+                f"Duplicate declaration for function {function_name}"
+            )
         parameters: list[VariableSymbol] = []
         if not isinstance(node.parameters, NodeEmpty):
             for parameter_group in node.parameters:
