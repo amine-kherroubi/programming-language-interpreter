@@ -40,7 +40,7 @@ class LexicalAnalyzer(object):
 
     def __repr__(self) -> str:
         """Return a developer-friendly string representation of the analyzer."""
-        return f"LexicalAnalyzer(text={self.text})"
+        return f"{self.__class__.__name__}(text={self.text})"
 
     def __str__(self) -> str:
         """Return a human-readable string showing current analyzer state."""

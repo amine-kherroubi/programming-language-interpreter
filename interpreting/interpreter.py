@@ -113,7 +113,7 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
 
     def __repr__(self) -> str:
         """Return developer-friendly string representation of the interpreter."""
-        return f"Interpreter()"
+        return f"{self.__class__.__name__}()"
 
     def __str__(self) -> str:
         """Return human-readable representation showing current memory state."""

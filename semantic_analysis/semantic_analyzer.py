@@ -80,7 +80,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
 
     def __repr__(self) -> str:
         """Return developer-friendly string representation of the analyzer."""
-        return "SemanticAnalyzer()"
+        return f"{self.__class__.__name__}()"
 
     def __str__(self) -> str:
         """Return human-readable representation showing current scope contents."""

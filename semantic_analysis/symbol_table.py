@@ -118,7 +118,7 @@ class ProgramSymbol(TypelessSymbol):
 
     def __repr__(self) -> str:
         """Return developer-friendly representation showing symbol type and name."""
-        return f"ProgramSymbol(name='{self.name}')"
+        return f"{self.__class__.__name__}(name='{self.name}')"
 
     def __str__(self) -> str:
         """Return user-friendly representation identifying this as a program."""
@@ -144,7 +144,7 @@ class BuiltInTypeSymbol(TypelessSymbol):
 
     def __repr__(self) -> str:
         """Return developer-friendly representation showing this is a built-in type."""
-        return f"BuiltInTypeSymbol(name='{self.name}')"
+        return f"{self.__class__.__name__}(name='{self.name}')"
 
     def __str__(self) -> str:
         """Return user-friendly representation identifying this as a built-in type."""
@@ -167,7 +167,7 @@ class VariableSymbol(TypedSymbol):
 
     def __repr__(self) -> str:
         """Return developer-friendly representation showing variable name and type."""
-        return f"VariableSymbol(name='{self.name}', type='{self.type}')"
+        return f"{self.__class__.__name__}(name='{self.name}', type='{self.type}')"
 
     def __str__(self) -> str:
         """Return user-friendly representation showing variable with its type."""
@@ -212,7 +212,9 @@ class ProcedureSymbol(TypelessSymbol):
 
     def __repr__(self) -> str:
         """Return developer-friendly representation with procedure name and parameters."""
-        return f"ProcedureSymbol(name={self.name}, parameters={self.parameters})"
+        return (
+            f"{self.__class__.__name__}(name={self.name}, parameters={self.parameters})"
+        )
 
     def __str__(self) -> str:
         """Return user-friendly representation showing procedure signature."""
@@ -263,7 +265,7 @@ class FunctionSymbol(TypedSymbol):
 
     def __repr__(self) -> str:
         """Return developer-friendly representation with all function details."""
-        return f"FunctionSymbol(name='{self.name}', parameters={self.parameters}, type='{self.type}')"
+        return f"{self.__class__.__name__}(name='{self.name}', parameters={self.parameters}, type='{self.type}')"
 
     def __str__(self) -> str:
         """Return user-friendly representation showing function signature and return type."""
@@ -339,7 +341,7 @@ class ScopedSymbolTable:
 
     def __repr__(self) -> str:
         """Return developer-friendly representation showing scope details."""
-        return f"ScopedSymbolTable(scope_name={self.scope_name}, scope_level={self.scope_level})"
+        return f"{self.__class__.__name__}(scope_name={self.scope_name}, scope_level={self.scope_level})"
 
     def __str__(self) -> str:
         """Return human-readable representation showing all symbols in this scope."""

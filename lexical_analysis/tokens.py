@@ -87,7 +87,7 @@ class Token(object):
 
     def __repr__(self) -> str:
         """Return a developer-friendly string representation of the token."""
-        return f"Token(type={self.type}, value={self.value!r}, line={self.line}, column={self.column})"
+        return f"{self.__class__.__name__}(type={self.type}, value={self.value!r}, line={self.line}, column={self.column})"
 
     def __str__(self) -> str:
         """Return a human-readable string representation of the token."""
