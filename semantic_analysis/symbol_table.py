@@ -89,17 +89,23 @@ class FunctionSymbol(TypedSymbol):
 
 
 class ScopedSymbolTable:
-    __slots__ = ("_symbols", "scope_name", "scope_level")
+    __slots__ = ("_symbols", "scope_name", "scope_level", "enclosing_scope")
 
     BUILT_IN_TYPES: list[BuiltInTypeSymbol] = [
         BuiltInTypeSymbol(TokenType.INTEGER.name),
         BuiltInTypeSymbol(TokenType.REAL.name),
     ]
 
-    def __init__(self, scope_name: str, scope_level: int) -> None:
+    def __init__(
+        self,
+        scope_name: str,
+        scope_level: int,
+        enclosing_scope: Optional["ScopedSymbolTable"],
+    ) -> None:
         self._symbols: OrderedDict[str, Symbol] = OrderedDict()
         self.scope_name: str = scope_name
         self.scope_level: int = scope_level
+        self.enclosing_scope: Optional[ScopedSymbolTable] = enclosing_scope
         if scope_level == 0:
             self._init_builtins()
 
@@ -117,4 +123,9 @@ class ScopedSymbolTable:
         self._symbols[symbol.name] = symbol
 
     def lookup(self, name: str) -> Optional[Symbol]:
-        return self._symbols.get(name)
+        symbol: Optional[Symbol] = self._symbols.get(name)
+        if symbol is not None:
+            return symbol
+        if self.enclosing_scope is not None:
+            return self.enclosing_scope.lookup(name)
+        return None

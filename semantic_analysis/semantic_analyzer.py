@@ -30,21 +30,22 @@ class SemanticAnalyzer(NodeVisitor[None]):
     __slots__ = ("_current_scope",)
 
     def __init__(self) -> None:
-        self._current_scope: ScopedSymbolTable = ScopedSymbolTable("Built-in", 0)
+        self._current_scope: ScopedSymbolTable = ScopedSymbolTable("External", 0, None)
 
     def __repr__(self) -> str:
-        return f"SemanticAnalyzer()"
+        return "SemanticAnalyzer()"
 
     def __str__(self) -> str:
         return str(self._current_scope)
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
         self._current_scope.define(ProgramSymbol(node.name))
-        program_scope: ScopedSymbolTable = ScopedSymbolTable("Global", 1)
-        previous_scope: ScopedSymbolTable = self._current_scope
+        program_scope: ScopedSymbolTable = ScopedSymbolTable(
+            "Global", 1, self._current_scope
+        )
         self._current_scope = program_scope
         self.visit(node.block)
-        self._current_scope = previous_scope
+        self._current_scope = self._current_scope.enclosing_scope
 
     def visit_NodeBlock(self, node: NodeBlock) -> None:
         self.visit(node.variable_declarations)
@@ -102,14 +103,18 @@ class SemanticAnalyzer(NodeVisitor[None]):
         parameters: list[VariableSymbol] = []
         if not isinstance(node.parameters, NodeEmpty):
             for parameter_group in node.parameters:
-                parameters += [
-                    VariableSymbol(member.name, parameter_group.type.name)
-                    for member in parameter_group.members
-                ]
+                parameters.extend(
+                    [
+                        VariableSymbol(member.name, parameter_group.type.name)
+                        for member in parameter_group.members
+                    ]
+                )
         procedure_symbol: ProcedureSymbol = ProcedureSymbol(node.name, parameters)
         self._current_scope.define(procedure_symbol)
         procedure_scope: ScopedSymbolTable = ScopedSymbolTable(
-            scope_name=node.name, scope_level=self._current_scope.scope_level + 1
+            scope_name=node.name,
+            scope_level=self._current_scope.scope_level + 1,
+            enclosing_scope=self._current_scope,
         )
         for param in parameters:
             procedure_scope.define(param)
@@ -122,16 +127,20 @@ class SemanticAnalyzer(NodeVisitor[None]):
         parameters: list[VariableSymbol] = []
         if not isinstance(node.parameters, NodeEmpty):
             for parameter_group in node.parameters:
-                parameters += [
-                    VariableSymbol(variable.name, parameter_group.type.name)
-                    for variable in parameter_group.members
-                ]
+                parameters.extend(
+                    [
+                        VariableSymbol(variable.name, parameter_group.type.name)
+                        for variable in parameter_group.members
+                    ]
+                )
         function_symbol: FunctionSymbol = FunctionSymbol(
             node.name, parameters, node.type.name
         )
         self._current_scope.define(function_symbol)
         function_scope: ScopedSymbolTable = ScopedSymbolTable(
-            scope_name=node.name, scope_level=self._current_scope.scope_level + 1
+            scope_name=node.name,
+            scope_level=self._current_scope.scope_level + 1,
+            enclosing_scope=self._current_scope,
         )
         for param in parameters:
             function_scope.define(param)

@@ -25,6 +25,7 @@ def main() -> None:
         semantic_analyzer.analyze(ast)
         interpreter: Interpreter = Interpreter()
         interpreter.interpret(ast)
+        print(interpreter)
     except Exception as e:
         print(f"Error: {e}")
 

@@ -5,14 +5,14 @@ VAR
     b, x, ___2y: INTEGER;
     M: INTEGER  { Hello };
 
-procedure a92(a,b:INteger);
+procedure a92(n,b:INteger);
 VAR 
     k: REAL;
 BEGIN
     k = k + 2;
 end;
 
-function a2(x:REAL): INTEGER;
+function a2(f:REAL): INTEGER;
 BEGIN
 end;
 
