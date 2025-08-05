@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, OrderedDict
 from lexical_analysis.tokens import TokenType
 
 
@@ -65,7 +65,9 @@ class ProcedureSymbol(TypelessSymbol):
         return f"ProcedureSymbol(name={self.name}, parameters={self.parameters})"
 
     def __str__(self) -> str:
-        params_str = ", ".join([param.name for param in self.parameters])
+        params_str = ", ".join(
+            [f"{param.name}: {param.type}" for param in self.parameters]
+        )
         return f"Procedure: {self.name}({params_str})"
 
 
@@ -77,25 +79,32 @@ class FunctionSymbol(TypedSymbol):
         self.parameters: list[VariableSymbol] = parameters
 
     def __repr__(self) -> str:
-        return f"FunctionSymbol(name={self.name}, parameters={self.parameters}, type={self.type})"
+        return f"FunctionSymbol(name='{self.name}', parameters={self.parameters}, type='{self.type}')"
 
     def __str__(self) -> str:
-        params_str = ", ".join([param.name for param in self.parameters])
+        params_str = ", ".join(
+            [f"{param.name}: {param.type}" for param in self.parameters]
+        )
         return f"Function: {self.name}({params_str}) -> {self.type}"
 
 
-class SymbolTable_:
+class ScopedSymbolTable:
+    __slots__ = ("_symbols", "scope_name", "scope_level")
+
     BUILT_IN_TYPES: list[BuiltInTypeSymbol] = [
         BuiltInTypeSymbol(TokenType.INTEGER.name),
         BuiltInTypeSymbol(TokenType.REAL.name),
     ]
 
-    def __init__(self) -> None:
-        self._symbols: dict[str, Symbol] = {}
-        self._init_builtins()
+    def __init__(self, scope_name: str, scope_level: int) -> None:
+        self._symbols: OrderedDict[str, Symbol] = OrderedDict()
+        self.scope_name: str = scope_name
+        self.scope_level: int = scope_level
+        if scope_level == 0:
+            self._init_builtins()
 
     def __repr__(self) -> str:
-        return "SymbolTable()"
+        return f"ScopedSymbolTable(scope_name={self.scope_name}, scope_level={self.scope_level})"
 
     def __str__(self) -> str:
         return f"Symbols: {[str(value) for value in self._symbols.values()]}"

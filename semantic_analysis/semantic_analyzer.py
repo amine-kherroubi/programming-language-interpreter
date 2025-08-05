@@ -17,7 +17,7 @@ from syntactic_analysis.ast import (
     NodeProgram,
 )
 from semantic_analysis.symbol_table import (
-    SymbolTable_,
+    ScopedSymbolTable,
     VariableSymbol,
     ProgramSymbol,
     ProcedureSymbol,
@@ -27,20 +27,24 @@ from utils.exceptions import SemanticAnalyzerError
 
 
 class SemanticAnalyzer(NodeVisitor[None]):
-    __slots__ = ("_symbol_table",)
+    __slots__ = ("_current_scope",)
 
-    def __init__(self, symbol_table: SymbolTable_) -> None:
-        self._symbol_table: SymbolTable_ = symbol_table
+    def __init__(self) -> None:
+        self._current_scope: ScopedSymbolTable = ScopedSymbolTable("Built-in", 0)
 
     def __repr__(self) -> str:
-        return f"SemanticAnalyzer(_symbol_table={self._symbol_table!r})"
+        return f"SemanticAnalyzer()"
 
     def __str__(self) -> str:
-        return str(self._symbol_table)
+        return str(self._current_scope)
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
-        self._symbol_table.define(ProgramSymbol(node.name))
+        self._current_scope.define(ProgramSymbol(node.name))
+        program_scope: ScopedSymbolTable = ScopedSymbolTable("Global", 1)
+        previous_scope: ScopedSymbolTable = self._current_scope
+        self._current_scope = program_scope
         self.visit(node.block)
+        self._current_scope = previous_scope
 
     def visit_NodeBlock(self, node: NodeBlock) -> None:
         self.visit(node.variable_declarations)
@@ -54,10 +58,10 @@ class SemanticAnalyzer(NodeVisitor[None]):
     def visit_NodeVariableDeclarationGroup(
         self, node: NodeVariableDeclarationGroup
     ) -> None:
-        type: str = node.type.name
+        type_name: str = node.type.name
         for variable in node.members:
-            if not self._symbol_table.lookup(variable_name := variable.name):
-                self._symbol_table.define(VariableSymbol(variable_name, type))
+            if self._current_scope.lookup(variable_name := variable.name) is None:
+                self._current_scope.define(VariableSymbol(variable_name, type_name))
             else:
                 raise SemanticAnalyzerError(
                     f"Duplicate declaration for variable {variable_name}"
@@ -75,7 +79,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         pass
 
     def visit_NodeVariable(self, node: NodeVariable) -> None:
-        if self._symbol_table.lookup(variable_name := node.name) is None:
+        if self._current_scope.lookup(variable_name := node.name) is None:
             raise SemanticAnalyzerError(f"Undeclared variable {variable_name}")
 
     def visit_NodeNumber(self, node: NodeNumber) -> None:
@@ -102,8 +106,17 @@ class SemanticAnalyzer(NodeVisitor[None]):
                     VariableSymbol(member.name, parameter_group.type.name)
                     for member in parameter_group.members
                 ]
-        self._symbol_table.define(ProcedureSymbol(node.name, parameters))
+        procedure_symbol: ProcedureSymbol = ProcedureSymbol(node.name, parameters)
+        self._current_scope.define(procedure_symbol)
+        procedure_scope: ScopedSymbolTable = ScopedSymbolTable(
+            scope_name=node.name, scope_level=self._current_scope.scope_level + 1
+        )
+        for param in parameters:
+            procedure_scope.define(param)
+        previous_scope: ScopedSymbolTable = self._current_scope
+        self._current_scope = procedure_scope
         self.visit(node.block)
+        self._current_scope = previous_scope
 
     def visit_NodeFunctionDeclaration(self, node: NodeFunctionDeclaration) -> None:
         parameters: list[VariableSymbol] = []
@@ -113,8 +126,19 @@ class SemanticAnalyzer(NodeVisitor[None]):
                     VariableSymbol(variable.name, parameter_group.type.name)
                     for variable in parameter_group.members
                 ]
-        self._symbol_table.define(FunctionSymbol(node.name, parameters, node.type.name))
+        function_symbol: FunctionSymbol = FunctionSymbol(
+            node.name, parameters, node.type.name
+        )
+        self._current_scope.define(function_symbol)
+        function_scope: ScopedSymbolTable = ScopedSymbolTable(
+            scope_name=node.name, scope_level=self._current_scope.scope_level + 1
+        )
+        for param in parameters:
+            function_scope.define(param)
+        previous_scope: ScopedSymbolTable = self._current_scope
+        self._current_scope = function_scope
         self.visit(node.block)
+        self._current_scope = previous_scope
 
-    def build(self, tree: NodeAST) -> None:
+    def analyze(self, tree: NodeAST) -> None:
         self.visit(tree)

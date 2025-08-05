@@ -4,7 +4,6 @@ from syntactic_analysis.ast import NodeAST
 from syntactic_analysis.syntactic_analyser import SyntacticAnalyzer
 from interpreting.interpreter import Interpreter
 from semantic_analysis.semantic_analyzer import SemanticAnalyzer
-from semantic_analysis.symbol_table import SymbolTable_
 
 
 def main() -> None:
@@ -22,12 +21,10 @@ def main() -> None:
         lexical_analyzer: LexicalAnalyzer = LexicalAnalyzer(program_text)
         syntactic_analyzer: SyntacticAnalyzer = SyntacticAnalyzer(lexical_analyzer)
         ast: NodeAST = syntactic_analyzer.parse()
-        symbol_table: SymbolTable_ = SymbolTable_()
-        semantic_analyzer: SemanticAnalyzer = SemanticAnalyzer(symbol_table)
-        semantic_analyzer.build(ast)
+        semantic_analyzer: SemanticAnalyzer = SemanticAnalyzer()
+        semantic_analyzer.analyze(ast)
         interpreter: Interpreter = Interpreter()
         interpreter.interpret(ast)
-        print(symbol_table)
     except Exception as e:
         print(f"Error: {e}")
 
