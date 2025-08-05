@@ -23,7 +23,7 @@ from semantic_analysis.symbol_table import (
     ProcedureSymbol,
     FunctionSymbol,
 )
-from utils.exceptions import SemanticAnalyzerError
+from utils.error_handling import SemanticError, ErrorCode
 
 
 class SemanticAnalyzer(NodeVisitor[None]):
@@ -205,8 +205,9 @@ class SemanticAnalyzer(NodeVisitor[None]):
                 self._current_scope.define(VariableSymbol(variable_name, type_name))
             else:
                 # Duplicate declaration in same scope - semantic error
-                raise SemanticAnalyzerError(
-                    f"Duplicate declaration for variable {variable_name}"
+                raise SemanticError(
+                    ErrorCode.DUPLICATE_DECLARATION,
+                    f"Duplicate declaration for variable {variable_name}",
                 )
 
     def visit_NodeCompoundStatement(self, node: NodeCompoundStatement) -> None:
@@ -286,7 +287,9 @@ class SemanticAnalyzer(NodeVisitor[None]):
         # Perform scope chain lookup for the variable
         if self._current_scope.lookup(variable_name := node.name) is None:
             # Variable not found in any accessible scope
-            raise SemanticAnalyzerError(f"Undeclared variable {variable_name}")
+            raise SemanticError(
+                ErrorCode.UNDECLARED_IDENTIFIER, f"Undeclared variable {variable_name}"
+            )
 
     def visit_NodeNumber(self, node: NodeNumber) -> None:
         """
@@ -393,8 +396,9 @@ class SemanticAnalyzer(NodeVisitor[None]):
             )
             is not None
         ):
-            raise SemanticAnalyzerError(
-                f"Duplicate declaration for procedure {procedure_name}"
+            raise SemanticError(
+                ErrorCode.DUPLICATE_DECLARATION,
+                f"Duplicate declaration for procedure {procedure_name}",
             )
 
         # Process parameter list - convert to VariableSymbol objects
@@ -472,8 +476,9 @@ class SemanticAnalyzer(NodeVisitor[None]):
             )
             is not None
         ):
-            raise SemanticAnalyzerError(
-                f"Duplicate declaration for function {function_name}"
+            raise SemanticError(
+                ErrorCode.DUPLICATE_DECLARATION,
+                f"Duplicate declaration for function {function_name}",
             )
 
         # Process parameter list - convert to VariableSymbol objects

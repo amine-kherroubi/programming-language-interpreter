@@ -9,7 +9,7 @@ procedure a92(n,b:INteger);
 VAR 
     k: REAL;
 BEGIN
-    k = k + 2;
+    k := k + 2;
 end;
 
 procedure a921(n,b:INteger);
@@ -19,7 +19,7 @@ function a2(f:REAL): INTEGER;
 BEGIN
 end;
 BEGIN
-    k = k + 2;
+    k := k + 2;
 end;
 
 function a2(f:REAL): INTEGER;
@@ -27,8 +27,8 @@ BEGIN
 end;
 
 BEGIN
-    x = 2;
-    ___2y = 3;
-    _z = 32 / ___2y;
-    M = 2;
+    x := 2;
+    ___2y := 3;
+    _z := 32 / ___2y;
+    M := 2;
 END.

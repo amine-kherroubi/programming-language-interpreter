@@ -18,7 +18,7 @@ from syntactic_analysis.ast import (
     NodeUnaryOperation,
     NodeVariableDeclarationGroup,
 )
-from utils.exceptions import InterpreterError
+from utils.error_handling import InterpreterError, ErrorCode
 
 # Type aliases for better code documentation and type safety
 # ValueType represents all possible values that can be stored in interpreter memory
@@ -393,7 +393,7 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
 
         # Check for division by zero before performing division operations
         if operator_symbol in ("/", "DIV", "MOD") and right_val in (0, 0.0):
-            raise InterpreterError("Cannot divide by zero")
+            raise InterpreterError(ErrorCode.DIVISION_BY_ZERO, "Cannot divide by zero")
 
         # Look up and apply the operator function
         return self.BINARY_OPERATORS[operator_symbol](left_val, right_val)

@@ -1,6 +1,6 @@
 from typing import Optional
 from lexical_analysis.tokens import Token, TokenType
-from utils.exceptions import LexicalAnalyzerError
+from utils.error_handling import LexicalError, ErrorCode
 
 
 class LexicalAnalyzer(object):
@@ -195,8 +195,12 @@ class LexicalAnalyzer(object):
             if self.current_char == ".":
                 # Check for multiple decimal points - invalid format
                 if has_decimal_point:
-                    raise LexicalAnalyzerError(
-                        "Invalid number format: multiple decimal points", self.position
+                    raise LexicalError(
+                        ErrorCode.INVALID_NUMBER_FORMAT,
+                        "Invalid number format: multiple decimal points",
+                        self.position,
+                        self.line,
+                        self.column,
                     )
                 has_decimal_point = True
 
@@ -205,8 +209,12 @@ class LexicalAnalyzer(object):
 
         # Handle edge case - lone decimal point without digits
         if number_string == ".":
-            raise LexicalAnalyzerError(
-                "Invalid number format: lone decimal point", self.position - 1
+            raise LexicalError(
+                ErrorCode.INVALID_NUMBER_FORMAT,
+                "Invalid number format: lone decimal point",
+                self.position - 1,
+                self.line,
+                self.column,
             )
 
         # Return appropriate token type based on whether we found a decimal point
@@ -322,6 +330,10 @@ class LexicalAnalyzer(object):
             return Token(token_type, character, self.line, self.column)
 
         # If we reach here, we encountered an invalid character
-        raise LexicalAnalyzerError(
-            f"Invalid character: '{self.current_char}'", self.position
+        raise LexicalError(
+            ErrorCode.INVALID_CHARACTER,
+            f"Invalid character: '{self.current_char}'",
+            self.position,
+            self.line,
+            self.column,
         )

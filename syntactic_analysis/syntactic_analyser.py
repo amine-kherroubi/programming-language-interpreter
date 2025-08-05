@@ -20,7 +20,7 @@ from syntactic_analysis.ast import (
     NodeUnaryOperation,
     NodeVariableDeclarationGroup,
 )
-from utils.exceptions import SyntacticAnalyzerError
+from utils.error_handling import SyntacticError, ErrorCode
 
 
 class SyntacticAnalyzer(object):
@@ -93,8 +93,10 @@ class SyntacticAnalyzer(object):
             )  # Advance to next token
             return token
         else:
-            raise SyntacticAnalyzerError(
-                f"Expected {expected_type.value}", self._current_token
+            raise SyntacticError(
+                ErrorCode.UNEXPECTED_TOKEN,
+                f"Expected {expected_type.value}",
+                self._current_token,
             )
 
     def _program(self) -> NodeProgram:
@@ -350,7 +352,9 @@ class SyntacticAnalyzer(object):
             self._consume(TokenType.REAL)  # Consume REAL keyword
             return NodeType(token)
         else:
-            raise SyntacticAnalyzerError("Expected INTEGER or REAL", token)
+            raise SyntacticError(
+                ErrorCode.UNEXPECTED_TOKEN, "Expected INTEGER or REAL", token
+            )
 
     def _statement(
         self,
@@ -500,8 +504,10 @@ class SyntacticAnalyzer(object):
             operand: NodeAST = self._factor()  # Parse operand
             return NodeUnaryOperation(token, operand)
         else:
-            raise SyntacticAnalyzerError(
-                "Expected number, unary operator, or '('", token
+            raise SyntacticError(
+                ErrorCode.UNEXPECTED_TOKEN,
+                "Expected number, unary operator, or '('",
+                token,
             )
 
     def _term(self) -> NodeAST:
@@ -570,7 +576,9 @@ class SyntacticAnalyzer(object):
 
         # Verify that all input has been consumed
         if self._current_token.type != TokenType.EOF:
-            raise SyntacticAnalyzerError(
-                "Unexpected token after program", self._current_token
+            raise SyntacticError(
+                ErrorCode.UNEXPECTED_TOKEN,
+                "Unexpected token after program",
+                self._current_token,
             )
         return node
