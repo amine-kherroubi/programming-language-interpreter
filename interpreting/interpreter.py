@@ -5,6 +5,7 @@ from syntactic_analysis.ast import (
     NodeAST,
     NodeBinaryOperation,
     NodeBlock,
+    NodeFunctionCall,
     NodeFunctionDeclaration,
     NodeProcedureCall,
     NodeSubroutineDeclarations,
@@ -117,7 +118,10 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
     def visit_NodeNumber(self, node: NodeNumber) -> NumericType:
         return node.value
 
-    def visit_NodeProcedureCall(self, node: NodeProcedureCall):
+    def visit_NodeProcedureCall(self, node: NodeProcedureCall) -> None:
+        pass
+
+    def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> None:
         pass
 
     def interpret(self, tree: NodeAST) -> Optional[ValueType]:

@@ -4,6 +4,7 @@ from lexical_analysis.tokens import Token, TokenType
 from syntactic_analysis.ast import (
     NodeAST,
     NodeBlock,
+    NodeFunctionCall,
     NodeFunctionDeclaration,
     NodeParameterGroup,
     NodeProcedureCall,
@@ -42,10 +43,11 @@ class SyntacticAnalyzer(object):
     statement ::= compound_statement | assignment_statement | procedure_call | empty
     assignment_statement ::= variable ASSIGN expression
     procedure_call ::= variable LEFT_PARENTHESIS arguments? RIGHT_PARENTHESIS
+    function_call ::= variable LEFT_PARENTHESIS arguments? RIGHT_PARENTHESIS
     arguments ::= expression (COMMA expression)*
     expression ::= term ((PLUS | MINUS) term)*
-    term ::= factor ((MUL | TRUE_DIV | INTEGER_DIV | MOD) factor)*
-    factor ::= (PLUS | MINUS)? (INTEGER | REAL | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS | variable)
+    term ::= factor ((MUL | TRUE_DIV | DIV | MOD) factor)*
+    factor ::= (PLUS | MINUS)? (INTEGER_CONSTANT | REAL_CONSTANT | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS | variable | function_call)
     variable ::= ID
     empty ::=
     """
@@ -244,7 +246,9 @@ class SyntacticAnalyzer(object):
 
     def _factor(self) -> NodeAST:
         token: Token = self._current_token
-        if token.type == TokenType.ID:
+        if token.type == TokenType.ID and self._lexical_analyzer.current_char == "(":
+            return self._function_call()
+        elif token.type == TokenType.ID:
             return self._variable()
         elif token.type == TokenType.INTEGER_CONSTANT:
             self._consume(TokenType.INTEGER_CONSTANT)
@@ -299,6 +303,15 @@ class SyntacticAnalyzer(object):
             arguments = self._arguments()
         self._consume(TokenType.RIGHT_PARENTHESIS)
         return NodeProcedureCall(procedure_name, arguments)
+
+    def _function_call(self) -> NodeFunctionCall:
+        function_name: str = self._variable().name
+        arguments: Union[NodeEmpty, list[NodeAST]] = self._empty()
+        self._consume(TokenType.LEFT_PARENTHESIS)
+        if self._current_token.type != TokenType.RIGHT_PARENTHESIS:
+            arguments = self._arguments()
+        self._consume(TokenType.RIGHT_PARENTHESIS)
+        return NodeFunctionCall(function_name, arguments)
 
     def _arguments(self) -> list[NodeAST]:
         arguments: list[NodeAST] = [self._expression()]

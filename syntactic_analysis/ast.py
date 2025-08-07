@@ -242,7 +242,22 @@ class NodeProcedureCall(NodeAST):
     def __init__(self, name: str, arguments: Union[NodeEmpty, list[NodeAST]]) -> None:
         self.name: str = name
         self.arguments: Union[NodeEmpty, list[NodeAST]] = arguments
-        pass
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(name={self.name}, arguments={self.arguments})"
+        )
+
+
+class NodeFunctionCall(NodeAST):
+    __slots__ = (
+        "name",
+        "arguments",
+    )
+
+    def __init__(self, name: str, arguments: Union[NodeEmpty, list[NodeAST]]) -> None:
+        self.name: str = name
+        self.arguments: Union[NodeEmpty, list[NodeAST]] = arguments
 
     def __repr__(self) -> str:
         return (

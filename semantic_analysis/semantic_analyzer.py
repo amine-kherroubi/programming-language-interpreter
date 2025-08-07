@@ -6,6 +6,7 @@ from syntactic_analysis.ast import (
     NodeBinaryOperation,
     NodeBlock,
     NodeCompoundStatement,
+    NodeFunctionCall,
     NodeFunctionDeclaration,
     NodeProcedureCall,
     NodeSubroutineDeclarations,
@@ -203,6 +204,33 @@ class SemanticAnalyzer(NodeVisitor[None]):
             raise SemanticError(
                 ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
                 f"Procedure {node.name} expects {expected_args} arguments, got {actual_args}",
+            )
+        for argument in node.arguments:
+            self.visit(argument)
+
+    def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> None:
+        function_symbol: Optional[Symbol] = self._current_scope.lookup(node.name)
+        if function_symbol is None:
+            raise SemanticError(
+                ErrorCode.UNDECLARED_IDENTIFIER, f"Undeclared function {node.name}"
+            )
+        if not isinstance(function_symbol, FunctionSymbol):
+            raise SemanticError(
+                ErrorCode.WRONG_SYMBOL_TYPE, f"{node.name} is not a function"
+            )
+        if isinstance(node.arguments, NodeEmpty):
+            if len(function_symbol.parameters) > 0:
+                raise SemanticError(
+                    ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
+                    f"Function {node.name} expects {len(function_symbol.parameters)} arguments, got 0",
+                )
+            return
+        if (expected_args := len(function_symbol.parameters)) != (
+            actual_args := len(node.arguments)
+        ):
+            raise SemanticError(
+                ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
+                f"Function {node.name} expects {expected_args} arguments, got {actual_args}",
             )
         for argument in node.arguments:
             self.visit(argument)
