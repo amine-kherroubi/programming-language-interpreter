@@ -5,7 +5,10 @@ from lexical_analysis.tokens import Token
 class ErrorCode(Enum):
     INVALID_CHARACTER = "Invalid character"
     INVALID_NUMBER_FORMAT = "Invalid number format"
+    UNTERMINATED_STRING = "Unterminated string"
     UNEXPECTED_TOKEN = "Unexpected token"
+    WRONG_NUMBER_OF_EXPRESSIONS = "Wrong number of expressions"
+    UNINITIALIZED_CONSTANT = "Uninitialized constant"
     UNDECLARED_IDENTIFIER = "Undeclared identifier"
     DUPLICATE_DECLARATION = "Duplicate declaration"
     WRONG_NUMBER_OF_ARGUMENTS = "Wrong number of arguments"

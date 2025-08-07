@@ -1,0 +1,37 @@
+program ::= block EOF
+block ::= "{" (statement NEWLINE)* give_statement? "}"
+statement ::= assignment | variable_declaration | constant_declaration | unit_use | give_statement
+
+assignment ::= IDENTIFIER "=" expression
+
+variable_declaration ::= "let" same_type_group (";" same_type_group)*
+constant_declaration ::= "keep" same_type_group (";" same_type_group)*
+same_type_group ::= identifier_group ":" type ("=" expression_group)?
+identifier_group ::= IDENTIFIER ("," IDENTIFIER)*
+expression_group ::= expression ("," expression)*
+
+unit_use ::= IDENTIFIER "(" args? ")"
+args ::= expression ("," expression)*
+
+give_statement ::= "give" expression?
+
+expression ::= power_expression (("+" | "-") power_expression)*
+power_expression ::= term ("**" power_expression)?
+term ::= factor (("*" | "/" | "//" | "%") factor)*
+factor ::= literal | IDENTIFIER | "(" expression ")" | unit_use | unit
+literal ::= WHOLE_LITERAL | REAL_LITERAL | TEXT_LITERAL | TRUTH_LITERAL
+
+unit ::= (parameters return_type?)? block
+parameters ::= "[" (parameter ("," parameter)*)? "]"
+parameter ::= IDENTIFIER ":" type
+return_type ::= "->" type
+
+type ::= WHOLE_TYPE | REAL_TYPE | TEXT_TYPE | TRUTH_TYPE | UNIT_TYPE
+
+IDENTIFIER ::= [a-zA-Z_][a-zA-Z0-9_]*
+WHOLE_LITERAL ::= [0-9]+
+REAL_LITERAL ::= [0-9]+"."[0-9]+
+TEXT_LITERAL ::= '"' .* '"'
+TRUTH_LITERAL ::= "true" | "false"
+NEWLINE ::= "\n"
+EOF ::= end-of-input

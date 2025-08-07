@@ -33,7 +33,7 @@ class ActivationRecord(object):
     def __setitem__(self, key: str, value: ValueType):
         self.members[key] = value
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> ValueType:
         return self.members[key]
 
     def get(self, key: str) -> Optional[ValueType]:
@@ -59,4 +59,4 @@ class CallStack(object):
         return f"{self.__class__.__name__}()"
 
     def __str__(self) -> str:
-        return f"Call stack: {reversed([repr(record) for record in self._activation_records])}"
+        return f"Call stack: {[repr(record) for record in self._activation_records]}"

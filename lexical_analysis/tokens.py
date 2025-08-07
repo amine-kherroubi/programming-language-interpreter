@@ -1,38 +1,46 @@
 from typing import Optional, Union
 from enum import Enum
 
-ValueType = Union[int, str, float]
+ValueType = Union[int, str, float, bool]
 
 
 class TokenType(Enum):
-    PROGRAM = "PROGRAM"
-    VAR = "VAR"
-    PROCEDURE = "PROCEDURE"
-    FUNCTION = "FUNCTION"
-    INTEGER = "INTEGER"
-    REAL = "REAL"
-    DIV = "DIV"
-    MOD = "MOD"
-    BEGIN = "BEGIN"
-    END = "END"
-    PLUS = "+"
-    MINUS = "-"
-    MUL = "*"
-    TRUE_DIV = "/"
+    LEFT_BRACE = "{"
+    RIGHT_BRACE = "}"
     LEFT_PARENTHESIS = "("
     RIGHT_PARENTHESIS = ")"
-    SEMICOLON = ";"
-    COLON = ":"
+    LEFT_BRACKET = "["
+    RIGHT_BRACKET = "]"
     COMMA = ","
-    DOT = "."
-    INTEGER_CONSTANT = "INTEGER_CONSTANT"
-    REAL_CONSTANT = "REAL_CONSTANT"
-    ASSIGN = "ASSIGN"
-    ID = "ID"
+    COLON = ":"
+    SEMICOLON = ";"
+    ASSIGN = "="
+    PLUS = "+"
+    MINUS = "-"
+    MULTIPLY = "*"
+    DIVIDE = "/"
+    MODULO = "%"
+    ARROW = "->"
+    FLOOR_DIVIDE = "//"
+    POWER = "**"
+    LET = "let"
+    KEEP = "keep"
+    GIVE = "give"
+    WHOLE_TYPE = "whole"
+    REAL_TYPE = "real"
+    TEXT_TYPE = "text"
+    TRUTH_TYPE = "truth"
+    UNIT_TYPE = "unit"
+    WHOLE_LITERAL = "WHOLE_LITERAL"
+    REAL_LITERAL = "REAL_LITERAL"
+    TEXT_LITERAL = "TEXT_LITERAL"
+    TRUTH_LITERAL = "TRUTH_LITERAL"
+    IDENTIFIER = "IDENTIFIER"
+    NEWLINE = "NEWLINE"
     EOF = "EOF"
 
 
-class Token(object):
+class Token:
     __slots__ = ("type", "value", "line", "column")
 
     def __init__(
