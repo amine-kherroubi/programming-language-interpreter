@@ -8,6 +8,7 @@ from syntactic_analysis.ast import (
     NodeConstantDeclaration,
     NodeIdentifier,
     NodeNumericLiteral,
+    NodeProgram,
     NodeSameTypeConstantDeclarationGroup,
     NodeSameTypeVariableDeclarationGroup,
     NodeUnaryOperation,
@@ -36,6 +37,9 @@ class SemanticAnalyzer(NodeVisitor[None]):
 
     def __str__(self) -> str:
         return str(self._current_scope)
+
+    def visit_NodeProgram(self, node: NodeProgram) -> None:
+        self.visit(node.block)
 
     def visit_NodeBlock(self, node: NodeBlock) -> None:
         for statement in node.statements:

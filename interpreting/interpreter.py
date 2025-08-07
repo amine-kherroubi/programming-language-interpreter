@@ -1,34 +1,26 @@
 from typing import Callable, Optional, Union
 import operator
 from interpreting.call_stack import ActivationRecord, ActivationRecordType, CallStack
-from semantic_analysis.symbol_table import ProcedureSymbol
 from visitor_pattern.visitor import NodeVisitor
 from syntactic_analysis.ast import (
     NodeAST,
     NodeBinaryOperation,
     NodeBlock,
-    NodeFunctionCall,
-    NodeFunctionDeclaration,
-    NodeProcedureCall,
-    NodeSubroutineDeclarations,
-    NodeProcedureDeclaration,
-    NodeVariableDeclarations,
-    NodeEmpty,
     NodeAssignmentStatement,
+    NodeIdentifier,
+    NodeNumericLiteral,
     NodeProgram,
-    NodeVariable,
-    NodeCompoundStatement,
-    NodeNumber,
+    NodeSameTypeVariableDeclarationGroup,
     NodeUnaryOperation,
-    NodeVariableDeclarationGroup,
+    NodeUnitUse,
+    NodeVariableDeclaration,
 )
 from utils.error_handling import InterpreterError, ErrorCode
 
-ValueType = Union[int, float, str]
 NumericType = Union[int, float]
 
 
-class Interpreter(NodeVisitor[Optional[ValueType]]):
+class Interpreter(NodeVisitor[Optional[NumericType]]):
     __slots__ = ("_call_stack",)
 
     BINARY_OPERATORS: dict[str, Callable[[NumericType, NumericType], NumericType]] = {
@@ -45,7 +37,7 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         "-": operator.neg,
     }
 
-    TYPES_DEFAULT_VALUES: dict[str, ValueType] = {
+    TYPES_DEFAULT_VALUES: dict[str, NumericType] = {
         "INTEGER": 0,
         "REAL": 0.0,
     }
@@ -61,101 +53,79 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
         program_record: ActivationRecord = ActivationRecord(
-            node.name, ActivationRecordType.PROGRAM, 0
+            "Main", ActivationRecordType.PROGRAM, 0
         )
         self._call_stack.push(program_record)
         self.visit(node.block)
         self._call_stack.pop()
 
     def visit_NodeBlock(self, node: NodeBlock) -> None:
-        self.visit(node.variable_declarations)
-        self.visit(node.subroutine_declarations)
-        self.visit(node.compound_statement)
+        for statement in node.statements:
+            self.visit(statement)
 
-    def visit_NodeVariableDeclarations(self, node: NodeVariableDeclarations) -> None:
-        for declaration in node.variable_declarations:
-            self.visit(declaration)
+    def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:
+        for same_type_group in node.same_type_groups:
+            self.visit(same_type_group)
 
-    def visit_NodeVariableDeclarationGroup(
-        self, node: NodeVariableDeclarationGroup
+    def visit_NodeSameTypeVariableDeclarationGroup(
+        self, node: NodeSameTypeVariableDeclarationGroup
     ) -> None:
-        default_value: ValueType = self.TYPES_DEFAULT_VALUES[node.type.name]
-        for variable in node.members:
-            current_record: ActivationRecord = self._call_stack.peek()
-            current_record[variable.name] = default_value
-
-    def visit_NodeSubroutineDeclarations(
-        self, node: NodeSubroutineDeclarations
-    ) -> None:
-        for declaration in node.declarations:
-            self.visit(declaration)
-
-    def visit_NodeProcedureDeclaration(self, node: NodeProcedureDeclaration) -> None:
-        pass
-
-    def visit_NodeFunctionDeclaration(self, node: NodeFunctionDeclaration) -> None:
-        pass
-
-    def visit_NodeEmpty(self, node: NodeEmpty) -> None:
-        pass
+        default_value: NumericType = self.TYPES_DEFAULT_VALUES[node.type.name]
+        if node.expression_group is None:
+            for identifier in node.identifier_group:
+                current_record: ActivationRecord = self._call_stack.peek()
+                current_record[identifier.name] = default_value
+        else:
+            for identifier, expression in zip(
+                node.identifier_group, node.expression_group
+            ):
+                current_record: ActivationRecord = self._call_stack.peek()
+                current_record[identifier.name] = self.visit(expression)
 
     def visit_NodeAssignmentStatement(self, node: NodeAssignmentStatement) -> None:
-        variable_name: str = node.left.name
-        result: Optional[ValueType] = self.visit(node.right)
+        id: str = node.identifier.name
+        result: Optional[NumericType] = self.visit(node.expression)
         if result is not None:
             current_record: ActivationRecord = self._call_stack.peek()
-            current_record[variable_name] = result
+            current_record[id] = result
 
-    def visit_NodeVariable(self, node: NodeVariable) -> Optional[ValueType]:
-        variable_name: str = node.name
+    def visit_NodeIdentifier(self, node: NodeIdentifier) -> Optional[NumericType]:
+        id: str = node.name
         current_record: ActivationRecord = self._call_stack.peek()
-        return current_record.get(variable_name)
-
-    def visit_NodeCompoundStatement(self, node: NodeCompoundStatement) -> None:
-        for child in node.children:
-            self.visit(child)
+        return current_record.get(id)
 
     def visit_NodeBinaryOperation(self, node: NodeBinaryOperation) -> NumericType:
-        left_val: NumericType = self.visit(node.left)
-        right_val: NumericType = self.visit(node.right)
-        operator_symbol: str = node.operator.upper()
-        if operator_symbol in ("/", "DIV", "MOD") and right_val in (0, 0.0):
+        left_val: NumericType = self.visit(node.left_expression)
+        right_val: NumericType = self.visit(node.right_expression)
+        operator: str = node.operator
+        if operator in ("/", "//", "%") and right_val in (0, 0.0):
             raise InterpreterError(ErrorCode.DIVISION_BY_ZERO, "Cannot divide by zero")
-        return self.BINARY_OPERATORS[operator_symbol](left_val, right_val)
+        return self.BINARY_OPERATORS[operator](left_val, right_val)
 
     def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> NumericType:
-        operand_val: NumericType = self.visit(node.operand)
+        operand_val: NumericType = self.visit(node.expression)
         operator_symbol: str = node.operator.upper()
         return self.UNARY_OPERATORS[operator_symbol](operand_val)
 
-    def visit_NodeNumber(self, node: NodeNumber) -> NumericType:
+    def visit_NodeNumericLiteral(self, node: NodeNumericLiteral) -> NumericType:
         return node.value
 
-    def visit_NodeProcedureCall(self, node: NodeProcedureCall) -> None:
-        procedure_record: ActivationRecord = ActivationRecord(
-            node.name,
-            ActivationRecordType.PROCEDURE,
+    def visit_NodeUnitUse(self, node: NodeUnitUse) -> None:
+        unit_record: ActivationRecord = ActivationRecord(
+            "Anonymous",
+            ActivationRecordType.UNIT,
             self._call_stack.peek().nesting_level + 1,
         )
-        if not isinstance(node.arguments, NodeEmpty):
-            for parameter, argument in zip(node.symbol.parameters, node.arguments):
-                procedure_record[parameter.name] = self.visit(argument)
-        self._call_stack.push(procedure_record)
-        self.visit(node.symbol.block)
-        self._call_stack.pop()
+        if node.symbol is not None:
+            if node.arguments is not None:
+                for parameter, argument in zip(node.symbol.parameters, node.arguments):
+                    unit_record[parameter.identifier] = self.visit(argument)
+            self._call_stack.push(unit_record)
+            self.visit(node.symbol.block)
+            self._call_stack.pop()
+        else:
+            # raise InterpreterError(ErrorCode,"")
+            pass
 
-    def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> None:
-        function_record: ActivationRecord = ActivationRecord(
-            node.name,
-            ActivationRecordType.FUNCTION,
-            self._call_stack.peek().nesting_level + 1,
-        )
-        if not isinstance(node.arguments, NodeEmpty):
-            for parameter, argument in zip(node.symbol.parameters, node.arguments):
-                function_record[parameter.name] = self.visit(argument)
-        self._call_stack.push(function_record)
-        self.visit(node.symbol.block)
-        self._call_stack.pop()
-
-    def interpret(self, tree: NodeAST) -> Optional[ValueType]:
+    def interpret(self, tree: NodeAST) -> Optional[NumericType]:
         return self.visit(tree)

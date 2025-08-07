@@ -1,13 +1,12 @@
 from enum import Enum
 from typing import Optional, Union
 
-ValueType = Union[int, float, str]
+NumericType = Union[int, float]
 
 
 class ActivationRecordType(Enum):
     PROGRAM = "PROGRAM"
-    PROCEDURE = "PROCEDURE"
-    FUNCTION = "FUNCTION"
+    UNIT = "UNIT"
 
 
 class ActivationRecord(object):
@@ -19,7 +18,7 @@ class ActivationRecord(object):
         self.name: str = name
         self.type: ActivationRecordType = type
         self.nesting_level: int = nesting_level
-        self.members: dict[str, ValueType] = {}
+        self.members: dict[str, NumericType] = {}
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, type={self.type.name}, nesting_level={self.nesting_level})"
@@ -30,13 +29,13 @@ class ActivationRecord(object):
             + [f"\t{key}: {value}" for key, value in self.members.items()]
         )
 
-    def __setitem__(self, key: str, value: ValueType):
+    def __setitem__(self, key: str, value: NumericType):
         self.members[key] = value
 
-    def __getitem__(self, key: str) -> ValueType:
+    def __getitem__(self, key: str) -> NumericType:
         return self.members[key]
 
-    def get(self, key: str) -> Optional[ValueType]:
+    def get(self, key: str) -> Optional[NumericType]:
         return self.members.get(key)
 
 
