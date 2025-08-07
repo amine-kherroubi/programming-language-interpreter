@@ -2,7 +2,6 @@ from typing import Optional, Union
 from abc import ABC, abstractmethod
 from lexical_analysis.tokens import Token
 
-# Only supporting wholes and reals for now
 NumericType = Union[int, float]
 
 
@@ -52,7 +51,6 @@ class NodeType(NodeAST):
         return f"{self.__class__.__name__}(name={self.name})"
 
 
-# For identifier references in expressions
 class NodeIdentifier(NodeExpression):
     __slots__ = ("identifier",)
 
@@ -70,7 +68,7 @@ class NodeSameTypeVariableDeclarationGroup(NodeAST):
         self,
         identifier_group: list[NodeIdentifier],
         node_type: NodeType,
-        expression_group: Optional[list[NodeExpression]],  # Optional initialization
+        expression_group: Optional[list[NodeExpression]],
     ) -> None:
         self.identifier_group: list[NodeIdentifier] = identifier_group
         self.type: NodeType = node_type
@@ -87,7 +85,7 @@ class NodeSameTypeConstantDeclarationGroup(NodeAST):
         self,
         identifier_group: list[NodeIdentifier],
         node_type: NodeType,
-        expression_group: list[NodeExpression],  # Constants must be initialized
+        expression_group: list[NodeExpression],
     ) -> None:
         self.identifier_group: list[NodeIdentifier] = identifier_group
         self.type: NodeType = node_type

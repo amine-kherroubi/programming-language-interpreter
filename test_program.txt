@@ -1,21 +1,3 @@
-PROGRAM main;
-VAR
-    a: REAL;
-    x, y: INTEGER;
-
-PROCEDURE proc(k: REAL);
-    FUNCTION func(f: REAL): INTEGER;
-    BEGIN
-        { Function body }
-    END;
-BEGIN
-    k := k + 2;
-    k := func(k)
-END;
-
-BEGIN
-    x := 5;
-    y := 3;
-    a := 32 / y;
-    proc(a);
-END.
+{
+    x = 2
+}

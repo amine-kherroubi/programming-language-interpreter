@@ -5,10 +5,10 @@ from syntactic_analysis.ast import NodeBlock
 
 
 class Symbol(ABC):
-    __slots__ = ("name",)
+    __slots__ = ("identifier",)
 
-    def __init__(self, name: str) -> None:
-        self.name: str = name
+    def __init__(self, identifier: str) -> None:
+        self.identifier: str = identifier
 
     @abstractmethod
     def __repr__(self) -> str:
@@ -26,78 +26,68 @@ class TypelessSymbol(Symbol):
 class TypedSymbol(Symbol):
     __slots__ = ("type",)
 
-    def __init__(self, name: str, type: str) -> None:
-        super().__init__(name)
+    def __init__(self, identifier: str, type: str) -> None:
+        super().__init__(identifier)
         self.type: str = type
-
-
-class ProgramSymbol(TypelessSymbol):
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name='{self.name}')"
-
-    def __str__(self) -> str:
-        return f"Program: {self.name}"
 
 
 class BuiltInTypeSymbol(TypelessSymbol):
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name='{self.name}')"
+        return f"{self.__class__.__name__}(identifier='{self.identifier}')"
 
     def __str__(self) -> str:
-        return f"Built-in type: {self.name}"
+        return f"Built-in type: {self.identifier}"
 
 
 class VariableSymbol(TypedSymbol):
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name='{self.name}', type='{self.type}')"
+        return f"{self.__class__.__name__}(identifier='{self.identifier}', type='{self.type}')"
 
     def __str__(self) -> str:
-        return f"Variable: {self.name} -> {self.type}"
+        return f"Variable: {self.identifier} -> {self.type}"
 
 
-class ProcedureSymbol(TypelessSymbol):
-    __slots__ = ("parameters", "block")
+class ConstantSymbol(TypedSymbol):
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(identifier='{self.identifier}', type='{self.type}')"
 
-    def __init__(self, name: str, parameters: list[VariableSymbol]) -> None:
-        super().__init__(name)
+    def __str__(self) -> str:
+        return f"Constant: {self.identifier} -> {self.type}"
+
+
+class UnitSymbol(TypedSymbol):
+    __slots__ = ("parameters", "gives_type", "block")
+
+    def __init__(
+        self,
+        identifier: str,
+        parameters: list[VariableSymbol],
+        gives_type: Optional[str],
+        block: NodeBlock,
+    ) -> None:
+        super().__init__(identifier, TokenType.UNIT_TYPE.value)
         self.parameters: list[VariableSymbol] = parameters
-        self.block: Optional[NodeBlock] = None
+        self.gives_type: Optional[str] = gives_type
+        self.block: NodeBlock = block
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(name={self.name}, parameters={self.parameters})"
-        )
+        return f"{self.__class__.__name__}(identifier={self.identifier}, parameters={self.parameters}, gives_type={self.gives_type}, block={self.block})"
 
     def __str__(self) -> str:
         params_str = ", ".join(
-            [f"{param.name}: {param.type}" for param in self.parameters]
+            [f"{param.identifier}: {param.type}" for param in self.parameters]
         )
-        return f"Procedure: {self.name}({params_str})"
-
-
-class FunctionSymbol(TypedSymbol):
-    __slots__ = ("parameters", "block")
-
-    def __init__(self, name: str, parameters: list[VariableSymbol], type: str) -> None:
-        super().__init__(name, type)
-        self.parameters: list[VariableSymbol] = parameters
-        self.block: Optional[NodeBlock] = None
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name='{self.name}', parameters={self.parameters}, type='{self.type}')"
-
-    def __str__(self) -> str:
-        params_str = ", ".join(
-            [f"{param.name}: {param.type}" for param in self.parameters]
-        )
-        return f"Function: {self.name}({params_str}) -> {self.type}"
+        gives_str = f" -> {self.gives_type}" if self.gives_type else ""
+        return f"Unit: {self.identifier}({params_str}){gives_str}"
 
 
 class ScopedSymbolTable:
     __slots__ = ("_symbols", "scope_name", "scope_level", "enclosing_scope")
+
     BUILT_IN_TYPES: list[BuiltInTypeSymbol] = [
-        BuiltInTypeSymbol(TokenType.INTEGER.name),
-        BuiltInTypeSymbol(TokenType.REAL.name),
+        BuiltInTypeSymbol(TokenType.WHOLE_TYPE.value),
+        BuiltInTypeSymbol(TokenType.REAL_TYPE.value),
+        BuiltInTypeSymbol(TokenType.UNIT_TYPE.value),
     ]
 
     def __init__(
@@ -124,7 +114,7 @@ class ScopedSymbolTable:
             self.define(builtin_type)
 
     def define(self, symbol: Symbol) -> None:
-        self._symbols[symbol.name] = symbol
+        self._symbols[symbol.identifier] = symbol
 
     def lookup(self, name: str, current_scope_only: bool = False) -> Optional[Symbol]:
         symbol: Optional[Symbol] = self._symbols.get(name)

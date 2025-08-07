@@ -271,15 +271,6 @@ class SyntacticAnalyzer(object):
             node = NodeBinaryOperation(node, token.value, right)
         return node
 
-    def _unit_use(self) -> NodeUnitUse:
-        unit_identifier: str = self._identifier().identifier
-        arguments: Optional[list[NodeExpression]] = None
-        self._consume(TokenType.LEFT_PARENTHESIS)
-        if self._current_token.type != TokenType.RIGHT_PARENTHESIS:
-            arguments = self._arguments()
-        self._consume(TokenType.RIGHT_PARENTHESIS)
-        return NodeUnitUse(unit_identifier, arguments)
-
     def _unit(self) -> NodeUnit:
         parameters: Optional[list[NodeParameter]] = None
         type: Optional[NodeType] = None
@@ -292,6 +283,15 @@ class SyntacticAnalyzer(object):
                 self._consume(TokenType.ARROW)
                 type = self._type()
         return NodeUnit(parameters, type, self._block())
+
+    def _unit_use(self) -> NodeUnitUse:
+        unit_identifier: str = self._identifier().identifier
+        arguments: Optional[list[NodeExpression]] = None
+        self._consume(TokenType.LEFT_PARENTHESIS)
+        if self._current_token.type != TokenType.RIGHT_PARENTHESIS:
+            arguments = self._arguments()
+        self._consume(TokenType.RIGHT_PARENTHESIS)
+        return NodeUnitUse(unit_identifier, arguments)
 
     def _arguments(self) -> list[NodeExpression]:
         arguments: list[NodeExpression] = [self._expression()]
