@@ -100,7 +100,7 @@ class ScopedSymbolTable:
         self.scope_name: str = scope_name
         self.scope_level: int = scope_level
         self.enclosing_scope: Optional[ScopedSymbolTable] = enclosing_scope
-        if scope_level == 0:
+        if scope_level == 1:
             self._init_builtins()
 
     def __repr__(self) -> str:

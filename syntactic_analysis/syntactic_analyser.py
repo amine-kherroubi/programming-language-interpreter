@@ -285,7 +285,7 @@ class SyntacticAnalyzer(object):
         return NodeUnit(parameters, type, self._block())
 
     def _unit_use(self) -> NodeUnitUse:
-        unit_identifier: str = self._identifier().identifier
+        unit_identifier: str = self._identifier().name
         arguments: Optional[list[NodeExpression]] = None
         self._consume(TokenType.LEFT_PARENTHESIS)
         if self._current_token.type != TokenType.RIGHT_PARENTHESIS:

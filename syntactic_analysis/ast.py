@@ -1,6 +1,7 @@
 from typing import Optional, Union
 from abc import ABC, abstractmethod
 from lexical_analysis.tokens import Token
+from semantic_analysis.symbol_table import UnitSymbol
 
 NumericType = Union[int, float]
 
@@ -52,13 +53,13 @@ class NodeType(NodeAST):
 
 
 class NodeIdentifier(NodeExpression):
-    __slots__ = ("identifier",)
+    __slots__ = ("name",)
 
-    def __init__(self, identifier: str) -> None:
-        self.identifier: str = identifier
+    def __init__(self, name: str) -> None:
+        self.name: str = name
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier={self.identifier})"
+        return f"{self.__class__.__name__}(name={self.name})"
 
 
 class NodeSameTypeVariableDeclarationGroup(NodeAST):
@@ -175,13 +176,14 @@ class NodeUnit(NodeExpression):
 
 
 class NodeUnitUse(NodeStatement, NodeExpression):
-    __slots__ = ("identifier", "arguments")
+    __slots__ = ("identifier", "arguments", "symbol")
 
     def __init__(
-        self, identifier: str, arguments: Optional[list[NodeExpression]]
+        self, identifier: NodeIdentifier, arguments: Optional[list[NodeExpression]]
     ) -> None:
-        self.identifier: str = identifier
+        self.identifier: NodeIdentifier = identifier
         self.arguments: Optional[list[NodeExpression]] = arguments
+        self.symbol: Optional[UnitSymbol] = None
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(identifier={self.identifier}, arguments={self.arguments})"

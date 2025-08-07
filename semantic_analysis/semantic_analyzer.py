@@ -5,27 +5,22 @@ from syntactic_analysis.ast import (
     NodeAssignmentStatement,
     NodeBinaryOperation,
     NodeBlock,
-    NodeCompoundStatement,
-    NodeFunctionCall,
-    NodeFunctionDeclaration,
-    NodeProcedureCall,
-    NodeSubroutineDeclarations,
-    NodeProcedureDeclaration,
-    NodeVariableDeclarations,
-    NodeEmpty,
-    NodeNumber,
+    NodeConstantDeclaration,
+    NodeIdentifier,
+    NodeNumericLiteral,
+    NodeSameTypeConstantDeclarationGroup,
+    NodeSameTypeVariableDeclarationGroup,
     NodeUnaryOperation,
-    NodeVariable,
-    NodeVariableDeclarationGroup,
-    NodeProgram,
+    NodeUnit,
+    NodeUnitUse,
+    NodeVariableDeclaration,
 )
 from semantic_analysis.symbol_table import (
+    ConstantSymbol,
     ScopedSymbolTable,
     Symbol,
+    UnitSymbol,
     VariableSymbol,
-    ProgramSymbol,
-    ProcedureSymbol,
-    FunctionSymbol,
 )
 from utils.error_handling import SemanticError, ErrorCode
 
@@ -34,7 +29,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
     __slots__ = ("_current_scope",)
 
     def __init__(self) -> None:
-        self._current_scope: ScopedSymbolTable = ScopedSymbolTable("External", 0, None)
+        self._current_scope: ScopedSymbolTable = ScopedSymbolTable("Global", 1, None)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
@@ -42,200 +37,99 @@ class SemanticAnalyzer(NodeVisitor[None]):
     def __str__(self) -> str:
         return str(self._current_scope)
 
-    def visit_NodeProgram(self, node: NodeProgram) -> None:
-        self._current_scope.define(ProgramSymbol(node.name))
-        program_scope: ScopedSymbolTable = ScopedSymbolTable(
-            "Global", 1, self._current_scope
-        )
-        self._current_scope = program_scope
-        self.visit(node.block)
-        self._current_scope = self._current_scope.enclosing_scope
-
     def visit_NodeBlock(self, node: NodeBlock) -> None:
-        self.visit(node.variable_declarations)
-        self.visit(node.subroutine_declarations)
-        self.visit(node.compound_statement)
+        for statement in node.statements:
+            self.visit(statement)
 
-    def visit_NodeVariableDeclarations(self, node: NodeVariableDeclarations) -> None:
-        for declaration in node.variable_declarations:
-            self.visit(declaration)
+    def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:
+        for same_type_group in node.same_type_groups:
+            self.visit(same_type_group)
 
-    def visit_NodeVariableDeclarationGroup(
-        self, node: NodeVariableDeclarationGroup
+    def visit_NodeSameTypeVariableDeclarationGroup(
+        self, node: NodeSameTypeVariableDeclarationGroup
     ) -> None:
-        type_name: str = node.type.name
-        for variable in node.members:
-            if (
-                self._current_scope.lookup(
-                    variable_name := variable.name, current_scope_only=True
-                )
-                is None
-            ):
-                self._current_scope.define(VariableSymbol(variable_name, type_name))
-            else:
-                raise SemanticError(
-                    ErrorCode.DUPLICATE_DECLARATION,
-                    f"Duplicate declaration for variable {variable_name}",
-                )
+        for member in node.identifier_group:
+            self._current_scope.define(VariableSymbol(member.name, node.type.name))
 
-    def visit_NodeCompoundStatement(self, node: NodeCompoundStatement) -> None:
-        for child in node.children:
-            self.visit(child)
+    def visit_NodeConstantDeclaration(self, node: NodeConstantDeclaration) -> None:
+        for same_type_group in node.same_type_groups:
+            self.visit(same_type_group)
+
+    def visit_NodeSameTypeConstantDeclarationGroup(
+        self, node: NodeSameTypeConstantDeclarationGroup
+    ) -> None:
+        for member in node.identifier_group:
+            self._current_scope.define(ConstantSymbol(member.name, node.type.name))
 
     def visit_NodeAssignmentStatement(self, node: NodeAssignmentStatement) -> None:
-        self.visit(node.left)
-        self.visit(node.right)
+        self.visit(node.identifier)
+        self.visit(node.expression)
 
-    def visit_NodeEmpty(self, node: NodeEmpty) -> None:
-        pass
-
-    def visit_NodeVariable(self, node: NodeVariable) -> None:
-        if self._current_scope.lookup(variable_name := node.name) is None:
+    def visit_NodeIdentifier(self, node: NodeIdentifier) -> None:
+        if self._current_scope.lookup(id := node.name) is None:
             raise SemanticError(
-                ErrorCode.UNDECLARED_IDENTIFIER, f"Undeclared variable {variable_name}"
+                ErrorCode.UNDECLARED_IDENTIFIER, f"Undeclared variable {id}"
             )
 
-    def visit_NodeNumber(self, node: NodeNumber) -> None:
+    def visit_NodeNumber(self, node: NodeNumericLiteral) -> None:
         pass
 
     def visit_NodeBinaryOperation(self, node: NodeBinaryOperation) -> None:
-        self.visit(node.left)
-        self.visit(node.right)
+        self.visit(node.left_expression)
+        self.visit(node.right_expression)
 
     def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> None:
-        self.visit(node.operand)
+        self.visit(node.expression)
 
-    def visit_NodeSubroutineDeclarations(
-        self, node: NodeSubroutineDeclarations
-    ) -> None:
-        for declaration in node.declarations:
-            self.visit(declaration)
-
-    def visit_NodeProcedureDeclaration(self, node: NodeProcedureDeclaration) -> None:
-        if (
-            self._current_scope.lookup(
-                procedure_name := node.name, current_scope_only=True
-            )
-            is not None
-        ):
-            raise SemanticError(
-                ErrorCode.DUPLICATE_DECLARATION,
-                f"Duplicate declaration for procedure {procedure_name}",
-            )
+    def visit_NodeUnit(self, node: NodeUnit) -> None:
         parameters: list[VariableSymbol] = []
-        if not isinstance(node.parameters, NodeEmpty):
-            for parameter_group in node.parameters:
-                parameters.extend(
-                    [
-                        VariableSymbol(member.name, parameter_group.type.name)
-                        for member in parameter_group.members
-                    ]
+        if node.parameters is not None:
+            for parameter in node.parameters:
+                parameters.append(
+                    VariableSymbol(parameter.identifier.name, parameter.type.name)
                 )
-        procedure_symbol: ProcedureSymbol = ProcedureSymbol(node.name, parameters)
-        procedure_symbol.block = node.block
-        self._current_scope.define(procedure_symbol)
-        procedure_scope: ScopedSymbolTable = ScopedSymbolTable(
-            scope_name=node.name,
+        gives_type: Optional[str] = node.type.name if node.type is not None else None
+        unit_symbol: UnitSymbol = UnitSymbol(
+            "anonymous", parameters, gives_type, node.block
+        )
+        self._current_scope.define(unit_symbol)
+        unit_scope: ScopedSymbolTable = ScopedSymbolTable(
+            scope_name="anonymous",
             scope_level=self._current_scope.scope_level + 1,
             enclosing_scope=self._current_scope,
         )
-        for param in parameters:
-            procedure_scope.define(param)
-        previous_scope: ScopedSymbolTable = self._current_scope
-        self._current_scope = procedure_scope
+        for parameter in parameters:
+            unit_scope.define(parameter)
+        self._current_scope = unit_scope
         self.visit(node.block)
-        self._current_scope = previous_scope
+        self._current_scope = unit_scope.enclosing_scope
 
-    def visit_NodeFunctionDeclaration(self, node: NodeFunctionDeclaration) -> None:
-        if (
-            self._current_scope.lookup(
-                function_name := node.name, current_scope_only=True
-            )
-            is not None
-        ):
+    def visit_NodeUnitUse(self, node: NodeUnitUse) -> None:
+        unit_symbol: Optional[Symbol] = self._current_scope.lookup(node.identifier.name)
+        if unit_symbol is None:
             raise SemanticError(
-                ErrorCode.DUPLICATE_DECLARATION,
-                f"Duplicate declaration for function {function_name}",
+                ErrorCode.UNDECLARED_IDENTIFIER,
+                f"Undeclared unit {node.identifier.name}",
             )
-        parameters: list[VariableSymbol] = []
-        if not isinstance(node.parameters, NodeEmpty):
-            for parameter_group in node.parameters:
-                parameters.extend(
-                    [
-                        VariableSymbol(variable.name, parameter_group.type.name)
-                        for variable in parameter_group.members
-                    ]
-                )
-        function_symbol: FunctionSymbol = FunctionSymbol(
-            node.name, parameters, node.type.name
-        )
-        function_symbol.block = node.block
-        self._current_scope.define(function_symbol)
-        function_scope: ScopedSymbolTable = ScopedSymbolTable(
-            scope_name=node.name,
-            scope_level=self._current_scope.scope_level + 1,
-            enclosing_scope=self._current_scope,
-        )
-        for param in parameters:
-            function_scope.define(param)
-        previous_scope: ScopedSymbolTable = self._current_scope
-        self._current_scope = function_scope
-        self.visit(node.block)
-        self._current_scope = previous_scope
-
-    def visit_NodeProcedureCall(self, node: NodeProcedureCall) -> None:
-        procedure_symbol: Optional[Symbol] = self._current_scope.lookup(node.name)
-        if procedure_symbol is None:
+        if not isinstance(unit_symbol, UnitSymbol):
             raise SemanticError(
-                ErrorCode.UNDECLARED_IDENTIFIER, f"Undeclared procedure {node.name}"
+                ErrorCode.WRONG_SYMBOL_TYPE, f"{node.identifier.name} is not a unit"
             )
-        if not isinstance(procedure_symbol, ProcedureSymbol):
-            raise SemanticError(
-                ErrorCode.WRONG_SYMBOL_TYPE, f"{node.name} is not a procedure"
-            )
-        if isinstance(node.arguments, NodeEmpty):
-            if len(procedure_symbol.parameters) > 0:
+        if node.arguments is None:
+            if len(unit_symbol.parameters) > 0:
                 raise SemanticError(
                     ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
-                    f"Procedure {node.name} expects {len(procedure_symbol.parameters)} arguments, got 0",
+                    f"Function {node.identifier.name} expects {len(unit_symbol.parameters)} arguments, got 0",
                 )
             return
-        if (expected_args := len(procedure_symbol.parameters)) != (
+        if (expected_args := len(unit_symbol.parameters)) != (
             actual_args := len(node.arguments)
         ):
             raise SemanticError(
                 ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
-                f"Procedure {node.name} expects {expected_args} arguments, got {actual_args}",
+                f"Function {node.identifier.name} expects {expected_args} arguments, got {actual_args}",
             )
-        node.symbol = procedure_symbol
-        for argument in node.arguments:
-            self.visit(argument)
-
-    def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> None:
-        function_symbol: Optional[Symbol] = self._current_scope.lookup(node.name)
-        if function_symbol is None:
-            raise SemanticError(
-                ErrorCode.UNDECLARED_IDENTIFIER, f"Undeclared function {node.name}"
-            )
-        if not isinstance(function_symbol, FunctionSymbol):
-            raise SemanticError(
-                ErrorCode.WRONG_SYMBOL_TYPE, f"{node.name} is not a function"
-            )
-        if isinstance(node.arguments, NodeEmpty):
-            if len(function_symbol.parameters) > 0:
-                raise SemanticError(
-                    ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
-                    f"Function {node.name} expects {len(function_symbol.parameters)} arguments, got 0",
-                )
-            return
-        if (expected_args := len(function_symbol.parameters)) != (
-            actual_args := len(node.arguments)
-        ):
-            raise SemanticError(
-                ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
-                f"Function {node.name} expects {expected_args} arguments, got {actual_args}",
-            )
-        node.symbol = function_symbol
+        node.symbol = unit_symbol
         for argument in node.arguments:
             self.visit(argument)
 
