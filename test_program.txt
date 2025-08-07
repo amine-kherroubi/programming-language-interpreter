@@ -1,36 +1,21 @@
-PROGRAM d;
-
+PROGRAM main;
 VAR
-    a, _z: REAL;
-    b, x, ___2y: INTEGER;
-    M: INTEGER  { Hello };
+    a: REAL;
+    x, y: INTEGER;
 
-procedure a92(n,b:INteger);
-VAR 
-    k: REAL;
+PROCEDURE proc(k: REAL);
+    FUNCTION func(f: REAL): INTEGER;
+    BEGIN
+        { Function body }
+    END;
 BEGIN
     k := k + 2;
-end;
-
-procedure a921(n,b:INteger);
-VAR 
-    k: REAL;
-function a2(f:REAL): INTEGER;
-BEGIN
-end;
-BEGIN
-    k := k + 2;
-end;
-
-function a2(f:REAL): INTEGER;
-BEGIN
-end;
+    k := func(k)
+END;
 
 BEGIN
-    x := 2;
-    ___2y := 3;
-    _z := 32 / ___2y;
-    a92(1,2);
-    x := a2();
-    M := 2;
+    x := 5;
+    y := 3;
+    a := 32 / y;
+    proc(a);
 END.

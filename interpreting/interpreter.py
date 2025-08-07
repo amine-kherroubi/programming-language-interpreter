@@ -1,6 +1,7 @@
 from typing import Callable, Optional, Union
 import operator
 from interpreting.call_stack import ActivationRecord, ActivationRecordType, CallStack
+from semantic_analysis.symbol_table import ProcedureSymbol
 from visitor_pattern.visitor import NodeVisitor
 from syntactic_analysis.ast import (
     NodeAST,
@@ -29,6 +30,7 @@ NumericType = Union[int, float]
 
 class Interpreter(NodeVisitor[Optional[ValueType]]):
     __slots__ = ("_call_stack",)
+
     BINARY_OPERATORS: dict[str, Callable[[NumericType, NumericType], NumericType]] = {
         "+": operator.add,
         "-": operator.sub,
@@ -37,10 +39,12 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         "DIV": operator.floordiv,
         "MOD": operator.mod,
     }
+
     UNARY_OPERATORS: dict[str, Callable[[NumericType], NumericType]] = {
         "+": operator.pos,
         "-": operator.neg,
     }
+
     TYPES_DEFAULT_VALUES: dict[str, ValueType] = {
         "INTEGER": 0,
         "REAL": 0.0,
@@ -133,7 +137,12 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
             ActivationRecordType.PROCEDURE,
             self._call_stack.peek().nesting_level + 1,
         )
+        if not isinstance(node.arguments, NodeEmpty):
+            for parameter, argument in zip(node.symbol.parameters, node.arguments):
+                procedure_record[parameter.name] = self.visit(argument)
         self._call_stack.push(procedure_record)
+        self.visit(node.symbol.block)
+        self._call_stack.pop()
 
     def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> None:
         function_record: ActivationRecord = ActivationRecord(
@@ -141,7 +150,12 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
             ActivationRecordType.FUNCTION,
             self._call_stack.peek().nesting_level + 1,
         )
+        if not isinstance(node.arguments, NodeEmpty):
+            for parameter, argument in zip(node.symbol.parameters, node.arguments):
+                function_record[parameter.name] = self.visit(argument)
         self._call_stack.push(function_record)
+        self.visit(node.symbol.block)
+        self._call_stack.pop()
 
     def interpret(self, tree: NodeAST) -> Optional[ValueType]:
         return self.visit(tree)

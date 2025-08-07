@@ -132,6 +132,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
                     ]
                 )
         procedure_symbol: ProcedureSymbol = ProcedureSymbol(node.name, parameters)
+        procedure_symbol.block = node.block
         self._current_scope.define(procedure_symbol)
         procedure_scope: ScopedSymbolTable = ScopedSymbolTable(
             scope_name=node.name,
@@ -168,6 +169,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         function_symbol: FunctionSymbol = FunctionSymbol(
             node.name, parameters, node.type.name
         )
+        function_symbol.block = node.block
         self._current_scope.define(function_symbol)
         function_scope: ScopedSymbolTable = ScopedSymbolTable(
             scope_name=node.name,
@@ -205,6 +207,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
                 ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
                 f"Procedure {node.name} expects {expected_args} arguments, got {actual_args}",
             )
+        node.symbol = procedure_symbol
         for argument in node.arguments:
             self.visit(argument)
 
@@ -232,6 +235,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
                 ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
                 f"Function {node.name} expects {expected_args} arguments, got {actual_args}",
             )
+        node.symbol = function_symbol
         for argument in node.arguments:
             self.visit(argument)
 

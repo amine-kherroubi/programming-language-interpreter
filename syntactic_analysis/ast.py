@@ -234,10 +234,7 @@ class NodeSubroutineDeclarations(NodeAST):
 
 
 class NodeProcedureCall(NodeAST):
-    __slots__ = (
-        "name",
-        "arguments",
-    )
+    __slots__ = ("name", "arguments", "symbol")
 
     def __init__(self, name: str, arguments: Union[NodeEmpty, list[NodeAST]]) -> None:
         self.name: str = name
@@ -250,10 +247,7 @@ class NodeProcedureCall(NodeAST):
 
 
 class NodeFunctionCall(NodeAST):
-    __slots__ = (
-        "name",
-        "arguments",
-    )
+    __slots__ = ("name", "arguments", "symbol")
 
     def __init__(self, name: str, arguments: Union[NodeEmpty, list[NodeAST]]) -> None:
         self.name: str = name

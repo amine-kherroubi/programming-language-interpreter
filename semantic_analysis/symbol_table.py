@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, OrderedDict
 from lexical_analysis.tokens import TokenType
+from syntactic_analysis.ast import NodeBlock
 
 
 class Symbol(ABC):
@@ -55,11 +56,12 @@ class VariableSymbol(TypedSymbol):
 
 
 class ProcedureSymbol(TypelessSymbol):
-    __slots__ = ("parameters",)
+    __slots__ = ("parameters", "block")
 
     def __init__(self, name: str, parameters: list[VariableSymbol]) -> None:
         super().__init__(name)
         self.parameters: list[VariableSymbol] = parameters
+        self.block: Optional[NodeBlock] = None
 
     def __repr__(self) -> str:
         return (
@@ -74,11 +76,12 @@ class ProcedureSymbol(TypelessSymbol):
 
 
 class FunctionSymbol(TypedSymbol):
-    __slots__ = ("parameters",)
+    __slots__ = ("parameters", "block")
 
     def __init__(self, name: str, parameters: list[VariableSymbol], type: str) -> None:
         super().__init__(name, type)
         self.parameters: list[VariableSymbol] = parameters
+        self.block: Optional[NodeBlock] = None
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name='{self.name}', parameters={self.parameters}, type='{self.type}')"

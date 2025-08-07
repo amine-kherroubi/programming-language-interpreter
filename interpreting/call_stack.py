@@ -26,8 +26,8 @@ class ActivationRecord(object):
 
     def __str__(self) -> str:
         return "\n".join(
-            [f"{self.nesting_level}: {self.type} {self.name}:"]
-            + [f"\t{key:<20}: {value}" for key, value in self.members.items()]
+            [f"{self.nesting_level}: {self.type.name} {self.name}:"]
+            + [f"\t{key}: {value}" for key, value in self.members.items()]
         )
 
     def __setitem__(self, key: str, value: ValueType):
