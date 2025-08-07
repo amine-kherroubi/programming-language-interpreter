@@ -1,5 +1,6 @@
 from typing import Callable, Optional, Union
 import operator
+from interpreting.call_stack import ActivationRecord, ActivationRecordType, CallStack
 from visitor_pattern.visitor import NodeVisitor
 from syntactic_analysis.ast import (
     NodeAST,
@@ -27,7 +28,7 @@ NumericType = Union[int, float]
 
 
 class Interpreter(NodeVisitor[Optional[ValueType]]):
-    __slots__ = ("_global_memory",)
+    __slots__ = ("_call_stack",)
     BINARY_OPERATORS: dict[str, Callable[[NumericType, NumericType], NumericType]] = {
         "+": operator.add,
         "-": operator.sub,
@@ -46,16 +47,21 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
     }
 
     def __init__(self) -> None:
-        self._global_memory: dict[str, ValueType] = {}
+        self._call_stack: CallStack = CallStack()
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
     def __str__(self) -> str:
-        return str(self._global_memory)
+        return str(self._call_stack)
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
+        program_record: ActivationRecord = ActivationRecord(
+            node.name, ActivationRecordType.PROGRAM, 0
+        )
+        self._call_stack.push(program_record)
         self.visit(node.block)
+        self._call_stack.pop()
 
     def visit_NodeBlock(self, node: NodeBlock) -> None:
         self.visit(node.variable_declarations)
@@ -71,7 +77,8 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
     ) -> None:
         default_value: ValueType = self.TYPES_DEFAULT_VALUES[node.type.name]
         for variable in node.members:
-            self._global_memory[variable.name] = default_value
+            current_record: ActivationRecord = self._call_stack.peek()
+            current_record[variable.name] = default_value
 
     def visit_NodeSubroutineDeclarations(
         self, node: NodeSubroutineDeclarations
@@ -92,11 +99,13 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         variable_name: str = node.left.name
         result: Optional[ValueType] = self.visit(node.right)
         if result is not None:
-            self._global_memory[variable_name] = result
+            current_record: ActivationRecord = self._call_stack.peek()
+            current_record[variable_name] = result
 
-    def visit_NodeVariable(self, node: NodeVariable) -> ValueType:
+    def visit_NodeVariable(self, node: NodeVariable) -> Optional[ValueType]:
         variable_name: str = node.name
-        return self._global_memory[variable_name]
+        current_record: ActivationRecord = self._call_stack.peek()
+        return current_record.get(variable_name)
 
     def visit_NodeCompoundStatement(self, node: NodeCompoundStatement) -> None:
         for child in node.children:
@@ -119,10 +128,20 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         return node.value
 
     def visit_NodeProcedureCall(self, node: NodeProcedureCall) -> None:
-        pass
+        procedure_record: ActivationRecord = ActivationRecord(
+            node.name,
+            ActivationRecordType.PROCEDURE,
+            self._call_stack.peek().nesting_level + 1,
+        )
+        self._call_stack.push(procedure_record)
 
     def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> None:
-        pass
+        function_record: ActivationRecord = ActivationRecord(
+            node.name,
+            ActivationRecordType.FUNCTION,
+            self._call_stack.peek().nesting_level + 1,
+        )
+        self._call_stack.push(function_record)
 
     def interpret(self, tree: NodeAST) -> Optional[ValueType]:
         return self.visit(tree)
