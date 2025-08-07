@@ -3,26 +3,17 @@ from lexical_analysis.tokens import Token
 
 
 class ErrorCode(Enum):
-    """Enumeration of specific error codes for precise error classification."""
-
-    # Lexical Analysis Errors
     INVALID_CHARACTER = "Invalid character"
     INVALID_NUMBER_FORMAT = "Invalid number format"
-
-    # Syntactic Analysis Errors
     UNEXPECTED_TOKEN = "Unexpected token"
-
-    # Semantic Analysis Errors
     UNDECLARED_IDENTIFIER = "Undeclared identifier"
     DUPLICATE_DECLARATION = "Duplicate declaration"
-
-    # Runtime/Interpreter Errors
+    WRONG_NUMBER_OF_ARGUMENTS = "Wrong number of arguments"
+    WRONG_SYMBOL_TYPE = "Wrong symbol type"
     DIVISION_BY_ZERO = "Division by zero"
 
 
 class Error(Exception):
-    """Base exception class for all compiler errors."""
-
     def __init__(self, error_code: ErrorCode, message: str) -> None:
         self.error_code = error_code
         self.message = message
@@ -36,8 +27,6 @@ class Error(Exception):
 
 
 class LexicalError(Error):
-    """Exception raised during lexical analysis phase."""
-
     def __init__(
         self, error_code: ErrorCode, message: str, position: int, line: int, column: int
     ) -> None:
@@ -61,8 +50,6 @@ class LexicalError(Error):
 
 
 class SyntacticError(Error):
-    """Exception raised during syntactic analysis phase."""
-
     def __init__(self, error_code: ErrorCode, message: str, token: Token) -> None:
         self.token = token
         super().__init__(error_code, message)
@@ -71,7 +58,6 @@ class SyntacticError(Error):
         token_info = f"{self.token.type.value}"
         if self.token.value is not None:
             token_info += f" '{self.token.value}'"
-
         return (
             f"{self.__class__.__name__}: {self.message} "
             f"(found: {token_info}) at line {self.token.line}, column {self.token.column}"
@@ -85,12 +71,8 @@ class SyntacticError(Error):
 
 
 class SemanticError(Error):
-    """Exception raised during semantic analysis phase."""
-
-    pass  # Uses base class implementation - no position info needed
+    pass
 
 
 class InterpreterError(Error):
-    """Exception raised during program execution phase."""
-
-    pass  # Uses base class implementation - no position info needed
+    pass
