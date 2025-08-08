@@ -1,7 +1,6 @@
 from typing import Optional, Union
 from abc import ABC, abstractmethod
 from lexical_analysis.tokens import Token
-from semantic_analysis.symbol_table import UnitSymbol
 
 NumericType = Union[int, float]
 
@@ -158,30 +157,40 @@ class NodeParameter(NodeAST):
         )
 
 
-class NodeUnit(NodeExpression):
-    __slots__ = ("parameters", "type", "block")
+class NodeUnit(NodeExpression, NodeStatement):
+    __slots__ = ("parameters", "return_type", "block", "assigned_name")
 
     def __init__(
         self,
         parameters: Optional[list[NodeParameter]],
-        type: Optional[NodeType],
+        return_type: Optional[NodeType],
         block: NodeBlock,
     ) -> None:
         self.parameters: Optional[list[NodeParameter]] = parameters
-        self.type: Optional[NodeType] = type
+        self.return_type: Optional[NodeType] = return_type
         self.block: NodeBlock = block
+        self.assigned_name: Optional[str] = None
+
+    def set_assigned_name(self, name: str) -> None:
+        self.assigned_name = name
+
+    def is_anonymous(self) -> bool:
+        return self.assigned_name is None
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(parameters={self.parameters}, type={self.type}, block={self.block})"
+        return f"{self.__class__.__name__}(parameters={self.parameters}, return_type={self.return_type}, block={self.block}, assigned_name={self.assigned_name})"
+
+
+from semantic_analysis.symbol_table import UnitSymbol
 
 
 class NodeUnitUse(NodeStatement, NodeExpression):
     __slots__ = ("identifier", "arguments", "symbol")
 
     def __init__(
-        self, identifier: NodeIdentifier, arguments: Optional[list[NodeExpression]]
+        self, identifier: str, arguments: Optional[list[NodeExpression]]
     ) -> None:
-        self.identifier: NodeIdentifier = identifier
+        self.identifier: NodeIdentifier = NodeIdentifier(identifier)
         self.arguments: Optional[list[NodeExpression]] = arguments
         self.symbol: Optional[UnitSymbol] = None
 

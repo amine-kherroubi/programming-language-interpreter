@@ -50,6 +50,8 @@ class SyntacticAnalyzer(object):
 
     def _block(self) -> NodeBlock:
         self._consume(TokenType.LEFT_BRACE)
+        if self._current_token.type == TokenType.NEWLINE:
+            self._consume(TokenType.NEWLINE)
         statements: list[NodeStatement] = []
         if self._current_token.type != TokenType.RIGHT_BRACE:
             statements.append(self._statement())
@@ -74,6 +76,8 @@ class SyntacticAnalyzer(object):
             and self._lexical_analyzer.current_char == "("
         ):
             return self._unit_use()
+        if self._current_token.type in (TokenType.LEFT_BRACKET, TokenType.LEFT_BRACE):
+            return self._unit()
         if self._current_token.type == TokenType.IDENTIFIER:
             return self._assignment()
         if self._current_token.type == TokenType.LET:
@@ -81,7 +85,7 @@ class SyntacticAnalyzer(object):
         if self._current_token.type == TokenType.KEEP:
             return self._constant_declaration()
         if self._current_token.type == TokenType.GIVE:
-            return self._give_statement()
+            return self._return_statement()
         raise SyntacticError(
             ErrorCode.UNEXPECTED_TOKEN, "Expected a statement", self._current_token
         )
@@ -175,7 +179,7 @@ class SyntacticAnalyzer(object):
             ErrorCode.UNINITIALIZED_CONSTANT, "Expected initial value", token
         )
 
-    def _give_statement(self) -> NodeGiveStatement:
+    def _return_statement(self) -> NodeGiveStatement:
         self._consume(TokenType.GIVE)
         if self._current_token.type in (TokenType.RIGHT_BRACE, TokenType.NEWLINE):
             return NodeGiveStatement(None)
@@ -215,7 +219,7 @@ class SyntacticAnalyzer(object):
             return self._unit_use()
         elif token.type == TokenType.IDENTIFIER:
             return self._identifier()
-        elif self._current_token.type == TokenType.LEFT_BRACE:
+        elif self._current_token.type in (TokenType.LEFT_BRACE, TokenType.LEFT_BRACKET):
             return self._unit()
         elif token.type == TokenType.WHOLE_LITERAL:
             self._consume(TokenType.WHOLE_LITERAL)

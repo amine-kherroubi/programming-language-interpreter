@@ -23,9 +23,9 @@ def main() -> None:
         ast: NodeAST = syntactic_analyzer.parse()
         semantic_analyzer: SemanticAnalyzer = SemanticAnalyzer()
         semantic_analyzer.analyze(ast)
-        interpreter: Interpreter = Interpreter()
-        interpreter.interpret(ast)
-        print(interpreter)
+        # interpreter: Interpreter = Interpreter()
+        # interpreter.interpret(ast)
+        print(semantic_analyzer)
     except Exception as e:
         print(f"Error: {e}")
 
