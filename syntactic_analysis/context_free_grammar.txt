@@ -1,8 +1,9 @@
 program ::= block EOF
 block ::= "{" (statement NEWLINE)* give_statement? "}"
-statement ::= assignment | variable_declaration | constant_declaration | unit_use | give_statement
+statement ::= assignment | variable_declaration | constant_declaration | procedure_unit | unit_use | give_statement
 
-assignment ::= IDENTIFIER "=" expression
+assignment ::= IDENTIFIER "=" assignable
+assignable ::= expression | procedure_unit
 
 variable_declaration ::= "let" same_type_group (";" same_type_group)*
 constant_declaration ::= "keep" same_type_group (";" same_type_group)*
@@ -18,11 +19,12 @@ give_statement ::= "give" expression?
 expression ::= power_expression (("+" | "-") power_expression)*
 power_expression ::= term ("**" power_expression)?
 term ::= factor (("*" | "/" | "//" | "%") factor)*
-factor ::= literal | IDENTIFIER | "(" expression ")" | unit_use | unit
+factor ::= literal | IDENTIFIER | "(" expression ")" | unit_use | expression_unit
 literal ::= WHOLE_LITERAL | REAL_LITERAL | TEXT_LITERAL | TRUTH_LITERAL
 
-unit ::= (parameters return_type?)? block
-parameters ::= "[" (parameter ("," parameter)*)? "]"
+procedure_unit ::= ("[" parameters "]")? block
+expression_unit ::= "[" parameters? "]" return_type block
+parameters ::= parameter ("," parameter)*
 parameter ::= IDENTIFIER ":" type
 return_type ::= "->" type
 

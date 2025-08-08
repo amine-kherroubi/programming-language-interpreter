@@ -1,7 +1,7 @@
 from visitor_pattern.visitor import NodeVisitor
 from syntactic_analysis.ast import (
     NodeAST,
-    NodeAssignmentStatement,
+    NodeAssignment,
     NodeBinaryOperation,
     NodeBlock,
     NodeConstantDeclaration,
@@ -12,12 +12,16 @@ from syntactic_analysis.ast import (
     NodeSameTypeConstantDeclarationGroup,
     NodeSameTypeVariableDeclarationGroup,
     NodeUnaryOperation,
+    NodeProcedureUnit,
+    NodeExpressionUnit,
     NodeUnit,
     NodeUnitUse,
     NodeVariableDeclaration,
 )
 from semantic_analysis.symbol_table import (
     ConstantSymbol,
+    ExpressionUnitSymbol,
+    ProcedureUnitSymbol,
     UnitHolderSymbol,
     ScopedSymbolTable,
     UnitSymbol,
@@ -53,15 +57,18 @@ class SemanticAnalyzer(NodeVisitor[None]):
     def visit_NodeSameTypeVariableDeclarationGroup(
         self, node: NodeSameTypeVariableDeclarationGroup
     ) -> None:
-        if node.expression_group is not None:
+        if node.assignable_group is not None:
             for identifier, expression in zip(
-                node.identifier_group, node.expression_group
+                node.identifier_group, node.assignable_group
             ):
                 if (
                     isinstance(expression, NodeUnit)
                     and node.type.name == TokenType.UNIT_TYPE.value
                 ):
-                    unit_symbol = self._create_unit_symbol_from_node(expression)
+                    self._check_unit_return_consistency(expression)
+                    unit_symbol: UnitSymbol = self._create_unit_symbol_from_node(
+                        expression
+                    )
                     unit_holder = UnitHolderSymbol(
                         identifier.name, unit_symbol, is_constant=False
                     )
@@ -82,11 +89,12 @@ class SemanticAnalyzer(NodeVisitor[None]):
     def visit_NodeSameTypeConstantDeclarationGroup(
         self, node: NodeSameTypeConstantDeclarationGroup
     ) -> None:
-        for identifier, expression in zip(node.identifier_group, node.expression_group):
+        for identifier, expression in zip(node.identifier_group, node.assignable_group):
             if (
                 isinstance(expression, NodeUnit)
                 and node.type.name == TokenType.UNIT_TYPE.value
             ):
+                self._check_unit_return_consistency(expression)
                 unit_symbol = self._create_unit_symbol_from_node(expression)
                 unit_holder = UnitHolderSymbol(
                     identifier.name, unit_symbol, is_constant=True
@@ -98,7 +106,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
                 )
                 self.visit(expression)
 
-    def visit_NodeAssignmentStatement(self, node: NodeAssignmentStatement) -> None:
+    def visit_NodeAssignmentStatement(self, node: NodeAssignment) -> None:
         symbol = self._current_scope.lookup(node.identifier.name)
         if symbol is None:
             raise SemanticError(
@@ -112,7 +120,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
                 ErrorCode.ASSIGNMENT_TO_CONSTANT,
                 f"Cannot assign to constant {node.identifier.name}",
             )
-        if isinstance(node.expression, NodeUnit):
+        if isinstance(node.expression, NodeExpressionUnit):
             if not (
                 isinstance(symbol, VariableSymbol)
                 and symbol.type == TokenType.UNIT_TYPE.value
@@ -121,6 +129,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
                     ErrorCode.TYPE_MISMATCH,
                     f"Cannot assign unit to non-unit variable {node.identifier.name}",
                 )
+            self._check_unit_return_consistency(node.expression)
             unit_symbol = self._create_unit_symbol_from_node(node.expression)
             unit_holder = UnitHolderSymbol(
                 node.identifier.name, unit_symbol, is_constant=False
@@ -146,6 +155,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         self.visit(node.expression)
 
     def visit_NodeUnit(self, node: NodeUnit) -> None:
+        self._check_unit_return_consistency(node)
         unit_symbol = self._create_unit_symbol_from_node(node)
         anonymous_name = self._current_scope.generate_anonymous_unit_name()
         unit_symbol.identifier = anonymous_name
@@ -189,14 +199,21 @@ class SemanticAnalyzer(NodeVisitor[None]):
                 parameters.append(
                     VariableSymbol(parameter.identifier.name, parameter.type.name)
                 )
-        return_type = node.return_type.name if node.return_type else None
-        return UnitSymbol(
-            identifier="__temp__",
-            parameters=parameters,
-            return_type=return_type,
-            block=node.block,
-            is_anonymous=True,
-        )
+        if isinstance(node, NodeExpressionUnit):
+            return ExpressionUnitSymbol(
+                identifier="TEMPORARY_NAME",
+                parameters=parameters,
+                return_type=node.return_type.name,
+                block=node.block,
+                is_anonymous=True,
+            )
+        else:
+            return ProcedureUnitSymbol(
+                identifier="TEMPORARY_NAME",
+                parameters=parameters,
+                block=node.block,
+                is_anonymous=True,
+            )
 
     def _enter_unit_scope(self, unit_symbol: UnitSymbol) -> None:
         unit_scope = ScopedSymbolTable(
@@ -212,24 +229,42 @@ class SemanticAnalyzer(NodeVisitor[None]):
         if self._current_scope.enclosing_scope is not None:
             self._current_scope = self._current_scope.enclosing_scope
 
-    def _check_unit_return_type(self, node: NodeUnit) -> None:
-        for statement in node.block.statements:
-            if (
-                isinstance(statement, NodeGiveStatement)
-                and statement.expression is not None
-            ):
-                break
-        else:
-            if node.return_type is not None:
+    def _check_unit_return_consistency(self, node: NodeUnit) -> None:
+        give_statements: list[NodeGiveStatement] = [
+            statement
+            for statement in node.block.statements
+            if isinstance(statement, NodeGiveStatement)
+        ]
+        if isinstance(node, NodeExpressionUnit):
+            has_return_with_value: bool = any(
+                statement.expression is not None for statement in give_statements
+            )
+            if not has_return_with_value:
+                raise SemanticError(
+                    ErrorCode.EXPRESSION_UNIT_NOT_RETURNING_VALUE,
+                    "Expression unit should always return a value",
+                )
+            empty_returns: list[NodeGiveStatement] = [
+                statement
+                for statement in give_statements
+                if statement.expression is None
+            ]
+            if empty_returns:
+                raise SemanticError(
+                    ErrorCode.EXPRESSION_UNIT_EMPTY_RETURN,
+                    "Expression unit cannot have empty return statements",
+                )
+        elif isinstance(node, NodeProcedureUnit):
+            returns_with_values: list[NodeGiveStatement] = [
+                statement
+                for statement in give_statements
+                if statement.expression is not None
+            ]
+            if returns_with_values:
                 raise SemanticError(
                     ErrorCode.PROCEDURE_UNIT_RETURNING_VALUE,
                     "Procedure unit should not return a value",
                 )
-        if node.return_type is not None:
-            raise SemanticError(
-                ErrorCode.EXPRESSION_UNIT_NOT_RETURNING_VALUE,
-                "Expression unit should always return a value",
-            )
 
     def analyze(self, tree: NodeAST) -> None:
         self.visit(tree)

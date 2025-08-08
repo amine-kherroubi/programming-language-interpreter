@@ -6,6 +6,6 @@
     }, [k: whole] {
         k = k + 2
     }
-    keep r: unit = []->whole{}
+    keep r: unit = [] -> whole {}
     let f: real = m(1, 2) + { give k**2 }
 }

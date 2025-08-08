@@ -6,7 +6,7 @@ from syntactic_analysis.ast import (
     NodeAST,
     NodeBinaryOperation,
     NodeBlock,
-    NodeAssignmentStatement,
+    NodeAssignment,
     NodeIdentifier,
     NodeNumericLiteral,
     NodeProgram,
@@ -71,18 +71,18 @@ class Interpreter(NodeVisitor[Optional[NumericType]]):
         self, node: NodeSameTypeVariableDeclarationGroup
     ) -> None:
         default_value: NumericType = self.TYPES_DEFAULT_VALUES[node.type.name]
-        if node.expression_group is None:
+        if node.assignable_group is None:
             for identifier in node.identifier_group:
                 current_record: ActivationRecord = self._call_stack.peek()
                 current_record[identifier.name] = default_value
         else:
             for identifier, expression in zip(
-                node.identifier_group, node.expression_group
+                node.identifier_group, node.assignable_group
             ):
                 current_record: ActivationRecord = self._call_stack.peek()
                 current_record[identifier.name] = self.visit(expression)
 
-    def visit_NodeAssignmentStatement(self, node: NodeAssignmentStatement) -> None:
+    def visit_NodeAssignmentStatement(self, node: NodeAssignment) -> None:
         id: str = node.identifier.name
         result: Optional[NumericType] = self.visit(node.expression)
         if result is not None:

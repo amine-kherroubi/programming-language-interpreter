@@ -3,6 +3,7 @@ from lexical_analysis.lexical_analyzer import LexicalAnalyzer
 from lexical_analysis.tokens import Token, TokenType
 from syntactic_analysis.ast import (
     NodeAST,
+    NodeAssignable,
     NodeBlock,
     NodeConstantDeclaration,
     NodeExpression,
@@ -14,10 +15,13 @@ from syntactic_analysis.ast import (
     NodeSameTypeConstantDeclarationGroup,
     NodeSameTypeVariableDeclarationGroup,
     NodeStatement,
+    NodeTextualLiteral,
+    NodeTruthLiteral,
     NodeType,
-    NodeUnit,
+    NodeExpressionUnit,
+    NodeProcedureUnit,
     NodeUnitUse,
-    NodeAssignmentStatement,
+    NodeAssignment,
     NodeBinaryOperation,
     NodeUnaryOperation,
     NodeVariableDeclaration,
@@ -76,16 +80,16 @@ class SyntacticAnalyzer(object):
             and self._lexical_analyzer.current_char == "("
         ):
             return self._unit_use()
-        if self._current_token.type in (TokenType.LEFT_BRACKET, TokenType.LEFT_BRACE):
-            return self._unit()
         if self._current_token.type == TokenType.IDENTIFIER:
             return self._assignment()
+        if self._current_token.type in (TokenType.LEFT_BRACKET, TokenType.LEFT_BRACE):
+            return self._procedure_unit()
         if self._current_token.type == TokenType.LET:
             return self._variable_declaration()
         if self._current_token.type == TokenType.KEEP:
             return self._constant_declaration()
         if self._current_token.type == TokenType.GIVE:
-            return self._return_statement()
+            return self._give_statement()
         raise SyntacticError(
             ErrorCode.UNEXPECTED_TOKEN, "Expected a statement", self._current_token
         )
@@ -125,18 +129,18 @@ class SyntacticAnalyzer(object):
         type: NodeType = self._type()
         if self._current_token.type == TokenType.ASSIGN:
             self._consume(TokenType.ASSIGN)
-            expression_group: list[NodeExpression] = [self._expression()]
+            assignable_group: list[NodeAssignable] = [self._assignable()]
             while self._current_token.type == TokenType.COMMA:
                 self._consume(TokenType.COMMA)
-                expression_group.append(self._expression())
-            if (x := len(identifier_group)) != (y := len(expression_group)):
+                assignable_group.append(self._assignable())
+            if (x := len(identifier_group)) != (y := len(assignable_group)):
                 raise SyntacticError(
                     ErrorCode.WRONG_NUMBER_OF_EXPRESSIONS,
                     f"Expected {x} assignable expressions, got {y}",
                     token,
                 )
             return NodeSameTypeVariableDeclarationGroup(
-                identifier_group, type, expression_group
+                identifier_group, type, assignable_group
             )
         return NodeSameTypeVariableDeclarationGroup(identifier_group, type, None)
 
@@ -162,24 +166,24 @@ class SyntacticAnalyzer(object):
         type: NodeType = self._type()
         if self._current_token.type == TokenType.ASSIGN:
             self._consume(TokenType.ASSIGN)
-            expression_group: list[NodeExpression] = [self._expression()]
+            assignable_group: list[NodeAssignable] = [self._assignable()]
             while self._current_token.type == TokenType.COMMA:
                 self._consume(TokenType.COMMA)
-                expression_group.append(self._expression())
-            if (x := len(identifier_group)) != (y := len(expression_group)):
+                assignable_group.append(self._assignable())
+            if (x := len(identifier_group)) != (y := len(assignable_group)):
                 raise SyntacticError(
                     ErrorCode.WRONG_NUMBER_OF_EXPRESSIONS,
                     f"Expected {x} assignable expressions, got {y}",
                     token,
                 )
             return NodeSameTypeConstantDeclarationGroup(
-                identifier_group, type, expression_group
+                identifier_group, type, assignable_group
             )
         raise SyntacticError(
             ErrorCode.UNINITIALIZED_CONSTANT, "Expected initial value", token
         )
 
-    def _return_statement(self) -> NodeGiveStatement:
+    def _give_statement(self) -> NodeGiveStatement:
         self._consume(TokenType.GIVE)
         if self._current_token.type in (TokenType.RIGHT_BRACE, TokenType.NEWLINE):
             return NodeGiveStatement(None)
@@ -205,10 +209,33 @@ class SyntacticAnalyzer(object):
         else:
             raise SyntacticError(ErrorCode.UNEXPECTED_TOKEN, "Expected type", token)
 
-    def _assignment(self) -> NodeAssignmentStatement:
+    def _assignment(self) -> NodeAssignment:
         identifier: NodeIdentifier = self._identifier()
         self._consume(TokenType.ASSIGN)
-        return NodeAssignmentStatement(identifier, self._expression())
+        return NodeAssignment(identifier, self._expression())
+
+    def _assignable(self) -> NodeAssignable:
+        if self._current_token.type in (TokenType.LEFT_BRACKET, TokenType.LEFT_BRACE):
+            return self._procedure_unit()
+        else:
+            return self._expression()
+
+    def _literal(self) -> NodeExpression:
+        token: Token = self._current_token
+        if token.type == TokenType.WHOLE_LITERAL:
+            self._consume(TokenType.WHOLE_LITERAL)
+            return NodeNumericLiteral(token.value)
+        elif token.type == TokenType.REAL_LITERAL:
+            self._consume(TokenType.REAL_LITERAL)
+            return NodeNumericLiteral(token.value)
+        elif token.type == TokenType.TEXT_LITERAL:
+            self._consume(TokenType.TEXT_LITERAL)
+            return NodeTextualLiteral(token.value)
+        elif token.type == TokenType.TRUTH_LITERAL:
+            self._consume(TokenType.TRUTH_LITERAL)
+            return NodeTruthLiteral(token.value)
+        else:
+            raise SyntacticError(ErrorCode.UNEXPECTED_TOKEN, "Expected literal", token)
 
     def _factor(self) -> NodeExpression:
         token: Token = self._current_token
@@ -219,14 +246,15 @@ class SyntacticAnalyzer(object):
             return self._unit_use()
         elif token.type == TokenType.IDENTIFIER:
             return self._identifier()
-        elif self._current_token.type in (TokenType.LEFT_BRACE, TokenType.LEFT_BRACKET):
-            return self._unit()
-        elif token.type == TokenType.WHOLE_LITERAL:
-            self._consume(TokenType.WHOLE_LITERAL)
-            return NodeNumericLiteral(token.value)
-        elif token.type == TokenType.REAL_LITERAL:
-            self._consume(TokenType.REAL_LITERAL)
-            return NodeNumericLiteral(token.value)
+        elif self._current_token.type == TokenType.LEFT_BRACKET:
+            return self._expression_unit()
+        elif token.type in (
+            TokenType.WHOLE_LITERAL,
+            TokenType.REAL_LITERAL,
+            TokenType.TEXT_LITERAL,
+            TokenType.TRUTH_LITERAL,
+        ):
+            return self._literal()
         elif token.type == TokenType.LEFT_PARENTHESIS:
             self._consume(TokenType.LEFT_PARENTHESIS)
             node: NodeExpression = self._expression()
@@ -239,7 +267,7 @@ class SyntacticAnalyzer(object):
         else:
             raise SyntacticError(
                 ErrorCode.UNEXPECTED_TOKEN,
-                "Expected number, unary operator, or '('",
+                "Expected literal, identifier, unit call, expression unit, unary operator, or '('",
                 token,
             )
 
@@ -275,18 +303,27 @@ class SyntacticAnalyzer(object):
             node = NodeBinaryOperation(node, token.value, right)
         return node
 
-    def _unit(self) -> NodeUnit:
+    def _procedure_unit(self) -> NodeProcedureUnit:
         parameters: Optional[list[NodeParameter]] = None
-        type: Optional[NodeType] = None
         if self._current_token.type == TokenType.LEFT_BRACKET:
             self._consume(TokenType.LEFT_BRACKET)
             if self._current_token.type != TokenType.RIGHT_BRACKET:
                 parameters = self._parameters()
             self._consume(TokenType.RIGHT_BRACKET)
-            if self._current_token.type == TokenType.ARROW:
-                self._consume(TokenType.ARROW)
-                type = self._type()
-        return NodeUnit(parameters, type, self._block())
+        return NodeProcedureUnit(parameters, self._block())
+
+    def _expression_unit(self) -> NodeExpressionUnit:
+        parameters: Optional[list[NodeParameter]] = None
+        self._consume(TokenType.LEFT_BRACKET)
+        if self._current_token.type != TokenType.RIGHT_BRACKET:
+            parameters = self._parameters()
+        self._consume(TokenType.RIGHT_BRACKET)
+        return_type = self._return_type()
+        return NodeExpressionUnit(parameters, return_type, self._block())
+
+    def _return_type(self) -> NodeType:
+        self._consume(TokenType.ARROW)
+        return self._type()
 
     def _unit_use(self) -> NodeUnitUse:
         unit_identifier: str = self._identifier().name

@@ -1,8 +1,14 @@
+from enum import Enum
 from typing import Optional, Union
 from abc import ABC, abstractmethod
 from lexical_analysis.tokens import Token
 
 NumericType = Union[int, float]
+
+
+class TruthType(Enum):
+    true = 1
+    false = 0
 
 
 class NodeAST(ABC):
@@ -17,7 +23,11 @@ class NodeStatement(NodeAST):
     pass
 
 
-class NodeExpression(NodeAST):
+class NodeAssignable(NodeAST):
+    pass
+
+
+class NodeExpression(NodeAssignable):
     pass
 
 
@@ -62,37 +72,37 @@ class NodeIdentifier(NodeExpression):
 
 
 class NodeSameTypeVariableDeclarationGroup(NodeAST):
-    __slots__ = ("identifier_group", "type", "expression_group")
+    __slots__ = ("identifier_group", "type", "assignable_group")
 
     def __init__(
         self,
         identifier_group: list[NodeIdentifier],
         node_type: NodeType,
-        expression_group: Optional[list[NodeExpression]],
+        assignable_group: Optional[list[NodeAssignable]],
     ) -> None:
         self.identifier_group: list[NodeIdentifier] = identifier_group
         self.type: NodeType = node_type
-        self.expression_group: Optional[list[NodeExpression]] = expression_group
+        self.assignable_group: Optional[list[NodeAssignable]] = assignable_group
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier_group={self.identifier_group}, type={self.type}, expression_group={self.expression_group})"
+        return f"{self.__class__.__name__}(identifier_group={self.identifier_group}, type={self.type}, assignable_group={self.assignable_group})"
 
 
 class NodeSameTypeConstantDeclarationGroup(NodeAST):
-    __slots__ = ("identifier_group", "type", "expression_group")
+    __slots__ = ("identifier_group", "type", "assignable_group")
 
     def __init__(
         self,
         identifier_group: list[NodeIdentifier],
         node_type: NodeType,
-        expression_group: list[NodeExpression],
+        assignable_group: list[NodeAssignable],
     ) -> None:
         self.identifier_group: list[NodeIdentifier] = identifier_group
         self.type: NodeType = node_type
-        self.expression_group: list[NodeExpression] = expression_group
+        self.assignable_group: list[NodeAssignable] = assignable_group
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier_group={self.identifier_group}, type={self.type}, expression_group={self.expression_group})"
+        return f"{self.__class__.__name__}(identifier_group={self.identifier_group}, type={self.type}, assignable_group={self.assignable_group})"
 
 
 class NodeVariableDeclaration(NodeStatement):
@@ -123,15 +133,15 @@ class NodeConstantDeclaration(NodeStatement):
         return f"{self.__class__.__name__}(same_type_groups={self.same_type_groups})"
 
 
-class NodeAssignmentStatement(NodeStatement):
-    __slots__ = ("identifier", "expression")
+class NodeAssignment(NodeStatement):
+    __slots__ = ("identifier", "assignable")
 
-    def __init__(self, identifier: NodeIdentifier, expression: NodeExpression) -> None:
+    def __init__(self, identifier: NodeIdentifier, assignable: NodeAssignable) -> None:
         self.identifier: NodeIdentifier = identifier
-        self.expression: NodeExpression = expression
+        self.assignable: NodeAssignable = assignable
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier={self.identifier}, expression={self.expression})"
+        return f"{self.__class__.__name__}(identifier={self.identifier}, assignable={self.assignable})"
 
 
 class NodeGiveStatement(NodeStatement):
@@ -157,17 +167,15 @@ class NodeParameter(NodeAST):
         )
 
 
-class NodeUnit(NodeExpression, NodeStatement):
-    __slots__ = ("parameters", "return_type", "block", "assigned_name")
+class NodeUnit(NodeAST):
+    __slots__ = ("parameters", "block", "assigned_name")
 
     def __init__(
         self,
         parameters: Optional[list[NodeParameter]],
-        return_type: Optional[NodeType],
         block: NodeBlock,
     ) -> None:
         self.parameters: Optional[list[NodeParameter]] = parameters
-        self.return_type: Optional[NodeType] = return_type
         self.block: NodeBlock = block
         self.assigned_name: Optional[str] = None
 
@@ -177,8 +185,28 @@ class NodeUnit(NodeExpression, NodeStatement):
     def is_anonymous(self) -> bool:
         return self.assigned_name is None
 
+
+class NodeExpressionUnit(NodeUnit, NodeExpression):
+    __slots__ = ("return_type",)
+
+    def __init__(
+        self,
+        parameters: Optional[list[NodeParameter]],
+        return_type: NodeType,
+        block: NodeBlock,
+    ) -> None:
+        super().__init__(parameters, block)
+        self.return_type: NodeType = return_type
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(parameters={self.parameters}, return_type={self.return_type}, block={self.block}, assigned_name={self.assigned_name})"
+
+
+class NodeProcedureUnit(NodeUnit, NodeStatement, NodeAssignable):
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(parameters={self.parameters}, block={self.block}, assigned_name={self.assigned_name})"
 
 
 from semantic_analysis.symbol_table import UnitSymbol
@@ -231,6 +259,26 @@ class NodeNumericLiteral(NodeExpression):
 
     def __init__(self, value: NumericType) -> None:
         self.value: NumericType = value
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(value={self.value})"
+
+
+class NodeTextualLiteral(NodeExpression):
+    __slots__ = ("value",)
+
+    def __init__(self, value: str) -> None:
+        self.value: str = value
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(value={self.value})"
+
+
+class NodeTruthLiteral(NodeExpression):
+    __slots__ = ("value",)
+
+    def __init__(self, value: TruthType) -> None:
+        self.value: TruthType = value
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value={self.value})"

@@ -57,27 +57,39 @@ from syntactic_analysis.ast import NodeBlock
 from lexical_analysis.tokens import TokenType
 
 
-class UnitSymbol(TypedSymbol):
-    __slots__ = ("parameters", "return_type", "block", "is_anonymous", "is_procedure")
+class UnitSymbol(Symbol):
+    __slots__ = ("parameters", "block", "is_anonymous")
 
     def __init__(
         self,
         identifier: str,
         parameters: list[VariableSymbol],
-        return_type: Optional[str],
         block: NodeBlock,
         is_anonymous: bool = True,
     ) -> None:
-        super().__init__(identifier, TokenType.UNIT_TYPE.value)
+        super().__init__(identifier)
         self.parameters: list[VariableSymbol] = parameters
-        self.return_type: Optional[str] = return_type
         self.block: NodeBlock = block
         self.is_anonymous: bool = is_anonymous
-        self.is_procedure: bool = True
 
     def make_named(self, name: str) -> None:
         self.identifier = name
         self.is_anonymous = False
+
+
+class ExpressionUnitSymbol(UnitSymbol):
+    __slots__ = ("return_type",)
+
+    def __init__(
+        self,
+        identifier: str,
+        parameters: list[VariableSymbol],
+        return_type: str,
+        block: NodeBlock,
+        is_anonymous: bool = True,
+    ) -> None:
+        super().__init__(identifier, parameters, block, is_anonymous)
+        self.return_type: str = return_type
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(identifier={self.identifier}, parameters={self.parameters}, return_type={self.return_type}, block={self.block}, is_anonymous={self.is_anonymous})"
@@ -93,6 +105,20 @@ class UnitSymbol(TypedSymbol):
         )
 
 
+class ProcedureUnitSymbol(UnitSymbol):
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(identifier={self.identifier}, parameters={self.parameters}, block={self.block}, is_anonymous={self.is_anonymous})"
+
+    def __str__(self) -> str:
+        params_str = ", ".join(
+            [f"{param.identifier}: {param.type}" for param in self.parameters]
+        )
+        anonymous_string = "(anonymous)" if self.is_anonymous else ""
+        return f"<UNIT: {self.identifier}({params_str}){anonymous_string}>"
+
+
 class UnitHolderSymbol(TypedSymbol):
     __slots__ = ("unit_symbol", "is_constant")
 
@@ -104,27 +130,22 @@ class UnitHolderSymbol(TypedSymbol):
         self.is_constant: bool = is_constant
         unit_symbol.make_named(identifier)
 
-    @property
-    def parameters(self) -> list[VariableSymbol]:
-        return self.unit_symbol.parameters
-
-    @property
-    def return_type(self) -> Optional[str]:
-        return self.unit_symbol.return_type
-
-    @property
-    def block(self) -> NodeBlock:
-        return self.unit_symbol.block
-
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(identifier='{self.identifier}', unit_symbol={self.unit_symbol}, is_constant={self.is_constant})"
 
     def __str__(self) -> str:
         category = "CONSTANT" if self.is_constant else "VARIABLE"
         params_string = ", ".join(
-            [f"{param.identifier}: {param.type}" for param in self.parameters]
+            [
+                f"{param.identifier}: {param.type}"
+                for param in self.unit_symbol.parameters
+            ]
         )
-        return_string = f" -> {self.return_type}" if self.return_type else ""
+        return_string = (
+            f" -> {self.unit_symbol.return_type}"
+            if isinstance(self.unit_symbol, ExpressionUnitSymbol)
+            else ""
+        )
         return f"<{category}-UNIT: {self.identifier}({params_string}){return_string}>"
 
 
