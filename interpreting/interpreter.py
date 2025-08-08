@@ -1,131 +1,191 @@
-from typing import Callable, Optional, Union
-import operator
-from interpreting.call_stack import ActivationRecord, ActivationRecordType, CallStack
+from typing import Optional
+from interpreting.call_stack import (
+    CallStack,
+    ActivationRecord,
+    ActivationRecordType,
+    NumericType,
+)
+from syntactic_analysis.ast import *
 from visitor_pattern.visitor import NodeVisitor
-from syntactic_analysis.ast import (
-    NodeAST,
-    NodeBinaryOperation,
-    NodeBlock,
-    NodeAssignment,
-    NodeIdentifier,
-    NodeNumericLiteral,
-    NodeProgram,
-    NodeSameTypeVariableDeclarationGroup,
-    NodeUnaryOperation,
-    NodeUnitUse,
-    NodeVariableDeclaration,
+from semantic_analysis.symbol_table import (
+    FunctionSymbol,
+    ProcedureSymbol,
+    VariableSymbol,
 )
 from utils.error_handling import InterpreterError, ErrorCode
 
-NumericType = Union[int, float]
-
 
 class Interpreter(NodeVisitor[Optional[NumericType]]):
-    __slots__ = ("_call_stack",)
-
-    BINARY_OPERATORS: dict[str, Callable[[NumericType, NumericType], NumericType]] = {
-        "+": operator.add,
-        "-": operator.sub,
-        "*": operator.mul,
-        "/": operator.truediv,
-        "DIV": operator.floordiv,
-        "MOD": operator.mod,
-    }
-
-    UNARY_OPERATORS: dict[str, Callable[[NumericType], NumericType]] = {
-        "+": operator.pos,
-        "-": operator.neg,
-    }
-
-    TYPES_DEFAULT_VALUES: dict[str, NumericType] = {
-        "INTEGER": 0,
-        "REAL": 0.0,
-    }
+    __slots__ = ("_call_stack", "_functions", "_procedures")
 
     def __init__(self) -> None:
-        self._call_stack: CallStack = CallStack()
+        self._call_stack = CallStack()
+        self._functions: dict[str, FunctionSymbol] = {}
+        self._procedures: dict[str, ProcedureSymbol] = {}
 
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}()"
-
-    def __str__(self) -> str:
-        return str(self._call_stack)
+    def interpret(self, tree: NodeAST) -> None:
+        self.visit(tree)
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
-        program_record: ActivationRecord = ActivationRecord(
-            "Main", ActivationRecordType.PROGRAM, 0
-        )
-        self._call_stack.push(program_record)
+        ar = ActivationRecord("main", ActivationRecordType.PROGRAM, 1)
+        self._call_stack.push(ar)
         self.visit(node.block)
         self._call_stack.pop()
 
     def visit_NodeBlock(self, node: NodeBlock) -> None:
-        for statement in node.statements:
-            self.visit(statement)
+        for stmt in node.statements:
+            result = self.visit(stmt)
+            if isinstance(result, dict) and "return" in result:
+                return result
 
     def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:
-        for same_type_group in node.same_type_groups:
-            self.visit(same_type_group)
+        for i, identifier in enumerate(node.identifiers):
+            value = self.visit(node.expressions[i]) if node.expressions else None
+            self._call_stack.peek()[identifier.name] = value
 
-    def visit_NodeSameTypeVariableDeclarationGroup(
-        self, node: NodeSameTypeVariableDeclarationGroup
-    ) -> None:
-        default_value: NumericType = self.TYPES_DEFAULT_VALUES[node.type.name]
-        if node.assignable_group is None:
-            for identifier in node.identifier_group:
-                current_record: ActivationRecord = self._call_stack.peek()
-                current_record[identifier.name] = default_value
-        else:
-            for identifier, expression in zip(
-                node.identifier_group, node.assignable_group
-            ):
-                current_record: ActivationRecord = self._call_stack.peek()
-                current_record[identifier.name] = self.visit(expression)
+    def visit_NodeConstantDeclaration(self, node: NodeConstantDeclaration) -> None:
+        for i, identifier in enumerate(node.identifiers):
+            value = self.visit(node.expressions[i])
+            self._call_stack.peek()[identifier.name] = value
 
-    def visit_NodeAssignmentStatement(self, node: NodeAssignment) -> None:
-        id: str = node.identifier.name
-        result: Optional[NumericType] = self.visit(node.expression)
-        if result is not None:
-            current_record: ActivationRecord = self._call_stack.peek()
-            current_record[id] = result
+    def visit_NodeAssignment(self, node: NodeAssignment) -> None:
+        value = self.visit(node.expression)
+        self._call_stack.peek()[node.identifier.name] = value
 
-    def visit_NodeIdentifier(self, node: NodeIdentifier) -> Optional[NumericType]:
-        id: str = node.name
-        current_record: ActivationRecord = self._call_stack.peek()
-        return current_record.get(id)
+    def visit_NodeGiveStatement(
+        self, node: NodeGiveStatement
+    ) -> dict[str, Optional[NumericType]]:
+        value = self.visit(node.expression) if node.expression else None
+        return {"return": value}
+
+    def visit_NodeFunctionDeclaration(self, node: NodeFunctionDeclaration) -> None:
+        self._functions[node.name.name] = FunctionSymbol(
+            node.name.name,
+            [
+                VariableSymbol(p.identifier.name, p.type.name)
+                for p in node.parameters or []
+            ],
+            node.return_type.name,
+            node.block,
+        )
+
+    def visit_NodeProcedureDeclaration(self, node: NodeProcedureDeclaration) -> None:
+        self._procedures[node.name.name] = ProcedureSymbol(
+            node.name.name,
+            [
+                VariableSymbol(p.identifier.name, p.type.name)
+                for p in node.parameters or []
+            ],
+            node.block,
+        )
+
+    def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> NumericType:
+        symbol = self._functions.get(node.name.name)
+        if symbol is None:
+            raise InterpreterError(
+                ErrorCode.UNDECLARED_IDENTIFIER,
+                f"Function '{node.name.name}' is not declared.",
+            )
+
+        args = [self.visit(arg) for arg in node.arguments or []]
+        ar = ActivationRecord(symbol.identifier, ActivationRecordType.FUNCTION, 2)
+
+        if symbol.parameters:
+            for param, arg in zip(symbol.parameters, args):
+                ar[param.identifier] = arg
+
+        self._call_stack.push(ar)
+        result = self.visit(symbol.block)
+        self._call_stack.pop()
+
+        if isinstance(result, dict) and "return" in result:
+            return result["return"]
+
+        raise InterpreterError(
+            ErrorCode.EXPRESSION_UNIT_EMPTY_RETURN,
+            f"Function '{symbol.identifier}' did not return a value.",
+        )
+
+    def visit_NodeProcedureCall(self, node: NodeProcedureCall) -> None:
+        symbol = self._procedures.get(node.name.name)
+        if symbol is None:
+            raise InterpreterError(
+                ErrorCode.UNDECLARED_IDENTIFIER,
+                f"Procedure '{node.name.name}' is not declared.",
+            )
+
+        args = [self.visit(arg) for arg in node.arguments or []]
+        ar = ActivationRecord(symbol.identifier, ActivationRecordType.PROCEDURE, 2)
+
+        if symbol.parameters:
+            for param, arg in zip(symbol.parameters, args):
+                ar[param.identifier] = arg
+
+        self._call_stack.push(ar)
+        result = self.visit(symbol.block)
+        self._call_stack.pop()
+
+        if isinstance(result, dict) and result.get("return") is not None:
+            raise InterpreterError(
+                ErrorCode.PROCEDURE_UNIT_RETURNING_VALUE,
+                f"Procedure '{symbol.identifier}' cannot return a value.",
+            )
+
+    def visit_NodeIdentifier(self, node: NodeIdentifier) -> NumericType:
+        value = self._call_stack.peek().get(node.name)
+        if value is None:
+            raise InterpreterError(
+                ErrorCode.UNDECLARED_IDENTIFIER,
+                f"Identifier '{node.name}' is not defined.",
+            )
+        return value
 
     def visit_NodeBinaryOperation(self, node: NodeBinaryOperation) -> NumericType:
-        left_val: NumericType = self.visit(node.left_expression)
-        right_val: NumericType = self.visit(node.right_expression)
-        operator: str = node.operator
-        if operator in ("/", "//", "%") and right_val in (0, 0.0):
-            raise InterpreterError(ErrorCode.DIVISION_BY_ZERO, "Cannot divide by zero")
-        return self.BINARY_OPERATORS[operator](left_val, right_val)
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        op = node.operator
+
+        if op == "+":
+            return left + right
+        if op == "-":
+            return left - right
+        if op == "*":
+            return left * right
+        if op == "/":
+            return left / right
+        if op == "//":
+            return left // right
+        if op == "%":
+            return left % right
+        if op == "**":
+            return left**right
+
+        raise InterpreterError(
+            ErrorCode.INVALID_OPERATION,
+            f"Unknown binary operator '{op}'",
+        )
 
     def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> NumericType:
-        operand_val: NumericType = self.visit(node.expression)
-        operator_symbol: str = node.operator.upper()
-        return self.UNARY_OPERATORS[operator_symbol](operand_val)
+        operand = self.visit(node.operand)
 
-    def visit_NodeNumericLiteral(self, node: NodeNumericLiteral) -> NumericType:
+        if node.operator == "+":
+            return +operand
+        if node.operator == "-":
+            return -operand
+
+        raise InterpreterError(
+            ErrorCode.INVALID_OPERATION,
+            f"Unknown unary operator '{node.operator}'",
+        )
+
+    def visit_NodeIntegerLiteral(self, node: NodeIntegerLiteral) -> int:
         return node.value
 
-    def visit_NodeUnitUse(self, node: NodeUnitUse) -> None:
-        unit_record: ActivationRecord = ActivationRecord(
-            "Anonymous",
-            ActivationRecordType.UNIT,
-            self._call_stack.peek().nesting_level + 1,
-        )
-        if node.symbol is not None:
-            if node.arguments is not None:
-                for parameter, argument in zip(node.symbol.parameters, node.arguments):
-                    unit_record[parameter.identifier] = self.visit(argument)
-            self._call_stack.push(unit_record)
-            self.visit(node.symbol.block)
-            self._call_stack.pop()
-        else:
-            # raise InterpreterError(ErrorCode,"")
-            pass
+    def visit_NodeFloatLiteral(self, node: NodeFloatLiteral) -> float:
+        return node.value
 
-    def interpret(self, tree: NodeAST) -> Optional[NumericType]:
-        return self.visit(tree)
+    def visit_NodeStringLiteral(self, node: NodeStringLiteral) -> str:
+        return node.value
+
+    def visit_NodeBooleanLiteral(self, node: NodeBooleanLiteral) -> bool:
+        return node.value

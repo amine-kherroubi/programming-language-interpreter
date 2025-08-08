@@ -1,47 +1,55 @@
+# semantic_analyzer.py
+
+from typing import Optional
+
 from visitor_pattern.visitor import NodeVisitor
 from syntactic_analysis.ast import (
     NodeAST,
-    NodeAssignment,
-    NodeBinaryOperation,
+    NodeProgram,
     NodeBlock,
+    NodeStatement,
+    NodeExpression,
+    NodeVariableDeclaration,
     NodeConstantDeclaration,
+    NodeAssignment,
+    NodeFunctionDeclaration,
+    NodeProcedureDeclaration,
+    NodeFunctionCall,
+    NodeProcedureCall,
     NodeGiveStatement,
     NodeIdentifier,
-    NodeNumericLiteral,
-    NodeProgram,
-    NodeSameTypeConstantDeclarationGroup,
-    NodeSameTypeVariableDeclarationGroup,
+    NodeBinaryOperation,
     NodeUnaryOperation,
-    NodeProcedureUnit,
-    NodeExpressionUnit,
-    NodeUnit,
-    NodeUnitUse,
-    NodeVariableDeclaration,
+    NodeIntegerLiteral,
+    NodeFloatLiteral,
+    NodeStringLiteral,
+    NodeBooleanLiteral,
 )
 from semantic_analysis.symbol_table import (
-    ConstantSymbol,
-    ExpressionUnitSymbol,
-    ProcedureUnitSymbol,
-    UnitHolderSymbol,
     ScopedSymbolTable,
-    UnitSymbol,
     VariableSymbol,
+    ConstantSymbol,
+    FunctionSymbol,
+    ProcedureSymbol,
 )
 from utils.error_handling import SemanticError, ErrorCode
-from lexical_analysis.tokens import TokenType
 
 
 class SemanticAnalyzer(NodeVisitor[None]):
-    __slots__ = ("_current_scope",)
+    __slots__ = ("_current_scope", "_current_function")
 
     def __init__(self) -> None:
-        self._current_scope: ScopedSymbolTable = ScopedSymbolTable("Global", 1, None)
+        self._current_scope = ScopedSymbolTable("global", 1, None)
+        self._current_function: Optional[str] = None
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
     def __str__(self) -> str:
         return str(self._current_scope)
+
+    def analyze(self, tree: NodeAST) -> None:
+        self.visit(tree)
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
         self.visit(node.block)
@@ -51,220 +59,203 @@ class SemanticAnalyzer(NodeVisitor[None]):
             self.visit(statement)
 
     def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:
-        for same_type_group in node.same_type_groups:
-            self.visit(same_type_group)
+        for i, identifier in enumerate(node.identifiers):
+            self._ensure_not_redeclared(identifier.name, "Variable")
 
-    def visit_NodeSameTypeVariableDeclarationGroup(
-        self, node: NodeSameTypeVariableDeclarationGroup
-    ) -> None:
-        if node.assignable_group is not None:
-            for identifier, expression in zip(
-                node.identifier_group, node.assignable_group
-            ):
-                if (
-                    isinstance(expression, NodeUnit)
-                    and node.type.name == TokenType.UNIT_TYPE.value
-                ):
-                    self._check_unit_return_consistency(expression)
-                    unit_symbol: UnitSymbol = self._create_unit_symbol_from_node(
-                        expression
-                    )
-                    unit_holder = UnitHolderSymbol(
-                        identifier.name, unit_symbol, is_constant=False
-                    )
-                    self._current_scope.define(unit_holder)
-                else:
-                    self._current_scope.define(
-                        VariableSymbol(identifier.name, node.type.name)
-                    )
-                    self.visit(expression)
-        else:
-            for member in node.identifier_group:
-                self._current_scope.define(VariableSymbol(member.name, node.type.name))
+            symbol = VariableSymbol(identifier.name, node.type.name)
+            self._current_scope.define(symbol)
+
+            if node.expressions and i < len(node.expressions):
+                self.visit(node.expressions[i])
 
     def visit_NodeConstantDeclaration(self, node: NodeConstantDeclaration) -> None:
-        for same_type_group in node.same_type_groups:
-            self.visit(same_type_group)
+        for i, identifier in enumerate(node.identifiers):
+            self._ensure_not_redeclared(identifier.name, "Constant")
 
-    def visit_NodeSameTypeConstantDeclarationGroup(
-        self, node: NodeSameTypeConstantDeclarationGroup
-    ) -> None:
-        for identifier, expression in zip(node.identifier_group, node.assignable_group):
-            if (
-                isinstance(expression, NodeUnit)
-                and node.type.name == TokenType.UNIT_TYPE.value
-            ):
-                self._check_unit_return_consistency(expression)
-                unit_symbol = self._create_unit_symbol_from_node(expression)
-                unit_holder = UnitHolderSymbol(
-                    identifier.name, unit_symbol, is_constant=True
-                )
-                self._current_scope.define(unit_holder)
-            else:
-                self._current_scope.define(
-                    ConstantSymbol(identifier.name, node.type.name)
-                )
-                self.visit(expression)
+            symbol = ConstantSymbol(identifier.name, node.type.name)
+            self._current_scope.define(symbol)
 
-    def visit_NodeAssignmentStatement(self, node: NodeAssignment) -> None:
+            self.visit(node.expressions[i])
+
+    def visit_NodeFunctionDeclaration(self, node: NodeFunctionDeclaration) -> None:
+        name = node.name.name
+        self._ensure_not_redeclared(name, "Function")
+
+        params = [
+            VariableSymbol(param.identifier.name, param.type.name)
+            for param in node.parameters or []
+        ]
+
+        self._current_scope.define(
+            FunctionSymbol(name, params, node.return_type.name, node.block)
+        )
+
+        self._enter_function_scope(name, params)
+        previous_function = self._current_function
+        self._current_function = name
+
+        self.visit(node.block)
+
+        self._current_function = previous_function
+        self._exit_scope()
+
+    def visit_NodeProcedureDeclaration(self, node: NodeProcedureDeclaration) -> None:
+        name = node.name.name
+        self._ensure_not_redeclared(name, "Procedure")
+
+        params = [
+            VariableSymbol(param.identifier.name, param.type.name)
+            for param in node.parameters or []
+        ]
+
+        self._current_scope.define(ProcedureSymbol(name, params, node.block))
+
+        self._enter_function_scope(name, params)
+        previous_function = self._current_function
+        self._current_function = name
+
+        self.visit(node.block)
+
+        self._current_function = previous_function
+        self._exit_scope()
+
+    def visit_NodeAssignment(self, node: NodeAssignment) -> None:
         symbol = self._current_scope.lookup(node.identifier.name)
         if symbol is None:
             raise SemanticError(
                 ErrorCode.UNDECLARED_IDENTIFIER,
-                f"Undeclared variable {node.identifier.name}",
+                f"Undeclared variable '{node.identifier.name}'",
             )
-        if isinstance(symbol, (ConstantSymbol, UnitHolderSymbol)) and getattr(
-            symbol, "is_constant", True
-        ):
+        if isinstance(symbol, ConstantSymbol):
             raise SemanticError(
                 ErrorCode.ASSIGNMENT_TO_CONSTANT,
-                f"Cannot assign to constant {node.identifier.name}",
+                f"Cannot assign to constant '{node.identifier.name}'",
             )
-        if isinstance(node.expression, NodeExpressionUnit):
-            if not (
-                isinstance(symbol, VariableSymbol)
-                and symbol.type == TokenType.UNIT_TYPE.value
-            ):
+        if not isinstance(symbol, VariableSymbol):
+            raise SemanticError(
+                ErrorCode.WRONG_SYMBOL_TYPE,
+                f"'{node.identifier.name}' is not a variable",
+            )
+
+        self.visit(node.expression)
+
+    def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> None:
+        symbol = self._current_scope.lookup_callable(node.name.name)
+        if symbol is None:
+            raise SemanticError(
+                ErrorCode.UNDECLARED_IDENTIFIER,
+                f"Undeclared function '{node.name.name}'",
+            )
+        if not isinstance(symbol, FunctionSymbol):
+            raise SemanticError(
+                ErrorCode.WRONG_SYMBOL_TYPE,
+                f"'{node.name.name}' is not a function",
+            )
+
+        self._check_argument_count(node.name.name, symbol.parameters, node.arguments)
+        for arg in node.arguments or []:
+            self.visit(arg)
+
+    def visit_NodeProcedureCall(self, node: NodeProcedureCall) -> None:
+        symbol = self._current_scope.lookup_callable(node.name.name)
+        if symbol is None:
+            raise SemanticError(
+                ErrorCode.UNDECLARED_IDENTIFIER,
+                f"Undeclared procedure '{node.name.name}'",
+            )
+        if not isinstance(symbol, ProcedureSymbol):
+            raise SemanticError(
+                ErrorCode.WRONG_SYMBOL_TYPE,
+                f"'{node.name.name}' is not a procedure",
+            )
+
+        self._check_argument_count(node.name.name, symbol.parameters, node.arguments)
+        for arg in node.arguments or []:
+            self.visit(arg)
+
+    def visit_NodeGiveStatement(self, node: NodeGiveStatement) -> None:
+        if not self._current_function:
+            raise SemanticError(
+                ErrorCode.WRONG_SYMBOL_TYPE,
+                "Give statement outside of function or procedure",
+            )
+
+        function_symbol = self._current_scope.enclosing_scope.lookup(
+            self._current_function
+        )
+
+        if isinstance(function_symbol, FunctionSymbol):
+            if node.expression is None:
                 raise SemanticError(
-                    ErrorCode.TYPE_MISMATCH,
-                    f"Cannot assign unit to non-unit variable {node.identifier.name}",
+                    ErrorCode.EXPRESSION_UNIT_EMPTY_RETURN,
+                    f"Function '{self._current_function}' must return a value",
                 )
-            self._check_unit_return_consistency(node.expression)
-            unit_symbol = self._create_unit_symbol_from_node(node.expression)
-            unit_holder = UnitHolderSymbol(
-                node.identifier.name, unit_symbol, is_constant=False
-            )
-            self._current_scope.define(unit_holder)
-        else:
             self.visit(node.expression)
+
+        elif isinstance(function_symbol, ProcedureSymbol):
+            if node.expression is not None:
+                raise SemanticError(
+                    ErrorCode.PROCEDURE_UNIT_RETURNING_VALUE,
+                    f"Procedure '{self._current_function}' cannot return a value",
+                )
 
     def visit_NodeIdentifier(self, node: NodeIdentifier) -> None:
         if self._current_scope.lookup(node.name) is None:
             raise SemanticError(
-                ErrorCode.UNDECLARED_IDENTIFIER, f"Undeclared identifier {node.name}"
+                ErrorCode.UNDECLARED_IDENTIFIER,
+                f"Undeclared identifier '{node.name}'",
             )
-
-    def visit_NodeNumericLiteral(self, node: NodeNumericLiteral) -> None:
-        pass
 
     def visit_NodeBinaryOperation(self, node: NodeBinaryOperation) -> None:
-        self.visit(node.left_expression)
-        self.visit(node.right_expression)
+        self.visit(node.left)
+        self.visit(node.right)
 
     def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> None:
-        self.visit(node.expression)
+        self.visit(node.operand)
 
-    def visit_NodeUnit(self, node: NodeUnit) -> None:
-        self._check_unit_return_consistency(node)
-        unit_symbol = self._create_unit_symbol_from_node(node)
-        anonymous_name = self._current_scope.generate_anonymous_unit_name()
-        unit_symbol.identifier = anonymous_name
-        self._current_scope.define(unit_symbol)
-        self._enter_unit_scope(unit_symbol)
-        self.visit(node.block)
-        self._exit_scope()
-
-    def visit_NodeUnitUse(self, node: NodeUnitUse) -> None:
-        unit_symbol = self._current_scope.lookup_callable_unit(node.identifier.name)
-        if unit_symbol is None:
-            symbol = self._current_scope.lookup(node.identifier.name)
-            if symbol is None:
-                raise SemanticError(
-                    ErrorCode.UNDECLARED_IDENTIFIER,
-                    f"Undeclared identifier {node.identifier.name}",
-                )
-            else:
-                raise SemanticError(
-                    ErrorCode.WRONG_SYMBOL_TYPE, f"{node.identifier.name} is not a unit"
-                )
-        expected_args = len(unit_symbol.parameters) if unit_symbol.parameters else 0
-        actual_args = len(node.arguments) if node.arguments else 0
-        if expected_args != actual_args:
-            raise SemanticError(
-                ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
-                f"Unit {node.identifier.name} expects {expected_args} arguments, got {actual_args}",
-            )
-        node.symbol = unit_symbol
-        if node.arguments:
-            for argument in node.arguments:
-                self.visit(argument)
-
-    def visit_NodeGiveStatement(self, node: NodeGiveStatement) -> None:
+    def visit_NodeIntegerLiteral(self, node: NodeIntegerLiteral) -> None:
         pass
 
-    def _create_unit_symbol_from_node(self, node: NodeUnit) -> UnitSymbol:
-        parameters: list[VariableSymbol] = []
-        if node.parameters:
-            for parameter in node.parameters:
-                parameters.append(
-                    VariableSymbol(parameter.identifier.name, parameter.type.name)
-                )
-        if isinstance(node, NodeExpressionUnit):
-            return ExpressionUnitSymbol(
-                identifier="TEMPORARY_NAME",
-                parameters=parameters,
-                return_type=node.return_type.name,
-                block=node.block,
-                is_anonymous=True,
-            )
-        else:
-            return ProcedureUnitSymbol(
-                identifier="TEMPORARY_NAME",
-                parameters=parameters,
-                block=node.block,
-                is_anonymous=True,
-            )
+    def visit_NodeFloatLiteral(self, node: NodeFloatLiteral) -> None:
+        pass
 
-    def _enter_unit_scope(self, unit_symbol: UnitSymbol) -> None:
-        unit_scope = ScopedSymbolTable(
-            scope_name=unit_symbol.identifier,
-            scope_level=self._current_scope.scope_level + 1,
-            enclosing_scope=self._current_scope,
+    def visit_NodeStringLiteral(self, node: NodeStringLiteral) -> None:
+        pass
+
+    def visit_NodeBooleanLiteral(self, node: NodeBooleanLiteral) -> None:
+        pass
+
+    # -- Helpers --
+
+    def _enter_function_scope(self, name: str, params: list[VariableSymbol]) -> None:
+        new_scope = ScopedSymbolTable(
+            name, self._current_scope.scope_level + 1, self._current_scope
         )
-        for parameter in unit_symbol.parameters:
-            unit_scope.define(parameter)
-        self._current_scope = unit_scope
+        for param in params:
+            new_scope.define(param)
+        self._current_scope = new_scope
 
     def _exit_scope(self) -> None:
-        if self._current_scope.enclosing_scope is not None:
+        if self._current_scope.enclosing_scope:
             self._current_scope = self._current_scope.enclosing_scope
 
-    def _check_unit_return_consistency(self, node: NodeUnit) -> None:
-        give_statements: list[NodeGiveStatement] = [
-            statement
-            for statement in node.block.statements
-            if isinstance(statement, NodeGiveStatement)
-        ]
-        if isinstance(node, NodeExpressionUnit):
-            has_return_with_value: bool = any(
-                statement.expression is not None for statement in give_statements
+    def _ensure_not_redeclared(self, name: str, kind: str) -> None:
+        if self._current_scope.lookup(name, current_scope_only=True):
+            raise SemanticError(
+                ErrorCode.DUPLICATE_IDENTIFIER,
+                f"{kind} '{name}' already declared in this scope",
             )
-            if not has_return_with_value:
-                raise SemanticError(
-                    ErrorCode.EXPRESSION_UNIT_NOT_RETURNING_VALUE,
-                    "Expression unit should always return a value",
-                )
-            empty_returns: list[NodeGiveStatement] = [
-                statement
-                for statement in give_statements
-                if statement.expression is None
-            ]
-            if empty_returns:
-                raise SemanticError(
-                    ErrorCode.EXPRESSION_UNIT_EMPTY_RETURN,
-                    "Expression unit cannot have empty return statements",
-                )
-        elif isinstance(node, NodeProcedureUnit):
-            returns_with_values: list[NodeGiveStatement] = [
-                statement
-                for statement in give_statements
-                if statement.expression is not None
-            ]
-            if returns_with_values:
-                raise SemanticError(
-                    ErrorCode.PROCEDURE_UNIT_RETURNING_VALUE,
-                    "Procedure unit should not return a value",
-                )
 
-    def analyze(self, tree: NodeAST) -> None:
-        self.visit(tree)
+    def _check_argument_count(
+        self,
+        name: str,
+        parameters: Optional[list[VariableSymbol]],
+        arguments: Optional[list[NodeExpression]],
+    ) -> None:
+        expected = len(parameters) if parameters else 0
+        actual = len(arguments) if arguments else 0
+        if expected != actual:
+            raise SemanticError(
+                ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
+                f"'{name}' expects {expected} arguments, got {actual}",
+            )

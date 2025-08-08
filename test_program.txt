@@ -1,11 +1,19 @@
 {
-    let x: whole
-    keep a, b, c: real = 0, 1, 2
-    let m, d: unit = [a: whole, b: real] -> real {
-        give a + b
-    }, [k: whole] {
-        k = k + 2
+    let int a = 10
+    let float b = 3.2
+    keep bool flag = true
+
+    proc doNothing() {
+        let int x = 1
+        let float y = 2.0
     }
-    keep r: unit = [] -> whole {}
-    let f: real = m(1, 2) + { give k**2 }
+
+    func multiply(x: int, y: float) -> float {
+        let float result = x * y
+        give result
+    }
+
+    exec doNothing()
+
+    let float result = multiply(a, b)
 }

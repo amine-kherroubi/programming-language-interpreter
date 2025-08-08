@@ -1,19 +1,20 @@
-from typing import Callable, TypeVar, Generic
 from abc import ABC
+from typing import Callable, Generic, TypeVar
 from syntactic_analysis.ast import NodeAST
 
 T = TypeVar("T")
 
 
 class NodeVisitor(Generic[T], ABC):
+    """Base class for implementing the visitor pattern over the AST."""
+
     def visit(self, node: NodeAST) -> T:
-        method_name: str = f"visit_{type(node).__name__}"
+        method_name = f"visit_{type(node).__name__}"
         visitor: Callable[[NodeAST], T] = getattr(self, method_name, self.generic_visit)
         return visitor(node)
 
     def generic_visit(self, node: NodeAST) -> T:
         raise NotImplementedError(
             f"No visit_{type(node).__name__} method implemented for {type(self).__name__}. "
-            f"Please implement visit_{type(node).__name__}() method or override generic_visit() "
-            f"to handle unimplemented node types."
+            f"Override generic_visit or implement visit_{type(node).__name__}()."
         )

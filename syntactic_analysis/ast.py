@@ -1,14 +1,8 @@
-from enum import Enum
-from typing import Optional, Union
 from abc import ABC, abstractmethod
+from typing import Optional, Union
 from lexical_analysis.tokens import Token
 
 NumericType = Union[int, float]
-
-
-class TruthType(Enum):
-    true = 1
-    false = 0
 
 
 class NodeAST(ABC):
@@ -23,11 +17,7 @@ class NodeStatement(NodeAST):
     pass
 
 
-class NodeAssignable(NodeAST):
-    pass
-
-
-class NodeExpression(NodeAssignable):
+class NodeExpression(NodeAST):
     pass
 
 
@@ -35,7 +25,7 @@ class NodeBlock(NodeAST):
     __slots__ = ("statements",)
 
     def __init__(self, statements: list[NodeStatement]) -> None:
-        self.statements: list[NodeStatement] = statements
+        self.statements = statements
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(statements={self.statements})"
@@ -45,7 +35,7 @@ class NodeProgram(NodeAST):
     __slots__ = ("block",)
 
     def __init__(self, block: NodeBlock) -> None:
-        self.block: NodeBlock = block
+        self.block = block
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(block={self.block})"
@@ -55,7 +45,7 @@ class NodeType(NodeAST):
     __slots__ = ("name",)
 
     def __init__(self, token: Token) -> None:
-        self.name: str = token.type.value
+        self.name = token.type.value
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
@@ -65,90 +55,68 @@ class NodeIdentifier(NodeExpression):
     __slots__ = ("name",)
 
     def __init__(self, name: str) -> None:
-        self.name: str = name
+        self.name = name
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
 
 
-class NodeSameTypeVariableDeclarationGroup(NodeAST):
-    __slots__ = ("identifier_group", "type", "assignable_group")
-
-    def __init__(
-        self,
-        identifier_group: list[NodeIdentifier],
-        node_type: NodeType,
-        assignable_group: Optional[list[NodeAssignable]],
-    ) -> None:
-        self.identifier_group: list[NodeIdentifier] = identifier_group
-        self.type: NodeType = node_type
-        self.assignable_group: Optional[list[NodeAssignable]] = assignable_group
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier_group={self.identifier_group}, type={self.type}, assignable_group={self.assignable_group})"
-
-
-class NodeSameTypeConstantDeclarationGroup(NodeAST):
-    __slots__ = ("identifier_group", "type", "assignable_group")
-
-    def __init__(
-        self,
-        identifier_group: list[NodeIdentifier],
-        node_type: NodeType,
-        assignable_group: list[NodeAssignable],
-    ) -> None:
-        self.identifier_group: list[NodeIdentifier] = identifier_group
-        self.type: NodeType = node_type
-        self.assignable_group: list[NodeAssignable] = assignable_group
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier_group={self.identifier_group}, type={self.type}, assignable_group={self.assignable_group})"
-
-
 class NodeVariableDeclaration(NodeStatement):
-    __slots__ = ("same_type_groups",)
+    __slots__ = ("type", "identifiers", "expressions")
 
     def __init__(
-        self, same_type_groups: list[NodeSameTypeVariableDeclarationGroup]
+        self,
+        var_type: NodeType,
+        identifiers: list[NodeIdentifier],
+        expressions: Optional[list[NodeExpression]] = None,
     ) -> None:
-        self.same_type_groups: list[NodeSameTypeVariableDeclarationGroup] = (
-            same_type_groups
-        )
+        self.type = var_type
+        self.identifiers = identifiers
+        self.expressions = expressions
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(same_type_groups={self.same_type_groups})"
+        return (
+            f"{self.__class__.__name__}(type={self.type}, "
+            f"identifiers={self.identifiers}, expressions={self.expressions})"
+        )
 
 
 class NodeConstantDeclaration(NodeStatement):
-    __slots__ = ("same_type_groups",)
+    __slots__ = ("type", "identifiers", "expressions")
 
     def __init__(
-        self, same_type_groups: list[NodeSameTypeConstantDeclarationGroup]
+        self,
+        const_type: NodeType,
+        identifiers: list[NodeIdentifier],
+        expressions: list[NodeExpression],
     ) -> None:
-        self.same_type_groups: list[NodeSameTypeConstantDeclarationGroup] = (
-            same_type_groups
-        )
+        self.type = const_type
+        self.identifiers = identifiers
+        self.expressions = expressions
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(same_type_groups={self.same_type_groups})"
+        return (
+            f"{self.__class__.__name__}(type={self.type}, "
+            f"identifiers={self.identifiers}, expressions={self.expressions})"
+        )
 
 
 class NodeAssignment(NodeStatement):
-    __slots__ = ("identifier", "assignable")
+    __slots__ = ("identifier", "expression")
 
-    def __init__(self, identifier: NodeIdentifier, assignable: NodeAssignable) -> None:
-        self.identifier: NodeIdentifier = identifier
-        self.assignable: NodeAssignable = assignable
+    def __init__(self, identifier: NodeIdentifier, expression: NodeExpression) -> None:
+        self.identifier = identifier
+        self.expression = expression
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier={self.identifier}, assignable={self.assignable})"
+        return f"{self.__class__.__name__}(identifier={self.identifier}, expression={self.expression})"
 
 
 class NodeGiveStatement(NodeStatement):
     __slots__ = ("expression",)
 
     def __init__(self, expression: Optional[NodeExpression]) -> None:
-        self.expression: Optional[NodeExpression] = expression
+        self.expression = expression
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(expression={self.expression})"
@@ -157,9 +125,9 @@ class NodeGiveStatement(NodeStatement):
 class NodeParameter(NodeAST):
     __slots__ = ("identifier", "type")
 
-    def __init__(self, identifier: NodeIdentifier, type: NodeType) -> None:
-        self.identifier: NodeIdentifier = identifier
-        self.type: NodeType = type
+    def __init__(self, identifier: NodeIdentifier, param_type: NodeType) -> None:
+        self.identifier = identifier
+        self.type = param_type
 
     def __repr__(self) -> str:
         return (
@@ -167,118 +135,135 @@ class NodeParameter(NodeAST):
         )
 
 
-class NodeUnit(NodeAST):
-    __slots__ = ("parameters", "block", "assigned_name")
+class NodeFunctionDeclaration(NodeStatement):
+    __slots__ = ("name", "parameters", "return_type", "block")
 
     def __init__(
         self,
-        parameters: Optional[list[NodeParameter]],
-        block: NodeBlock,
-    ) -> None:
-        self.parameters: Optional[list[NodeParameter]] = parameters
-        self.block: NodeBlock = block
-        self.assigned_name: Optional[str] = None
-
-    def set_assigned_name(self, name: str) -> None:
-        self.assigned_name = name
-
-    def is_anonymous(self) -> bool:
-        return self.assigned_name is None
-
-
-class NodeExpressionUnit(NodeUnit, NodeExpression):
-    __slots__ = ("return_type",)
-
-    def __init__(
-        self,
+        name: NodeIdentifier,
         parameters: Optional[list[NodeParameter]],
         return_type: NodeType,
         block: NodeBlock,
     ) -> None:
-        super().__init__(parameters, block)
-        self.return_type: NodeType = return_type
+        self.name = name
+        self.parameters = parameters
+        self.return_type = return_type
+        self.block = block
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(parameters={self.parameters}, return_type={self.return_type}, block={self.block}, assigned_name={self.assigned_name})"
+        return (
+            f"{self.__class__.__name__}(name={self.name}, parameters={self.parameters}, "
+            f"return_type={self.return_type}, block={self.block})"
+        )
 
 
-class NodeProcedureUnit(NodeUnit, NodeStatement, NodeAssignable):
-    __slots__ = ()
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(parameters={self.parameters}, block={self.block}, assigned_name={self.assigned_name})"
-
-
-from semantic_analysis.symbol_table import UnitSymbol
-
-
-class NodeUnitUse(NodeStatement, NodeExpression):
-    __slots__ = ("identifier", "arguments", "symbol")
-
-    def __init__(
-        self, identifier: str, arguments: Optional[list[NodeExpression]]
-    ) -> None:
-        self.identifier: NodeIdentifier = NodeIdentifier(identifier)
-        self.arguments: Optional[list[NodeExpression]] = arguments
-        self.symbol: Optional[UnitSymbol] = None
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier={self.identifier}, arguments={self.arguments})"
-
-
-class NodeBinaryOperation(NodeExpression):
-    __slots__ = ("left_expression", "operator", "right_expression")
+class NodeProcedureDeclaration(NodeStatement):
+    __slots__ = ("name", "parameters", "block")
 
     def __init__(
         self,
-        left_expression: NodeExpression,
-        operator: str,
-        right_expression: NodeExpression,
+        name: NodeIdentifier,
+        parameters: Optional[list[NodeParameter]],
+        block: NodeBlock,
     ) -> None:
-        self.left_expression: NodeExpression = left_expression
-        self.operator: str = operator
-        self.right_expression: NodeExpression = right_expression
+        self.name = name
+        self.parameters = parameters
+        self.block = block
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(left_expression={self.left_expression}, operator={self.operator}, right_expression={self.right_expression})"
+        return f"{self.__class__.__name__}(name={self.name}, parameters={self.parameters}, block={self.block})"
+
+
+class NodeFunctionCall(NodeExpression, NodeStatement):
+    __slots__ = ("name", "arguments")
+
+    def __init__(
+        self, name: NodeIdentifier, arguments: Optional[list[NodeExpression]]
+    ) -> None:
+        self.name = name
+        self.arguments = arguments
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(name={self.name}, arguments={self.arguments})"
+        )
+
+
+class NodeProcedureCall(NodeStatement):
+    __slots__ = ("name", "arguments")
+
+    def __init__(
+        self, name: NodeIdentifier, arguments: Optional[list[NodeExpression]]
+    ) -> None:
+        self.name = name
+        self.arguments = arguments
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(name={self.name}, arguments={self.arguments})"
+        )
+
+
+class NodeBinaryOperation(NodeExpression):
+    __slots__ = ("left", "operator", "right")
+
+    def __init__(
+        self, left: NodeExpression, operator: str, right: NodeExpression
+    ) -> None:
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(left={self.left}, operator={self.operator}, right={self.right})"
 
 
 class NodeUnaryOperation(NodeExpression):
-    __slots__ = ("operator", "expression")
+    __slots__ = ("operator", "operand")
 
-    def __init__(self, operator: str, expression: NodeExpression) -> None:
-        self.operator: str = operator
-        self.expression: NodeExpression = expression
+    def __init__(self, operator: str, operand: NodeExpression) -> None:
+        self.operator = operator
+        self.operand = operand
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(operator={self.operator}, expression={self.expression})"
+        return f"{self.__class__.__name__}(operator={self.operator}, operand={self.operand})"
 
 
-class NodeNumericLiteral(NodeExpression):
+class NodeIntegerLiteral(NodeExpression):
     __slots__ = ("value",)
 
-    def __init__(self, value: NumericType) -> None:
-        self.value: NumericType = value
+    def __init__(self, value: int) -> None:
+        self.value = value
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value={self.value})"
 
 
-class NodeTextualLiteral(NodeExpression):
+class NodeFloatLiteral(NodeExpression):
+    __slots__ = ("value",)
+
+    def __init__(self, value: float) -> None:
+        self.value = value
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(value={self.value})"
+
+
+class NodeStringLiteral(NodeExpression):
     __slots__ = ("value",)
 
     def __init__(self, value: str) -> None:
-        self.value: str = value
+        self.value = value
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(value={self.value})"
+        return f"{self.__class__.__name__}(value={self.value!r})"
 
 
-class NodeTruthLiteral(NodeExpression):
+class NodeBooleanLiteral(NodeExpression):
     __slots__ = ("value",)
 
-    def __init__(self, value: TruthType) -> None:
-        self.value: TruthType = value
+    def __init__(self, value: bool) -> None:
+        self.value = value
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value={self.value})"

@@ -1,6 +1,12 @@
 from typing import Optional
-from lexical_analysis.tokens import Token, TokenType
 from utils.error_handling import LexicalError, ErrorCode
+from lexical_analysis.tokens import (
+    Token,
+    TokenType,
+    RESERVED_KEYWORDS,
+    SINGLE_CHARACTER_TOKEN_TYPES,
+    MULTI_CHAR_OPERATORS,
+)
 
 
 class LexicalAnalyzer:
@@ -9,9 +15,7 @@ class LexicalAnalyzer:
     def __init__(self, text: str) -> None:
         self.text: str = text
         self.position: int = 0
-        self.current_char: Optional[str] = (
-            self.text[self.position] if self.text else None
-        )
+        self.current_char: Optional[str] = text[0] if text else None
         self.line: int = 1
         self.column: int = 1
 
@@ -21,54 +25,25 @@ class LexicalAnalyzer:
     def __str__(self) -> str:
         return f"Character {self.current_char!r} at position {self.position} (line {self.line}, column {self.column})"
 
-    @staticmethod
-    def _build_reserved_keywords() -> dict[str, TokenType]:
-        token_types_list: list[TokenType] = list(TokenType)
-        start_index: int = token_types_list.index(TokenType.LET)
-        end_index: int = token_types_list.index(TokenType.UNIT_TYPE)
-        reserved_keywords: dict[str, TokenType] = {
-            token_type.value: token_type
-            for token_type in token_types_list[start_index : end_index + 1]
-        }
-        return reserved_keywords
-
-    @staticmethod
-    def _build_single_character_token_types() -> dict[str, TokenType]:
-        token_types_list: list[TokenType] = list(TokenType)
-        start_index: int = token_types_list.index(TokenType.LEFT_BRACE)
-        end_index: int = token_types_list.index(TokenType.MODULO)
-        single_character_token_types: dict[str, TokenType] = {
-            token_type.value: token_type
-            for token_type in token_types_list[start_index : end_index + 1]
-        }
-        return single_character_token_types
-
-    RESERVED_KEYWORDS: dict[str, TokenType] = _build_reserved_keywords()
-    SINGLE_CHARACTER_TOKEN_TYPES: dict[str, TokenType] = (
-        _build_single_character_token_types()
-    )
-
     def _advance(self) -> None:
         if self.current_char == "\n":
             self.line += 1
             self.column = 1
         else:
             self.column += 1
+
         self.position += 1
-        if self.position >= len(self.text):
-            self.current_char = None
-        else:
-            self.current_char = self.text[self.position]
+        self.current_char = (
+            self.text[self.position] if self.position < len(self.text) else None
+        )
 
     def _peek(self, offset: int = 1) -> Optional[str]:
-        peek_position: int = self.position + offset
-        if peek_position >= len(self.text):
-            return None
-        return self.text[peek_position]
+        index = self.position + offset
+        return self.text[index] if index < len(self.text) else None
 
     def _skip_whitespace(self) -> None:
         while (
-            self.current_char is not None
+            self.current_char
             and self.current_char.isspace()
             and self.current_char != "\n"
         ):
@@ -76,181 +51,169 @@ class LexicalAnalyzer:
 
     def _skip_comment(self) -> None:
         self._advance()
-        while self.current_char is not None and self.current_char != "\n":
+        while self.current_char and self.current_char != "\n":
             self._advance()
 
-    def _skip_other_newlines(self) -> None:
+    def _skip_consecutive_newlines(self) -> None:
         while self.current_char == "\n":
             self._advance()
 
     def _tokenize_number(self) -> Token:
-        start_line: int = self.line
-        start_column: int = self.column
-        number_string: str = ""
-        has_decimal_point: bool = False
-        while self.current_char is not None and (
+        start_line, start_column = self.line, self.column
+        number = ""
+        has_dot = False
+
+        while self.current_char and (
             self.current_char.isdigit() or self.current_char == "."
         ):
             if self.current_char == ".":
-                if has_decimal_point:
-                    raise LexicalError(
-                        ErrorCode.INVALID_NUMBER_FORMAT,
-                        "Invalid number format: multiple decimal points",
-                        self.position,
-                        self.line,
-                        self.column,
-                    )
-                has_decimal_point = True
-            number_string += self.current_char
+                if has_dot or not (self._peek() and self._peek().isdigit()):
+                    break
+                has_dot = True
+            number += self.current_char
             self._advance()
-        if number_string == "" or number_string == ".":
+
+        if not number or number == ".":
             raise LexicalError(
                 ErrorCode.INVALID_NUMBER_FORMAT,
-                "Invalid number format: empty or lone decimal point",
-                self.position - 1,
-                self.line,
-                self.column,
-            )
-        if has_decimal_point:
-            return Token(
-                TokenType.REAL_LITERAL, float(number_string), start_line, start_column
-            )
-        else:
-            return Token(
-                TokenType.WHOLE_LITERAL, int(number_string), start_line, start_column
-            )
-
-    def _tokenize_string(self) -> Token:
-        start_line: int = self.line
-        start_column: int = self.column
-        string_value = ""
-        closing_character: str = self.current_char
-        self._advance()
-        while self.current_char is not None and self.current_char != closing_character:
-            if self.current_char == "\n":
-                raise LexicalError(
-                    ErrorCode.UNTERMINATED_STRING,
-                    "Unterminated string literal",
-                    self.position,
-                    self.line,
-                    self.column,
-                )
-            if self.current_char == "\\":
-                self._advance()
-                if self.current_char is None:
-                    raise LexicalError(
-                        ErrorCode.UNTERMINATED_STRING,
-                        "Unterminated string literal",
-                        self.position,
-                        self.line,
-                        self.column,
-                    )
-                if self.current_char == "n":
-                    string_value += "\n"
-                elif self.current_char == "t":
-                    string_value += "\t"
-                elif self.current_char == "r":
-                    string_value += "\r"
-                elif self.current_char == "\\":
-                    string_value += "\\"
-                elif self.current_char == closing_character:
-                    string_value += closing_character
-                else:
-                    string_value += self.current_char
-            else:
-                string_value += self.current_char
-            self._advance()
-        if self.current_char != closing_character:
-            raise LexicalError(
-                ErrorCode.UNTERMINATED_STRING,
-                "Unterminated string literal",
+                f"Invalid number: '{number}'",
                 self.position,
                 self.line,
                 self.column,
             )
+
+        value = float(number) if has_dot else int(number)
+        token_type = TokenType.FLOAT_LITERAL if has_dot else TokenType.INT_LITERAL
+        return Token(token_type, value, start_line, start_column)
+
+    def _tokenize_string(self) -> Token:
+        start_line, start_column = self.line, self.column
+        quote = self.current_char
         self._advance()
-        return Token(TokenType.TEXT_LITERAL, string_value, start_line, start_column)
+
+        escape_map = {"n": "\n", "t": "\t", "r": "\r", "\\": "\\", "'": "'", '"': '"'}
+
+        value = ""
+        while self.current_char and self.current_char != quote:
+            if self.current_char == "\n":
+                raise LexicalError(
+                    ErrorCode.UNTERMINATED_STRING,
+                    "Unterminated string (newline)",
+                    self.position,
+                    self.line,
+                    self.column,
+                )
+
+            if self.current_char == "\\":
+                self._advance()
+                if not self.current_char:
+                    raise LexicalError(
+                        ErrorCode.UNTERMINATED_STRING,
+                        "Unterminated string (escape end)",
+                        self.position,
+                        self.line,
+                        self.column,
+                    )
+                value += escape_map.get(self.current_char, self.current_char)
+            else:
+                value += self.current_char
+
+            self._advance()
+
+        if self.current_char != quote:
+            raise LexicalError(
+                ErrorCode.UNTERMINATED_STRING,
+                f"Unterminated string, expected '{quote}'",
+                self.position,
+                self.line,
+                self.column,
+            )
+
+        self._advance()
+        return Token(TokenType.STRING_LITERAL, value, start_line, start_column)
 
     def _tokenize_identifier(self) -> Token:
-        start_line: int = self.line
-        start_column: int = self.column
-        identifier_string: str = ""
-        while self.current_char is not None and (
+        start_line, start_column = self.line, self.column
+        identifier = ""
+
+        while self.current_char and (
             self.current_char.isalnum() or self.current_char == "_"
         ):
-            identifier_string += self.current_char
+            identifier += self.current_char
             self._advance()
-        if identifier_string == "true":
-            return Token(TokenType.TRUTH_LITERAL, True, start_line, start_column)
-        elif identifier_string == "false":
-            return Token(TokenType.TRUTH_LITERAL, False, start_line, start_column)
-        if identifier_string in self.RESERVED_KEYWORDS:
+
+        if identifier == "true":
+            return Token(TokenType.BOOL_LITERAL, True, start_line, start_column)
+        if identifier == "false":
+            return Token(TokenType.BOOL_LITERAL, False, start_line, start_column)
+        if identifier in RESERVED_KEYWORDS:
             return Token(
-                self.RESERVED_KEYWORDS[identifier_string],
-                identifier_string,
-                start_line,
-                start_column,
-            )
-        else:
-            return Token(
-                TokenType.IDENTIFIER, identifier_string, start_line, start_column
+                RESERVED_KEYWORDS[identifier], identifier, start_line, start_column
             )
 
-    def _tokenize_two_character_token(self) -> Optional[Token]:
-        start_line: int = self.line
-        start_column: int = self.column
-        if self.current_char == "-" and self._peek() == ">":
-            self._advance()
-            self._advance()
-            return Token(TokenType.ARROW, "->", start_line, start_column)
-        elif self.current_char == "*" and self._peek() == "*":
-            self._advance()
-            self._advance()
-            return Token(TokenType.POWER, "**", start_line, start_column)
-        elif self.current_char == "/" and self._peek() == "/":
-            self._advance()
-            self._advance()
-            return Token(TokenType.FLOOR_DIVIDE, "//", start_line, start_column)
+        return Token(TokenType.IDENTIFIER, identifier, start_line, start_column)
+
+    def _tokenize_multi_character_operator(self) -> Optional[Token]:
+        start_line, start_column = self.line, self.column
+        for op, token_type in MULTI_CHAR_OPERATORS.items():
+            if self.current_char == op[0] and self._peek() == op[1]:
+                self._advance()
+                self._advance()
+                return Token(token_type, op, start_line, start_column)
         return None
 
     def next_token(self) -> Token:
-        self._skip_whitespace()
-        while self.current_char == "#":
-            self._skip_comment()
+        while True:
             self._skip_whitespace()
-        if self.current_char is None:
-            return Token(TokenType.EOF, None, self.line, self.column)
-        if self.current_char == "\n":
-            token = Token(TokenType.NEWLINE, "\n", self.line, self.column)
-            self._advance()
-            self._skip_other_newlines()
-            return token
-        if self.current_char.isdigit():
-            return self._tokenize_number()
-        if (
-            self.current_char == "."
-            and self._peek() is not None
-            and self._peek().isdigit()
-        ):
-            return self._tokenize_number()
-        if self.current_char in ("'", '"'):
-            return self._tokenize_string()
-        if self.current_char.isalpha() or self.current_char == "_":
-            return self._tokenize_identifier()
-        two_char_token = self._tokenize_two_character_token()
-        if two_char_token is not None:
-            return two_char_token
-        if self.current_char in self.SINGLE_CHARACTER_TOKEN_TYPES:
-            token_type: TokenType = self.SINGLE_CHARACTER_TOKEN_TYPES[self.current_char]
-            character: str = self.current_char
-            start_line = self.line
-            start_column = self.column
-            self._advance()
-            return Token(token_type, character, start_line, start_column)
-        raise LexicalError(
-            ErrorCode.INVALID_CHARACTER,
-            f"Invalid character: '{self.current_char}'",
-            self.position,
-            self.line,
-            self.column,
-        )
+
+            if self.current_char == "#":
+                self._skip_comment()
+                continue
+
+            if self.current_char is None:
+                return Token(TokenType.EOF, None, self.line, self.column)
+
+            if self.current_char == "\n":
+                token = Token(TokenType.NEWLINE, "\n", self.line, self.column)
+                self._advance()
+                self._skip_consecutive_newlines()
+                return token
+
+            if self.current_char.isdigit() or (
+                self.current_char == "." and self._peek() and self._peek().isdigit()
+            ):
+                return self._tokenize_number()
+
+            if self.current_char in ("'", '"'):
+                return self._tokenize_string()
+
+            if self.current_char.isalpha() or self.current_char == "_":
+                return self._tokenize_identifier()
+
+            token = self._tokenize_multi_character_operator()
+            if token:
+                return token
+
+            if self.current_char in SINGLE_CHARACTER_TOKEN_TYPES:
+                token_type = SINGLE_CHARACTER_TOKEN_TYPES[self.current_char]
+                char = self.current_char
+                start_line, start_column = self.line, self.column
+                self._advance()
+                return Token(token_type, char, start_line, start_column)
+
+            raise LexicalError(
+                ErrorCode.INVALID_CHARACTER,
+                f"Invalid character: '{self.current_char}'",
+                self.position,
+                self.line,
+                self.column,
+            )
+
+    def tokenize(self) -> list[Token]:
+        tokens: list[Token] = []
+        while True:
+            token = self.next_token()
+            tokens.append(token)
+            if token.type == TokenType.EOF:
+                break
+        return tokens
