@@ -7,15 +7,15 @@ from syntactic_analysis.ast import (
     NodeBlock,
     NodeVariableDeclaration,
     NodeConstantDeclaration,
-    NodeAssignment,
+    NodeAssignmentStatement,
     NodeFunctionDeclaration,
     NodeProcedureDeclaration,
     NodeFunctionCall,
     NodeProcedureCall,
     NodeGiveStatement,
     NodeIdentifier,
-    NodeBinaryOperation,
-    NodeUnaryOperation,
+    NodeBinaryArithmeticOperation,
+    NodeUnaryArithmeticOperation,
     NodeIntegerLiteral,
     NodeFloatLiteral,
     NodeStringLiteral,
@@ -139,7 +139,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         self._current_subroutine = previous_subroutine
         self._exit_scope()
 
-    def visit_NodeAssignment(self, node: NodeAssignment) -> None:
+    def visit_NodeAssignment(self, node: NodeAssignmentStatement) -> None:
         symbol: Optional[Symbol] = self._current_scope.lookup(node.identifier.name)
         if symbol is None:
             raise SemanticError(
@@ -248,11 +248,11 @@ class SemanticAnalyzer(NodeVisitor[None]):
                 f"Undeclared identifier '{node.name}'",
             )
 
-    def visit_NodeBinaryOperation(self, node: NodeBinaryOperation) -> None:
+    def visit_NodeBinaryOperation(self, node: NodeBinaryArithmeticOperation) -> None:
         self.visit(node.left)
         self.visit(node.right)
 
-    def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> None:
+    def visit_NodeUnaryOperation(self, node: NodeUnaryArithmeticOperation) -> None:
         self.visit(node.operand)
 
     def visit_NodeIntegerLiteral(self, node: NodeIntegerLiteral) -> None:

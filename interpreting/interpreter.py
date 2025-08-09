@@ -72,7 +72,7 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
             constant_value: ValueType = self.visit(node.expressions[index])
             current_activation_record[identifier.name] = constant_value
 
-    def visit_NodeAssignment(self, node: NodeAssignment) -> None:
+    def visit_NodeAssignment(self, node: NodeAssignmentStatement) -> None:
         assignment_value: ValueType = self.visit(node.expression)
         current_activation_record: ActivationRecord = self._call_stack.peek()
         current_activation_record[node.identifier.name] = assignment_value
@@ -204,7 +204,9 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
             )
         return identifier_value
 
-    def visit_NodeBinaryOperation(self, node: NodeBinaryOperation) -> ValueType:
+    def visit_NodeBinaryOperation(
+        self, node: NodeBinaryArithmeticOperation
+    ) -> ValueType:
         left_operand: ValueType = self.visit(node.left)
         right_operand: ValueType = self.visit(node.right)
         binary_operator: str = node.operator
@@ -229,7 +231,7 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
             f"Unknown binary operator '{binary_operator}'",
         )
 
-    def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> ValueType:
+    def visit_NodeUnaryOperation(self, node: NodeUnaryArithmeticOperation) -> ValueType:
         operand_value: ValueType = self.visit(node.operand)
         unary_operator: str = node.operator
 

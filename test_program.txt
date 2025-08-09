@@ -8,12 +8,13 @@
         let float y = 2.0
     }
 
-    func multiply(x: int, y: float) -> float {
+    func multiply(int x, float y) -> float {
         let float result = x * y
-        give result
+        give result        
     }
 
     exec doNothing()
-
     let float result = multiply(a, b)
+    result = result ** 2
+    show result
 }

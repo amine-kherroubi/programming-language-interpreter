@@ -77,8 +77,6 @@ RESERVED_KEYWORDS: Final[dict[str, TokenType]] = {
     "skip": TokenType.SKIP,
     "stop": TokenType.STOP,
     "show": TokenType.SHOW,
-    "true": TokenType.BOOL_LITERAL,
-    "false": TokenType.BOOL_LITERAL,
 }
 
 SINGLE_CHARACTER_TOKEN_TYPES: Final[dict[str, TokenType]] = {

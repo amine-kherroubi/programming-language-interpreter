@@ -17,11 +17,15 @@ class NodeStatement(NodeAST):
     __slots__ = ()
 
 
-class NodeArithmeticExpression(NodeAST):
+class NodeExpression(NodeAST):
     __slots__ = ()
 
 
-class NodeBooleanExpression(NodeAST):
+class NodeArithmeticExpression(NodeExpression):
+    __slots__ = ()
+
+
+class NodeBooleanExpression(NodeExpression):
     __slots__ = ()
 
 
@@ -29,7 +33,7 @@ class NodeArithmeticExpressionAsBoolean(NodeBooleanExpression):
     __slots__ = ("expression",)
 
     def __init__(self, expression: NodeArithmeticExpression) -> None:
-        self.expression = expression
+        self.expression: NodeArithmeticExpression = expression
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(expression={self.expression})"
@@ -38,8 +42,8 @@ class NodeArithmeticExpressionAsBoolean(NodeBooleanExpression):
 class NodeBlock(NodeAST):
     __slots__ = ("statements",)
 
-    def __init__(self, statements: list[NodeStatement]) -> None:
-        self.statements = statements
+    def __init__(self, statements: Optional[list[NodeStatement]]) -> None:
+        self.statements: Optional[list[NodeStatement]] = statements
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(statements={self.statements})"
@@ -49,7 +53,7 @@ class NodeProgram(NodeAST):
     __slots__ = ("block",)
 
     def __init__(self, block: NodeBlock) -> None:
-        self.block = block
+        self.block: NodeBlock = block
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(block={self.block})"
@@ -59,7 +63,7 @@ class NodeType(NodeAST):
     __slots__ = ("name",)
 
     def __init__(self, token: Token) -> None:
-        self.name = token.type.value
+        self.name: str = token.type.value
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
@@ -69,7 +73,7 @@ class NodeIdentifier(NodeArithmeticExpression):
     __slots__ = ("name",)
 
     def __init__(self, name: str) -> None:
-        self.name = name
+        self.name: str = name
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
@@ -82,11 +86,11 @@ class NodeVariableDeclaration(NodeStatement):
         self,
         var_type: NodeType,
         identifiers: list[NodeIdentifier],
-        expressions: Optional[list[NodeArithmeticExpression]] = None,
+        expressions: Optional[list[NodeExpression]] = None,
     ) -> None:
-        self.type = var_type
-        self.identifiers = identifiers
-        self.expressions = expressions
+        self.type: NodeType = var_type
+        self.identifiers: list[NodeIdentifier] = identifiers
+        self.expressions: Optional[list[NodeExpression]] = expressions
 
     def __repr__(self) -> str:
         return (
@@ -102,11 +106,11 @@ class NodeConstantDeclaration(NodeStatement):
         self,
         const_type: NodeType,
         identifiers: list[NodeIdentifier],
-        expressions: list[NodeArithmeticExpression],
+        expressions: list[NodeExpression],
     ) -> None:
-        self.type = const_type
-        self.identifiers = identifiers
-        self.expressions = expressions
+        self.type: NodeType = const_type
+        self.identifiers: list[NodeIdentifier] = identifiers
+        self.expressions: list[NodeExpression] = expressions
 
     def __repr__(self) -> str:
         return (
@@ -115,14 +119,12 @@ class NodeConstantDeclaration(NodeStatement):
         )
 
 
-class NodeAssignment(NodeStatement):
+class NodeAssignmentStatement(NodeStatement):
     __slots__ = ("identifier", "expression")
 
-    def __init__(
-        self, identifier: NodeIdentifier, expression: NodeArithmeticExpression
-    ) -> None:
-        self.identifier = identifier
-        self.expression = expression
+    def __init__(self, identifier: NodeIdentifier, expression: NodeExpression) -> None:
+        self.identifier: NodeIdentifier = identifier
+        self.expression: NodeExpression = expression
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(identifier={self.identifier}, expression={self.expression})"
@@ -131,8 +133,8 @@ class NodeAssignment(NodeStatement):
 class NodeGiveStatement(NodeStatement):
     __slots__ = ("expression",)
 
-    def __init__(self, expression: Optional[NodeArithmeticExpression]) -> None:
-        self.expression = expression
+    def __init__(self, expression: Optional[NodeExpression]) -> None:
+        self.expression: Optional[NodeExpression] = expression
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(expression={self.expression})"
@@ -141,25 +143,11 @@ class NodeGiveStatement(NodeStatement):
 class NodeShowStatement(NodeStatement):
     __slots__ = ("expression",)
 
-    def __init__(self, expression: Optional[NodeArithmeticExpression]) -> None:
-        self.expression = expression
+    def __init__(self, expression: NodeExpression) -> None:
+        self.expression: NodeExpression = expression
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(expression={self.expression})"
-
-
-class NodeSkipStatement(NodeStatement):
-    __slots__ = ()
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}()"
-
-
-class NodeStopStatement(NodeStatement):
-    __slots__ = ()
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}()"
 
 
 class NodeElif(NodeAST):
@@ -228,12 +216,26 @@ class NodeWhileStatement(NodeStatement):
         )
 
 
+class NodeSkipStatement(NodeStatement):
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}()"
+
+
+class NodeStopStatement(NodeStatement):
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}()"
+
+
 class NodeParameter(NodeAST):
     __slots__ = ("identifier", "type")
 
-    def __init__(self, identifier: NodeIdentifier, param_type: NodeType) -> None:
-        self.identifier = identifier
-        self.type = param_type
+    def __init__(self, identifier: NodeIdentifier, type: NodeType) -> None:
+        self.identifier: NodeIdentifier = identifier
+        self.type: NodeType = type
 
     def __repr__(self) -> str:
         return (
@@ -251,10 +253,10 @@ class NodeFunctionDeclaration(NodeStatement):
         give_type: NodeType,
         block: NodeBlock,
     ) -> None:
-        self.identifier = identifier
-        self.parameters = parameters
-        self.give_type = give_type
-        self.block = block
+        self.identifier: NodeIdentifier = identifier
+        self.parameters: Optional[list[NodeParameter]] = parameters
+        self.give_type: NodeType = give_type
+        self.block: NodeBlock = block
 
     def __repr__(self) -> str:
         return (
@@ -272,9 +274,9 @@ class NodeProcedureDeclaration(NodeStatement):
         parameters: Optional[list[NodeParameter]],
         block: NodeBlock,
     ) -> None:
-        self.identifier = identifier
-        self.parameters = parameters
-        self.block = block
+        self.identifier: NodeIdentifier = identifier
+        self.parameters: Optional[list[NodeParameter]] = parameters
+        self.block: NodeBlock = block
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(identifier={self.identifier}, parameters={self.parameters}, block={self.block})"
@@ -286,10 +288,10 @@ class NodeFunctionCall(NodeArithmeticExpression):
     def __init__(
         self,
         identifier: NodeIdentifier,
-        arguments: Optional[list[NodeArithmeticExpression]],
+        arguments: Optional[list[NodeExpression]],
     ) -> None:
-        self.identifier = identifier
-        self.arguments = arguments
+        self.identifier: NodeIdentifier = identifier
+        self.arguments: Optional[list[NodeExpression]] = arguments
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(identifier={self.identifier}, arguments={self.arguments})"
@@ -301,16 +303,16 @@ class NodeProcedureCall(NodeStatement):
     def __init__(
         self,
         identifier: NodeIdentifier,
-        arguments: Optional[list[NodeArithmeticExpression]],
+        arguments: Optional[list[NodeExpression]],
     ) -> None:
-        self.identifier = identifier
-        self.arguments = arguments
+        self.identifier: NodeIdentifier = identifier
+        self.arguments: Optional[list[NodeExpression]] = arguments
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(identifier={self.identifier}, arguments={self.arguments})"
 
 
-class NodeBinaryOperation(NodeArithmeticExpression):
+class NodeBinaryArithmeticOperation(NodeArithmeticExpression):
     __slots__ = ("left", "operator", "right")
 
     def __init__(
@@ -319,20 +321,20 @@ class NodeBinaryOperation(NodeArithmeticExpression):
         operator: str,
         right: NodeArithmeticExpression,
     ) -> None:
-        self.left = left
-        self.operator = operator
-        self.right = right
+        self.left: NodeArithmeticExpression = left
+        self.operator: str = operator
+        self.right: NodeArithmeticExpression = right
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(left={self.left}, operator={self.operator}, right={self.right})"
 
 
-class NodeUnaryOperation(NodeArithmeticExpression):
+class NodeUnaryArithmeticOperation(NodeArithmeticExpression):
     __slots__ = ("operator", "operand")
 
     def __init__(self, operator: str, operand: NodeArithmeticExpression) -> None:
-        self.operator = operator
-        self.operand = operand
+        self.operator: str = operator
+        self.operand: NodeArithmeticExpression = operand
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(operator={self.operator}, operand={self.operand})"
@@ -347,9 +349,9 @@ class NodeBinaryBooleanOperation(NodeBooleanExpression):
         logical_operator: str,
         right: NodeBooleanExpression,
     ) -> None:
-        self.left = left
-        self.logical_operator = logical_operator
-        self.right = right
+        self.left: NodeBooleanExpression = left
+        self.logical_operator: str = logical_operator
+        self.right: NodeBooleanExpression = right
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(left={self.left}, logical_operator={self.logical_operator}, right={self.right})"
@@ -359,8 +361,8 @@ class NodeUnaryBooleanOperation(NodeBooleanExpression):
     __slots__ = ("logical_operator", "operand")
 
     def __init__(self, logical_operator: str, operand: NodeBooleanExpression) -> None:
-        self.logical_operator = logical_operator
-        self.operand = operand
+        self.logical_operator: str = logical_operator
+        self.operand: NodeBooleanExpression = operand
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(logical_operator={self.logical_operator}, operand={self.operand})"
@@ -375,9 +377,9 @@ class NodeComparison(NodeBooleanExpression):
         comparator: str,
         right: NodeArithmeticExpression,
     ) -> None:
-        self.left = left
-        self.comparator = comparator
-        self.right = right
+        self.left: NodeArithmeticExpression = left
+        self.comparator: str = comparator
+        self.right: NodeArithmeticExpression = right
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(left={self.left}, comparator={self.comparator}, right={self.right})"
@@ -413,7 +415,7 @@ class NodeStringLiteral(NodeArithmeticExpression):
         return f"{self.__class__.__name__}(value={self.value!r})"
 
 
-class NodeBooleanLiteral(NodeArithmeticExpression):
+class NodeBooleanLiteral(NodeBooleanExpression):
     __slots__ = ("value",)
 
     def __init__(self, value: bool) -> None:
