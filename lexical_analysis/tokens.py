@@ -20,6 +20,12 @@ class TokenType(Enum):
     MODULO = "%"
     FLOOR_DIVIDE = "//"
     POWER = "**"
+    LESS = "<"
+    GREATER = ">"
+    LESS_EQUAL = "<="
+    GREATER_EQUAL = ">="
+    EQUAL = "=="
+    NOT_EQUAL = "!="
     ARROW = "->"
     LET = "let"
     KEEP = "keep"
@@ -27,6 +33,16 @@ class TokenType(Enum):
     FUNC = "func"
     PROC = "proc"
     EXEC = "exec"
+    AND = "and"
+    OR = "or"
+    NOT = "not"
+    IF = "if"
+    ELIF = "elif"
+    ELSE = "else"
+    WHILE = "while"
+    SKIP = "skip"
+    STOP = "stop"
+    SHOW = "show"
     INT_TYPE = "int"
     FLOAT_TYPE = "float"
     STRING_TYPE = "string"
@@ -51,6 +67,18 @@ RESERVED_KEYWORDS: Final[dict[str, TokenType]] = {
     "float": TokenType.FLOAT_TYPE,
     "string": TokenType.STRING_TYPE,
     "bool": TokenType.BOOL_TYPE,
+    "and": TokenType.AND,
+    "or": TokenType.OR,
+    "not": TokenType.NOT,
+    "if": TokenType.IF,
+    "elif": TokenType.ELIF,
+    "else": TokenType.ELSE,
+    "while": TokenType.WHILE,
+    "skip": TokenType.SKIP,
+    "stop": TokenType.STOP,
+    "show": TokenType.SHOW,
+    "true": TokenType.BOOL_LITERAL,
+    "false": TokenType.BOOL_LITERAL,
 }
 
 SINGLE_CHARACTER_TOKEN_TYPES: Final[dict[str, TokenType]] = {
@@ -66,12 +94,18 @@ SINGLE_CHARACTER_TOKEN_TYPES: Final[dict[str, TokenType]] = {
     "*": TokenType.MULTIPLY,
     "/": TokenType.DIVIDE,
     "%": TokenType.MODULO,
+    "<": TokenType.LESS,
+    ">": TokenType.GREATER,
 }
 
 MULTI_CHAR_OPERATORS: Final[dict[str, TokenType]] = {
     "->": TokenType.ARROW,
     "**": TokenType.POWER,
     "//": TokenType.FLOOR_DIVIDE,
+    "==": TokenType.EQUAL,
+    "!=": TokenType.NOT_EQUAL,
+    "<=": TokenType.LESS_EQUAL,
+    ">=": TokenType.GREATER_EQUAL,
 }
 
 
