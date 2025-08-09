@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional, Union
 
-NumericType = Union[int, float, str, bool]
+ValueType = Union[int, float, str, bool]
 
 
 class ActivationRecordType(Enum):
@@ -19,7 +19,7 @@ class ActivationRecord:
         self.name = name
         self.type = type
         self.nesting_level = nesting_level
-        self.members: dict[str, NumericType] = {}
+        self.members: dict[str, ValueType] = {}
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name='{self.name}', type={self.type.name}, nesting_level={self.nesting_level})"
@@ -29,13 +29,13 @@ class ActivationRecord:
         lines.extend(f"\t{key}: {value}" for key, value in self.members.items())
         return "\n".join(lines)
 
-    def __setitem__(self, key: str, value: NumericType) -> None:
+    def __setitem__(self, key: str, value: ValueType) -> None:
         self.members[key] = value
 
-    def __getitem__(self, key: str) -> NumericType:
+    def __getitem__(self, key: str) -> ValueType:
         return self.members[key]
 
-    def get(self, key: str) -> Optional[NumericType]:
+    def get(self, key: str) -> Optional[ValueType]:
         return self.members.get(key)
 
 

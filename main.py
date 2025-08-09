@@ -8,7 +8,7 @@ from utils.error_handling import (
     LexicalError,
     SyntacticError,
     SemanticError,
-    InterpreterError,
+    RuntimeError,
 )
 
 
@@ -42,7 +42,7 @@ def main() -> None:
             interpreter = Interpreter()
             interpreter.interpret(ast)
 
-    except (LexicalError, SyntacticError, SemanticError, InterpreterError) as error:
+    except (LexicalError, SyntacticError, SemanticError, RuntimeError) as error:
         print(error)
 
     except Exception as unknown_error:

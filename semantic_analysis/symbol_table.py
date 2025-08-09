@@ -8,7 +8,7 @@ class Symbol(ABC):
     __slots__ = ("identifier",)
 
     def __init__(self, identifier: str) -> None:
-        self.identifier = identifier
+        self.identifier: str = identifier
 
     @abstractmethod
     def __repr__(self) -> str: ...
@@ -26,10 +26,12 @@ class TypedSymbol(Symbol):
 
     def __init__(self, identifier: str, symbol_type: str) -> None:
         super().__init__(identifier)
-        self.type = symbol_type
+        self.type: str = symbol_type
 
 
 class BuiltInTypeSymbol(TypelessSymbol):
+    __slots__ = ()
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(identifier='{self.identifier}')"
 
@@ -38,6 +40,8 @@ class BuiltInTypeSymbol(TypelessSymbol):
 
 
 class VariableSymbol(TypedSymbol):
+    __slots__ = ()
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(identifier='{self.identifier}', type='{self.type}')"
 
@@ -50,7 +54,7 @@ class ConstantSymbol(TypedSymbol):
 
     def __init__(self, identifier: str, symbol_type: str) -> None:
         super().__init__(identifier, symbol_type)
-        self.is_constant = True
+        self.is_constant: bool = True
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(identifier='{self.identifier}', type='{self.type}')"
@@ -60,30 +64,30 @@ class ConstantSymbol(TypedSymbol):
 
 
 class FunctionSymbol(Symbol):
-    __slots__ = ("parameters", "return_type", "block")
+    __slots__ = ("parameters", "give_type", "block")
 
     def __init__(
         self,
         identifier: str,
         parameters: Optional[list[VariableSymbol]],
-        return_type: str,
+        give_type: str,
         block: NodeBlock,
     ) -> None:
         super().__init__(identifier)
-        self.parameters = parameters
-        self.return_type = return_type
-        self.block = block
+        self.parameters: Optional[list[VariableSymbol]] = parameters
+        self.give_type: str = give_type
+        self.block: NodeBlock = block
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier='{self.identifier}', parameters={self.parameters}, return_type='{self.return_type}')"
+        return f"{self.__class__.__name__}(identifier='{self.identifier}', parameters={self.parameters}, give_type='{self.give_type}')"
 
     def __str__(self) -> str:
-        params = (
+        params: str = (
             ", ".join(f"{p.identifier}: {p.type}" for p in self.parameters)
             if self.parameters
             else ""
         )
-        return f"<FUNCTION: {self.identifier}({params}) -> {self.return_type}>"
+        return f"<FUNCTION: {self.identifier}({params}) -> {self.give_type}>"
 
 
 class ProcedureSymbol(Symbol):
@@ -96,14 +100,14 @@ class ProcedureSymbol(Symbol):
         block: NodeBlock,
     ) -> None:
         super().__init__(identifier)
-        self.parameters = parameters
-        self.block = block
+        self.parameters: Optional[list[VariableSymbol]] = parameters
+        self.block: NodeBlock = block
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(identifier='{self.identifier}', parameters={self.parameters})"
 
     def __str__(self) -> str:
-        params = (
+        params: str = (
             ", ".join(f"{p.identifier}: {p.type}" for p in self.parameters)
             if self.parameters
             else ""
@@ -127,9 +131,9 @@ class ScopedSymbolTable:
         scope_level: int,
         enclosing_scope: Optional["ScopedSymbolTable"],
     ) -> None:
-        self.scope_name = scope_name
-        self.scope_level = scope_level
-        self.enclosing_scope = enclosing_scope
+        self.scope_name: str = scope_name
+        self.scope_level: int = scope_level
+        self.enclosing_scope: Optional[ScopedSymbolTable] = enclosing_scope
         self._symbols: OrderedDict[str, Symbol] = OrderedDict()
 
         if scope_level == 1:
@@ -139,7 +143,7 @@ class ScopedSymbolTable:
         return f"{self.__class__.__name__}(scope_name='{self.scope_name}', scope_level={self.scope_level})"
 
     def __str__(self) -> str:
-        symbols = ", ".join(str(symbol) for symbol in self._symbols.values())
+        symbols: str = ", ".join(str(symbol) for symbol in self._symbols.values())
         return f"Scope '{self.scope_name}' (level {self.scope_level}): [{symbols}]"
 
     def _init_builtins(self) -> None:
@@ -150,15 +154,9 @@ class ScopedSymbolTable:
         self._symbols[symbol.identifier] = symbol
 
     def lookup(self, name: str, current_scope_only: bool = False) -> Optional[Symbol]:
-        symbol = self._symbols.get(name)
+        symbol: Optional[Symbol] = self._symbols.get(name)
         if symbol:
             return symbol
         if not current_scope_only and self.enclosing_scope:
             return self.enclosing_scope.lookup(name)
-        return None
-
-    def lookup_callable(self, name: str) -> Optional[Symbol]:
-        symbol = self.lookup(name)
-        if isinstance(symbol, (FunctionSymbol, ProcedureSymbol)):
-            return symbol
         return None

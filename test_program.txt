@@ -1,7 +1,7 @@
 {
-    let int a = 10
+    let int a, c = 10, 100
     let float b = 3.2
-    keep bool flag = true
+    keep bool flag1, flag2 = true, false
 
     proc doNothing() {
         let int x = 1

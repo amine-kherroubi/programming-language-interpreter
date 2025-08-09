@@ -6,8 +6,6 @@ T = TypeVar("T")
 
 
 class NodeVisitor(Generic[T], ABC):
-    """Base class for implementing the visitor pattern over the AST."""
-
     def visit(self, node: NodeAST) -> T:
         method_name = f"visit_{type(node).__name__}"
         visitor: Callable[[NodeAST], T] = getattr(self, method_name, self.generic_visit)

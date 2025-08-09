@@ -1,9 +1,8 @@
-from typing import Optional
+from typing import Final, Optional
 from interpreting.call_stack import (
     CallStack,
     ActivationRecord,
     ActivationRecordType,
-    NumericType,
 )
 from syntactic_analysis.ast import *
 from visitor_pattern.visitor import NodeVisitor
@@ -12,14 +11,24 @@ from semantic_analysis.symbol_table import (
     ProcedureSymbol,
     VariableSymbol,
 )
-from utils.error_handling import InterpreterError, ErrorCode
+from utils.error_handling import RuntimeError, ErrorCode
 
 
-class Interpreter(NodeVisitor[Optional[NumericType]]):
+ValueType = Union[int, float, str, bool]
+
+
+class Interpreter(NodeVisitor[Optional[ValueType]]):
     __slots__ = ("_call_stack", "_functions", "_procedures")
 
+    DEFAULT_VALUES: Final[dict[str, ValueType]] = {
+        "int": 0,
+        "float": 0.0,
+        "string": "",
+        "bool": False,
+    }
+
     def __init__(self) -> None:
-        self._call_stack = CallStack()
+        self._call_stack: CallStack = CallStack()
         self._functions: dict[str, FunctionSymbol] = {}
         self._procedures: dict[str, ProcedureSymbol] = {}
 
@@ -27,155 +36,211 @@ class Interpreter(NodeVisitor[Optional[NumericType]]):
         self.visit(tree)
 
     def visit_NodeProgram(self, node: NodeProgram) -> None:
-        ar = ActivationRecord("main", ActivationRecordType.PROGRAM, 1)
-        self._call_stack.push(ar)
+        program_activation_record: ActivationRecord = ActivationRecord(
+            "program", ActivationRecordType.PROGRAM, 1
+        )
+        self._call_stack.push(program_activation_record)
         self.visit(node.block)
         self._call_stack.pop()
 
-    def visit_NodeBlock(self, node: NodeBlock) -> None:
-        for stmt in node.statements:
-            result = self.visit(stmt)
-            if isinstance(result, dict) and "return" in result:
+    def visit_NodeBlock(
+        self, node: NodeBlock
+    ) -> Optional[dict[str, Optional[ValueType]]]:
+        for statement in node.statements:
+            result: Optional[Union[ValueType, dict[str, Optional[ValueType]]]] = (
+                self.visit(statement)
+            )
+            if isinstance(result, dict) and "give" in result:
                 return result
+        return None
 
     def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:
-        for i, identifier in enumerate(node.identifiers):
-            value = self.visit(node.expressions[i]) if node.expressions else None
-            self._call_stack.peek()[identifier.name] = value
+        current_activation_record: ActivationRecord = self._call_stack.peek()
+
+        for index, identifier in enumerate(node.identifiers):
+            variable_value: ValueType = (
+                self.visit(node.expressions[index])
+                if node.expressions
+                else self.DEFAULT_VALUES[node.type.name]
+            )
+            current_activation_record[identifier.name] = variable_value
 
     def visit_NodeConstantDeclaration(self, node: NodeConstantDeclaration) -> None:
-        for i, identifier in enumerate(node.identifiers):
-            value = self.visit(node.expressions[i])
-            self._call_stack.peek()[identifier.name] = value
+        current_activation_record: ActivationRecord = self._call_stack.peek()
+
+        for index, identifier in enumerate(node.identifiers):
+            constant_value: ValueType = self.visit(node.expressions[index])
+            current_activation_record[identifier.name] = constant_value
 
     def visit_NodeAssignment(self, node: NodeAssignment) -> None:
-        value = self.visit(node.expression)
-        self._call_stack.peek()[node.identifier.name] = value
+        assignment_value: ValueType = self.visit(node.expression)
+        current_activation_record: ActivationRecord = self._call_stack.peek()
+        current_activation_record[node.identifier.name] = assignment_value
 
     def visit_NodeGiveStatement(
         self, node: NodeGiveStatement
-    ) -> dict[str, Optional[NumericType]]:
-        value = self.visit(node.expression) if node.expression else None
-        return {"return": value}
+    ) -> dict[str, Optional[ValueType]]:
+        give_value: Optional[ValueType] = (
+            self.visit(node.expression) if node.expression else None
+        )
+        return {"give": give_value}
 
     def visit_NodeFunctionDeclaration(self, node: NodeFunctionDeclaration) -> None:
-        self._functions[node.name.name] = FunctionSymbol(
-            node.name.name,
-            [
-                VariableSymbol(p.identifier.name, p.type.name)
-                for p in node.parameters or []
-            ],
-            node.return_type.name,
+        function_parameters: list[VariableSymbol] = [
+            VariableSymbol(parameter.identifier.name, parameter.type.name)
+            for parameter in (node.parameters or [])
+        ]
+
+        function_symbol: FunctionSymbol = FunctionSymbol(
+            node.identifier.name,
+            function_parameters,
+            node.give_type.name,
             node.block,
         )
+
+        self._functions[node.identifier.name] = function_symbol
 
     def visit_NodeProcedureDeclaration(self, node: NodeProcedureDeclaration) -> None:
-        self._procedures[node.name.name] = ProcedureSymbol(
-            node.name.name,
-            [
-                VariableSymbol(p.identifier.name, p.type.name)
-                for p in node.parameters or []
-            ],
+        procedure_parameters: list[VariableSymbol] = [
+            VariableSymbol(parameter.identifier.name, parameter.type.name)
+            for parameter in (node.parameters or [])
+        ]
+
+        procedure_symbol: ProcedureSymbol = ProcedureSymbol(
+            node.identifier.name,
+            procedure_parameters,
             node.block,
         )
 
-    def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> NumericType:
-        symbol = self._functions.get(node.name.name)
-        if symbol is None:
-            raise InterpreterError(
+        self._procedures[node.identifier.name] = procedure_symbol
+
+    def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> ValueType:
+        function_symbol: Optional[FunctionSymbol] = self._functions.get(
+            node.identifier.name
+        )
+        if function_symbol is None:
+            raise RuntimeError(
                 ErrorCode.UNDECLARED_IDENTIFIER,
-                f"Function '{node.name.name}' is not declared.",
+                f"Function '{node.identifier.name}' is not declared.",
             )
 
-        args = [self.visit(arg) for arg in node.arguments or []]
-        ar = ActivationRecord(symbol.identifier, ActivationRecordType.FUNCTION, 2)
+        function_arguments: list[ValueType] = [
+            self.visit(argument) for argument in (node.arguments or [])
+        ]
 
-        if symbol.parameters:
-            for param, arg in zip(symbol.parameters, args):
-                ar[param.identifier] = arg
+        function_activation_record: ActivationRecord = ActivationRecord(
+            function_symbol.identifier, ActivationRecordType.FUNCTION, 2
+        )
 
-        self._call_stack.push(ar)
-        result = self.visit(symbol.block)
+        if function_symbol.parameters:
+            for parameter, argument in zip(
+                function_symbol.parameters, function_arguments
+            ):
+                function_activation_record[parameter.identifier] = argument
+
+        self._call_stack.push(function_activation_record)
+        execution_result: Optional[Union[ValueType, dict[str, Optional[ValueType]]]] = (
+            self.visit(function_symbol.block)
+        )
         self._call_stack.pop()
 
-        if isinstance(result, dict) and "return" in result:
-            return result["return"]
+        if isinstance(execution_result, dict) and "give" in execution_result:
+            give_value: Optional[ValueType] = execution_result["give"]
+            if give_value is not None:
+                return give_value
 
-        raise InterpreterError(
-            ErrorCode.EXPRESSION_UNIT_EMPTY_RETURN,
-            f"Function '{symbol.identifier}' did not return a value.",
+        raise RuntimeError(
+            ErrorCode.FUNCTION_EMPTY_GIVE,
+            f"Function '{function_symbol.identifier}' did not give a value.",
         )
 
     def visit_NodeProcedureCall(self, node: NodeProcedureCall) -> None:
-        symbol = self._procedures.get(node.name.name)
-        if symbol is None:
-            raise InterpreterError(
+        procedure_symbol: Optional[ProcedureSymbol] = self._procedures.get(
+            node.identifier.name
+        )
+        if procedure_symbol is None:
+            raise RuntimeError(
                 ErrorCode.UNDECLARED_IDENTIFIER,
-                f"Procedure '{node.name.name}' is not declared.",
+                f"Procedure '{node.identifier.name}' is not declared.",
             )
 
-        args = [self.visit(arg) for arg in node.arguments or []]
-        ar = ActivationRecord(symbol.identifier, ActivationRecordType.PROCEDURE, 2)
+        procedure_arguments: list[ValueType] = [
+            self.visit(argument) for argument in (node.arguments or [])
+        ]
 
-        if symbol.parameters:
-            for param, arg in zip(symbol.parameters, args):
-                ar[param.identifier] = arg
+        procedure_activation_record: ActivationRecord = ActivationRecord(
+            procedure_symbol.identifier, ActivationRecordType.PROCEDURE, 2
+        )
 
-        self._call_stack.push(ar)
-        result = self.visit(symbol.block)
+        if procedure_symbol.parameters:
+            for parameter, argument in zip(
+                procedure_symbol.parameters, procedure_arguments
+            ):
+                procedure_activation_record[parameter.identifier] = argument
+
+        self._call_stack.push(procedure_activation_record)
+        execution_result: Optional[Union[ValueType, dict[str, Optional[ValueType]]]] = (
+            self.visit(procedure_symbol.block)
+        )
         self._call_stack.pop()
 
-        if isinstance(result, dict) and result.get("return") is not None:
-            raise InterpreterError(
-                ErrorCode.PROCEDURE_UNIT_RETURNING_VALUE,
-                f"Procedure '{symbol.identifier}' cannot return a value.",
+        if (
+            isinstance(execution_result, dict)
+            and execution_result.get("give") is not None
+        ):
+            raise RuntimeError(
+                ErrorCode.PROCEDURE_GIVING_VALUE,
+                f"Procedure '{procedure_symbol.identifier}' cannot give a value.",
             )
 
-    def visit_NodeIdentifier(self, node: NodeIdentifier) -> NumericType:
-        value = self._call_stack.peek().get(node.name)
-        if value is None:
-            raise InterpreterError(
+    def visit_NodeIdentifier(self, node: NodeIdentifier) -> ValueType:
+        current_activation_record: ActivationRecord = self._call_stack.peek()
+        identifier_value: Optional[ValueType] = current_activation_record.get(node.name)
+
+        if identifier_value is None:
+            raise RuntimeError(
                 ErrorCode.UNDECLARED_IDENTIFIER,
                 f"Identifier '{node.name}' is not defined.",
             )
-        return value
+        return identifier_value
 
-    def visit_NodeBinaryOperation(self, node: NodeBinaryOperation) -> NumericType:
-        left = self.visit(node.left)
-        right = self.visit(node.right)
-        op = node.operator
+    def visit_NodeBinaryOperation(self, node: NodeBinaryOperation) -> ValueType:
+        left_operand: ValueType = self.visit(node.left)
+        right_operand: ValueType = self.visit(node.right)
+        binary_operator: str = node.operator
 
-        if op == "+":
-            return left + right
-        if op == "-":
-            return left - right
-        if op == "*":
-            return left * right
-        if op == "/":
-            return left / right
-        if op == "//":
-            return left // right
-        if op == "%":
-            return left % right
-        if op == "**":
-            return left**right
+        if binary_operator == "+":
+            return left_operand + right_operand
+        if binary_operator == "-":
+            return left_operand - right_operand
+        if binary_operator == "*":
+            return left_operand * right_operand
+        if binary_operator == "/":
+            return left_operand / right_operand
+        if binary_operator == "//":
+            return left_operand // right_operand
+        if binary_operator == "%":
+            return left_operand % right_operand
+        if binary_operator == "**":
+            return left_operand**right_operand
 
-        raise InterpreterError(
+        raise RuntimeError(
             ErrorCode.INVALID_OPERATION,
-            f"Unknown binary operator '{op}'",
+            f"Unknown binary operator '{binary_operator}'",
         )
 
-    def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> NumericType:
-        operand = self.visit(node.operand)
+    def visit_NodeUnaryOperation(self, node: NodeUnaryOperation) -> ValueType:
+        operand_value: ValueType = self.visit(node.operand)
+        unary_operator: str = node.operator
 
-        if node.operator == "+":
-            return +operand
-        if node.operator == "-":
-            return -operand
+        if unary_operator == "+":
+            return +operand_value
+        if unary_operator == "-":
+            return -operand_value
 
-        raise InterpreterError(
+        raise RuntimeError(
             ErrorCode.INVALID_OPERATION,
-            f"Unknown unary operator '{node.operator}'",
+            f"Unknown unary operator '{unary_operator}'",
         )
 
     def visit_NodeIntegerLiteral(self, node: NodeIntegerLiteral) -> int:
