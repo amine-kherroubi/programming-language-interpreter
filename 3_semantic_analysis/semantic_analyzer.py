@@ -29,7 +29,7 @@ from semantic_analysis.symbol_table import (
     FunctionSymbol,
     ProcedureSymbol,
 )
-from utils.error_handling import SemanticError, ErrorCode
+from utils.errors import SemanticError, ErrorCode
 
 
 class SemanticAnalyzer(NodeVisitor[None]):

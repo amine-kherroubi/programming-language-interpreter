@@ -38,7 +38,7 @@ from syntactic_analysis.ast import (
     NodeBooleanLiteral,
     NodeWhileStatement,
 )
-from utils.error_handling import SyntacticError, ErrorCode
+from utils.errors import SyntacticError, ErrorCode
 
 
 class SyntacticAnalyzer:

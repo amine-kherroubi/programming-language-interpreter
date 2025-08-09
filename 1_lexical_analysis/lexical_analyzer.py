@@ -1,5 +1,5 @@
 from typing import Optional, Union, Final
-from utils.error_handling import LexicalError, ErrorCode
+from utils.errors import LexicalError, ErrorCode
 from lexical_analysis.tokens import (
     Token,
     TokenType,

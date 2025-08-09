@@ -11,7 +11,7 @@ from semantic_analysis.symbol_table import (
     ProcedureSymbol,
     VariableSymbol,
 )
-from utils.error_handling import RuntimeError, ErrorCode
+from utils.errors import RuntimeError, ErrorCode
 
 
 ValueType = Union[int, float, str, bool]

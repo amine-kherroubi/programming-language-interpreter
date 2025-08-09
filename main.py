@@ -4,7 +4,7 @@ from syntactic_analysis.syntactic_analyser import SyntacticAnalyzer
 from semantic_analysis.semantic_analyzer import SemanticAnalyzer
 from interpreting.interpreter import Interpreter
 from syntactic_analysis.ast import NodeAST
-from utils.error_handling import (
+from utils.errors import (
     LexicalError,
     SyntacticError,
     SemanticError,
