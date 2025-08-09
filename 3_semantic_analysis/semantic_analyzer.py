@@ -1,6 +1,6 @@
 from typing import Optional
 
-from visitor_pattern.visitor import NodeVisitor
+from utils.visitor import NodeVisitor
 from syntactic_analysis.ast import (
     NodeAST,
     NodeProgram,

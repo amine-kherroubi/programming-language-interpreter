@@ -1,4 +1,4 @@
-from visitor_pattern.visitor import NodeVisitor
+from utils.visitor import NodeVisitor
 from syntactic_analysis.ast import (
     NodeAST,
     NodeBinaryArithmeticOperation,
@@ -7,20 +7,20 @@ from syntactic_analysis.ast import (
 )
 
 
-class PostfixTranslator(NodeVisitor[str]):
+class PrefixTranslator(NodeVisitor[str]):
     __slots__ = ()
 
     def visit_NodeBinaryOperation(self, node: NodeBinaryArithmeticOperation) -> str:
         left_str: str = self.visit(node.left)
         right_str: str = self.visit(node.right)
-        return f"{left_str} {right_str} {node.operator}"
+        return f"({node.operator} {left_str} {right_str})"
 
     def visit_NodeUnaryOperation(self, node: NodeUnaryArithmeticOperation) -> str:
         operand_str: str = self.visit(node.operand)
         if node.operator == "+":
             return operand_str
         else:
-            return f"{operand_str} {node.operator}"
+            return f"({node.operator} {operand_str})"
 
     def visit_NodeNumber(self, node: NodeNumber) -> str:
         return str(node.value)

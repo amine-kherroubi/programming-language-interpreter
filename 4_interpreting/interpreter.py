@@ -5,7 +5,7 @@ from interpreting.call_stack import (
     ActivationRecordType,
 )
 from syntactic_analysis.ast import *
-from visitor_pattern.visitor import NodeVisitor
+from utils.visitor import NodeVisitor
 from semantic_analysis.symbol_table import (
     FunctionSymbol,
     ProcedureSymbol,
