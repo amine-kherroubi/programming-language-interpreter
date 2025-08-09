@@ -19,8 +19,8 @@ Expression evaluation supports full arithmetic operations including addition, su
 The interpreter requires Python 3.10 or higher. Clone the repository and run the interpreter directly on source files.
 
 ```bash
-git clone <repository-url>
-cd custom-programming-language
+git clone https://github.com/amine-kherroubi/programming-language-interpreter
+cd programming-language-interpreter
 ```
 
 To perform static analysis only, run the interpreter without execution flags:
@@ -39,7 +39,7 @@ python main.py program.txt --run
 
 Variable declarations support single and multiple bindings with optional initialization:
 
-```javascript
+```
 let int x = 10
 let float y, z = 3.14, 2.71
 keep string message = "Hello World"
@@ -47,7 +47,7 @@ keep string message = "Hello World"
 
 Functions declare parameters with types and specify return types using arrow notation:
 
-```javascript
+```
 func add(int a, int b) -> int {
     give a + b
 }
@@ -63,7 +63,7 @@ func max(int x, int y) -> int {
 
 Procedures operate similarly but omit return type specifications:
 
-```javascript
+```
 proc printValue(int value) {
     show value
 }
@@ -76,7 +76,7 @@ proc processData(string data) {
 
 Control flow structures support nested execution with proper scoping:
 
-```javascript
+```
 if condition {
     # statements
 } elif alternative_condition {
@@ -94,7 +94,7 @@ while expression {
 
 ## Complete Example
 
-```javascript
+```
 {
     let int fibonacci_limit = 10
     let int a, b = 0, 1
