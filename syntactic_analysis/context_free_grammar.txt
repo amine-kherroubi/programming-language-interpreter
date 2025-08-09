@@ -1,7 +1,7 @@
 program ::= block
 block ::= "{" statement_list "}"
 statement_list ::= (statement NEWLINE)*
-statement ::= assignment | variable_declaration | constant_declaration | function_declaration | procedure_declaration | procedure_call | give_statement | show_statement | conditional_statement | loop | skip_statement | stop_statement
+statement ::= assignment | variable_declaration | constant_declaration | function_declaration | procedure_declaration | procedure_call | give_statement | show_statement | if_statement | while_statement | skip_statement | stop_statement
 assignment ::= IDENTIFIER "=" expression
 variable_declaration ::= "let" type identifier_list ("=" expression_list)?
 constant_declaration ::= "keep" type identifier_list "=" expression_list
@@ -18,8 +18,8 @@ procedure_call ::= "exec" IDENTIFIER "(" argument_list? ")"
 argument_list ::= expression ("," expression)*
 give_statement ::= "give" expression?
 show_statement ::= "show" expression
-conditional_statement ::= "if" boolean_expression block ("elif" boolean_expression block)* ("else" block)?
-loop ::= "while" boolean_expression block
+if_statement ::= "if" boolean_expression block ("elif" boolean_expression block)* ("else" block)?
+while_statement ::= "while" boolean_expression block
 skip_statement ::= "skip"
 stop_statement ::= "stop"
 

@@ -6,7 +6,7 @@ from syntactic_analysis.ast import (
     NodeBlock,
     NodeProgram,
     NodeStatement,
-    NodeExpression,
+    NodeArithmeticExpression,
     NodeIdentifier,
     NodeType,
     NodeVariableDeclaration,
@@ -102,6 +102,16 @@ class SyntacticAnalyzer:
                 return self._procedure_call()
             case TokenType.GIVE:
                 return self._give_statement()
+            case TokenType.SHOW:
+                return self._show_statement()
+            case TokenType.IF:
+                return self._if_statement()
+            case TokenType.WHILE:
+                return self._while_statement()
+            case TokenType.SKIP:
+                return self._skip_statement()
+            case TokenType.STOP:
+                return self._stop_statement()
             case TokenType.IDENTIFIER:
                 return self._assignment()
             case _:
@@ -115,7 +125,7 @@ class SyntacticAnalyzer:
         self._consume(TokenType.LET)
         var_type: NodeType = self._type()
         identifiers: list[NodeIdentifier] = self._identifier_list()
-        expressions: Optional[list[NodeExpression]] = None
+        expressions: Optional[list[NodeArithmeticExpression]] = None
 
         if self._current_token.type == TokenType.ASSIGN:
             self._consume(TokenType.ASSIGN)
@@ -134,7 +144,7 @@ class SyntacticAnalyzer:
         const_type: NodeType = self._type()
         identifiers: list[NodeIdentifier] = self._identifier_list()
         self._consume(TokenType.ASSIGN)
-        expressions: list[NodeExpression] = self._expression_list()
+        expressions: list[NodeArithmeticExpression] = self._expression_list()
 
         if len(identifiers) != len(expressions):
             raise SyntacticError(
@@ -175,14 +185,14 @@ class SyntacticAnalyzer:
     def _assignment(self) -> NodeAssignment:
         identifier: NodeIdentifier = self._identifier()
         self._consume(TokenType.ASSIGN)
-        expression: NodeExpression = self._expression()
+        expression: NodeArithmeticExpression = self._expression()
         return NodeAssignment(identifier, expression)
 
     def _function_call(self) -> NodeFunctionCall:
         name: NodeIdentifier = self._identifier()
         self._consume(TokenType.LEFT_PARENTHESIS)
 
-        arguments: Optional[list[NodeExpression]] = None
+        arguments: Optional[list[NodeArithmeticExpression]] = None
         if self._current_token.type != TokenType.RIGHT_PARENTHESIS:
             arguments = self._argument_list()
 
@@ -194,7 +204,7 @@ class SyntacticAnalyzer:
         name: NodeIdentifier = self._identifier()
         self._consume(TokenType.LEFT_PARENTHESIS)
 
-        arguments: Optional[list[NodeExpression]] = None
+        arguments: Optional[list[NodeArithmeticExpression]] = None
         if self._current_token.type != TokenType.RIGHT_PARENTHESIS:
             arguments = self._argument_list()
 
@@ -214,8 +224,8 @@ class SyntacticAnalyzer:
             identifiers.append(self._identifier())
         return identifiers
 
-    def _expression_list(self) -> list[NodeExpression]:
-        expressions: list[NodeExpression] = [self._expression()]
+    def _expression_list(self) -> list[NodeArithmeticExpression]:
+        expressions: list[NodeArithmeticExpression] = [self._expression()]
         while self._current_token.type == TokenType.COMMA:
             self._consume(TokenType.COMMA)
             expressions.append(self._expression())
@@ -228,8 +238,8 @@ class SyntacticAnalyzer:
             parameters.append(self._parameter())
         return parameters
 
-    def _argument_list(self) -> list[NodeExpression]:
-        arguments: list[NodeExpression] = [self._expression()]
+    def _argument_list(self) -> list[NodeArithmeticExpression]:
+        arguments: list[NodeArithmeticExpression] = [self._expression()]
         while self._current_token.type == TokenType.COMMA:
             self._consume(TokenType.COMMA)
             arguments.append(self._expression())
@@ -266,20 +276,20 @@ class SyntacticAnalyzer:
         token: Token = self._consume(TokenType.IDENTIFIER)
         return NodeIdentifier(token.value)
 
-    def _expression(self) -> NodeExpression:
+    def _expression(self) -> NodeArithmeticExpression:
         return self._additive_expression()
 
-    def _additive_expression(self) -> NodeExpression:
-        left: NodeExpression = self._multiplicative_expression()
+    def _additive_expression(self) -> NodeArithmeticExpression:
+        left: NodeArithmeticExpression = self._multiplicative_expression()
         while self._current_token.type in {TokenType.PLUS, TokenType.MINUS}:
             operator: Token = self._current_token
             self._consume(operator.type)
-            right: NodeExpression = self._multiplicative_expression()
+            right: NodeArithmeticExpression = self._multiplicative_expression()
             left = NodeBinaryOperation(left, operator.value, right)
         return left
 
-    def _multiplicative_expression(self) -> NodeExpression:
-        left: NodeExpression = self._power_expression()
+    def _multiplicative_expression(self) -> NodeArithmeticExpression:
+        left: NodeArithmeticExpression = self._power_expression()
         while self._current_token.type in {
             TokenType.MULTIPLY,
             TokenType.DIVIDE,
@@ -288,28 +298,28 @@ class SyntacticAnalyzer:
         }:
             op: Token = self._current_token
             self._consume(op.type)
-            right: NodeExpression = self._power_expression()
+            right: NodeArithmeticExpression = self._power_expression()
             left = NodeBinaryOperation(left, op.value, right)
         return left
 
-    def _power_expression(self) -> NodeExpression:
-        left: NodeExpression = self._unary_expression()
+    def _power_expression(self) -> NodeArithmeticExpression:
+        left: NodeArithmeticExpression = self._unary_expression()
         if self._current_token.type == TokenType.POWER:
             operator: Token = self._current_token
             self._consume(TokenType.POWER)
-            right: NodeExpression = self._power_expression()
+            right: NodeArithmeticExpression = self._power_expression()
             return NodeBinaryOperation(left, operator.value, right)
         return left
 
-    def _unary_expression(self) -> NodeExpression:
+    def _unary_expression(self) -> NodeArithmeticExpression:
         if self._current_token.type in {TokenType.PLUS, TokenType.MINUS}:
             operator: Token = self._current_token
             self._consume(operator.type)
-            operand: NodeExpression = self._unary_expression()
+            operand: NodeArithmeticExpression = self._unary_expression()
             return NodeUnaryOperation(operator.value, operand)
         return self._primary_expression()
 
-    def _primary_expression(self) -> NodeExpression:
+    def _primary_expression(self) -> NodeArithmeticExpression:
         token: Token = self._current_token
 
         if token.type == TokenType.INT_LITERAL:
@@ -336,7 +346,7 @@ class SyntacticAnalyzer:
 
         if token.type == TokenType.LEFT_PARENTHESIS:
             self._consume(TokenType.LEFT_PARENTHESIS)
-            expr: NodeExpression = self._expression()
+            expr: NodeArithmeticExpression = self._expression()
             self._consume(TokenType.RIGHT_PARENTHESIS)
             return expr
 
