@@ -26,13 +26,13 @@ cd programming-language-interpreter
 To perform static analysis only, run the interpreter without execution flags:
 
 ```bash
-python main.py program.txt
+python main.py examples/example.lang
 ```
 
 For complete interpretation including runtime execution, use the run flag:
 
 ```bash
-python main.py program.txt --run
+python main.py examples/example.lang --run
 ```
 
 ## Language Syntax
