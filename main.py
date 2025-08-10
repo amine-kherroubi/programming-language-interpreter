@@ -35,8 +35,7 @@ def main() -> None:
         semantic_analyzer = SemanticAnalyzer()
         semantic_analyzer.analyze(ast)
 
-        print("Semantic analysis completed.")
-        print(semantic_analyzer)
+        print("Semantic analysis successfully completed.")
 
         if run_interpreter:
             interpreter = Interpreter()
