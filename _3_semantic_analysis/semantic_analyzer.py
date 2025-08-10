@@ -212,36 +212,45 @@ class SemanticAnalyzer(NodeVisitor[None]):
             self.visit(argument)
 
     def visit_NodeGiveStatement(self, node: NodeGiveStatement) -> None:
-        if self._current_scope.type not in (ScopeType.FUNCTION, ScopeType.PROCEDURE):
+        scope: Optional[ScopedSymbolTable] = self._current_scope
+
+        while scope is not None:
+            if scope.type in (ScopeType.FUNCTION, ScopeType.PROCEDURE):
+                break
+            scope = scope.enclosing_scope
+
+        if scope is None:
             raise SemanticError(
                 ErrorCode.WRONG_SYMBOL_TYPE,
                 "Give statement outside of function or procedure",
             )
 
-        if not self._current_scope.enclosing_scope:
+        if not scope.enclosing_scope:
             raise SemanticError(
                 ErrorCode.WRONG_SYMBOL_TYPE,
                 "Invalid scope structure",
             )
 
-        subroutine_symbol: Optional[Symbol] = (
-            self._current_scope.enclosing_scope.lookup(self._current_scope.name)
-        )
+        subroutine_symbol: Optional[Symbol] = scope.enclosing_scope.lookup(scope.name)
 
         if isinstance(subroutine_symbol, FunctionSymbol):
             if node.expression is None:
                 raise SemanticError(
                     ErrorCode.FUNCTION_EMPTY_GIVE,
-                    f"Function '{self._current_scope.name}' must give a value",
+                    f"Function '{scope.name}' must give a value",
                 )
             self.visit(node.expression)
-
         elif isinstance(subroutine_symbol, ProcedureSymbol):
             if node.expression is not None:
                 raise SemanticError(
                     ErrorCode.PROCEDURE_GIVING_VALUE,
-                    f"Procedure '{self._current_scope.name}' cannot give a value",
+                    f"Procedure '{scope.name}' cannot give a value",
                 )
+        else:
+            raise SemanticError(
+                ErrorCode.WRONG_SYMBOL_TYPE,
+                f"Give statement in invalid context: {scope.name}",
+            )
 
     def visit_NodeShowStatement(self, node: NodeShowStatement) -> None:
         self.visit(node.expression)

@@ -1,33 +1,27 @@
 {
-    let int a, c = 10, 100
-    let float b = 3.2
-    keep bool flag1, flag2 = true, false
+    let int fibonacci_limit = 10
+    let int a, b = 0, 1
+    keep string title = "Fibonacci Generator"
 
-    proc doNothing() {
-        let int x = 1
-        let float y = 2.0
+    func fibonacci(int n) -> int {
+        if n <= 1 {
+            give n
+        }
+        give fibonacci(n - 1) + fibonacci(n - 2)
     }
 
-    func multiply(int x, float y) -> float {
-        let float result = x * y
-        give result        
+    proc printSequence(int limit) {
+        show title
+        let int i = 0
+        while i < limit {
+            show fibonacci(i)
+            i = i + 1
+        }
     }
 
-    if (a > 2) {
-        let int m = 0
-    } elif (a < 0) {
-        a = a + 2
-    } else {
-        keep float k = 99.1
-    }
+    exec printSequence(fibonacci_limit)
 
-    exec doNothing()
-    let float result = multiply(a, b)
-    result = result ** 2
-    show result
-
-    while (a < 12) {
-        a = a + 1
-        show a
+    if fibonacci(5) > 3 {
+        show "Fibonacci(5) is greater than 3"
     }
 }

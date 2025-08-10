@@ -29,16 +29,6 @@ class NodeBooleanExpression(NodeExpression):
     __slots__ = ()
 
 
-class NodeArithmeticExpressionAsBoolean(NodeBooleanExpression):
-    __slots__ = ("expression",)
-
-    def __init__(self, expression: NodeArithmeticExpression) -> None:
-        self.expression: NodeArithmeticExpression = expression
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(expression={self.expression})"
-
-
 class NodeBlock(NodeAST):
     __slots__ = ("statements",)
 
@@ -338,6 +328,16 @@ class NodeUnaryArithmeticOperation(NodeArithmeticExpression):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(operator={self.operator}, operand={self.operand})"
+
+
+class NodeArithmeticExpressionAsBoolean(NodeBooleanExpression):
+    __slots__ = ("expression",)
+
+    def __init__(self, expression: NodeArithmeticExpression) -> None:
+        self.expression: NodeArithmeticExpression = expression
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(expression={self.expression})"
 
 
 class NodeBinaryBooleanOperation(NodeBooleanExpression):

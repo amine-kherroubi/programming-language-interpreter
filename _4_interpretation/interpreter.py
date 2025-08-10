@@ -30,7 +30,7 @@ class Interpreter(NodeVisitor[Any]):
 
     DEFAULT_VALUES: Final[dict[str, ValueType]] = {
         "int": 0,
-        "float": 0.0,
+        "float": 0,
         "string": "",
         "bool": False,
     }

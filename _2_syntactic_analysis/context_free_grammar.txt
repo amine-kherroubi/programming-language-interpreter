@@ -33,17 +33,18 @@ skip_statement ::= "skip"
 stop_statement ::= "stop"
 
 # Expressions
-expression ::= boolean_expression | arithmetic_expression
+expression ::= arithmetic_expression | boolean_expression
 
 # Boolean expressions (for conditions and comparisons)
 boolean_expression ::= logical_or_expression
 logical_or_expression ::= logical_and_expression ("or" logical_and_expression)*
 logical_and_expression ::= logical_not_expression ("and" logical_not_expression)*
 logical_not_expression ::= "not"? primary_boolean_expression
-primary_boolean_expression ::= comparison_expression | boolean_literal | "(" boolean_expression ")"
+primary_boolean_expression ::= boolean_literal | "(" boolean_expression ")" | comparison_expression | arithmetic_expression_as_boolean
 
-# Comparisons
+# Comparisons and arithmetic-to-boolean conversion
 comparison_expression ::= arithmetic_expression comparison_operator arithmetic_expression
+arithmetic_expression_as_boolean ::= arithmetic_expression
 comparison_operator ::= "==" | "!=" | "<" | ">" | "<=" | ">="
 
 # Arithmetic expressions
