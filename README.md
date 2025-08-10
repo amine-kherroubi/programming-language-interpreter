@@ -2,7 +2,7 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
-A Turing-complete programming language interpreter with static typing and lexical scoping. The language syntax draws inspiration from Python, C, and Pascal, combining Python's keywords (`if`, `elif`, `else`, `while`, `and`, `or`, `not`) with C-style braces and Pascal-like explicit type declarations. The interpreter implements a four-phase architecture with lexical analysis, recursive descent parsing, semantic analysis, and tree-walking interpretation.
+A simple custom programming language interpreter with static typing and lexical scoping. The language syntax draws inspiration from Python, C, and Pascal, combining Python's keywords (`if`, `elif`, `else`, `while`, `and`, `or`, `not`) with C-style braces and Pascal-like explicit type declarations. The interpreter implements a four-phase architecture with lexical analysis, recursive descent parsing, semantic analysis, and tree-walking interpretation.
 
 ## Language Features
 
