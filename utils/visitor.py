@@ -1,6 +1,6 @@
 from abc import ABC
 from typing import Callable, Generic, TypeVar
-from syntactic_analysis.ast import NodeAST
+from _2_syntactic_analysis.ast import NodeAST
 
 T = TypeVar("T")
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Union
-from lexical_analysis.tokens import Token
+from _1_lexical_analysis.tokens import Token
 
 NumericType = Union[int, float]
 

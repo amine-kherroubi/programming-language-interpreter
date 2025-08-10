@@ -1,7 +1,6 @@
 from typing import Optional
-
 from utils.visitor import NodeVisitor
-from syntactic_analysis.ast import (
+from _2_syntactic_analysis.ast import (
     NodeAST,
     NodeProgram,
     NodeBlock,
@@ -21,7 +20,7 @@ from syntactic_analysis.ast import (
     NodeStringLiteral,
     NodeBooleanLiteral,
 )
-from semantic_analysis.symbol_table import (
+from _3_semantic_analysis.symbol_table import (
     ScopedSymbolTable,
     Symbol,
     VariableSymbol,

@@ -1,5 +1,5 @@
 from enum import Enum
-from lexical_analysis.tokens import Token
+from _1_lexical_analysis.tokens import Token
 
 
 class ErrorCode(Enum):

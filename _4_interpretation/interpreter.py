@@ -1,12 +1,12 @@
 from typing import Final, Optional
-from interpreting.call_stack import (
+from utils.visitor import NodeVisitor
+from _4_interpretation.call_stack import (
     CallStack,
     ActivationRecord,
     ActivationRecordType,
 )
-from syntactic_analysis.ast import *
-from utils.visitor import NodeVisitor
-from semantic_analysis.symbol_table import (
+from _2_syntactic_analysis.ast import *
+from _3_semantic_analysis.symbol_table import (
     FunctionSymbol,
     ProcedureSymbol,
     VariableSymbol,

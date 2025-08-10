@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, OrderedDict
-from lexical_analysis.tokens import TokenType
-from syntactic_analysis.ast import NodeBlock
+from _1_lexical_analysis.tokens import TokenType
+from _2_syntactic_analysis.ast import NodeBlock
 
 
 class Symbol(ABC):

@@ -1,9 +1,9 @@
 import sys
-from lexical_analysis.lexical_analyzer import LexicalAnalyzer
-from syntactic_analysis.syntactic_analyser import SyntacticAnalyzer
-from semantic_analysis.semantic_analyzer import SemanticAnalyzer
-from interpreting.interpreter import Interpreter
-from syntactic_analysis.ast import NodeAST
+from _1_lexical_analysis.lexical_analyzer import LexicalAnalyzer
+from _2_syntactic_analysis.syntactic_analyser import SyntacticAnalyzer
+from _2_syntactic_analysis.ast import NodeAST
+from _3_semantic_analysis.semantic_analyzer import SemanticAnalyzer
+from _4_interpretation.interpreter import Interpreter
 from utils.errors import (
     LexicalError,
     SyntacticError,

@@ -1,7 +1,7 @@
 from typing import Optional
-from lexical_analysis.lexical_analyzer import LexicalAnalyzer
-from lexical_analysis.tokens import Token, TokenType
-from syntactic_analysis.ast import (
+from _1_lexical_analysis.lexical_analyzer import LexicalAnalyzer
+from _1_lexical_analysis.tokens import Token, TokenType
+from _2_syntactic_analysis.ast import (
     NodeAST,
     NodeArithmeticExpressionAsBoolean,
     NodeBinaryBooleanOperation,

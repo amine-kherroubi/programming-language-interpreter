@@ -1,6 +1,6 @@
 from typing import Optional, Union, Final
 from utils.errors import LexicalError, ErrorCode
-from lexical_analysis.tokens import (
+from _1_lexical_analysis.tokens import (
     Token,
     TokenType,
     RESERVED_KEYWORDS,
