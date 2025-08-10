@@ -368,7 +368,7 @@ class NodeUnaryBooleanOperation(NodeBooleanExpression):
         return f"{self.__class__.__name__}(logical_operator={self.logical_operator}, operand={self.operand})"
 
 
-class NodeComparison(NodeBooleanExpression):
+class NodeComparisonExpression(NodeBooleanExpression):
     __slots__ = ("left", "comparator", "right")
 
     def __init__(

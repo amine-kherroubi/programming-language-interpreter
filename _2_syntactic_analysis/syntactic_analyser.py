@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Final, Optional
 from _1_lexical_analysis.lexical_analyzer import LexicalAnalyzer
 from _1_lexical_analysis.tokens import Token, TokenType
 from _2_syntactic_analysis.ast import (
@@ -7,7 +7,7 @@ from _2_syntactic_analysis.ast import (
     NodeBinaryBooleanOperation,
     NodeBlock,
     NodeBooleanExpression,
-    NodeComparison,
+    NodeComparisonExpression,
     NodeElif,
     NodeElse,
     NodeExpression,
@@ -403,7 +403,7 @@ class SyntacticAnalyzer:
     def _comparison_expression(self) -> NodeBooleanExpression:
         left: NodeArithmeticExpression = self._arithmetic_expression()
 
-        comparison_operators: set[TokenType] = {
+        comparison_operators: Final[set[TokenType]] = {
             TokenType.EQUAL,
             TokenType.NOT_EQUAL,
             TokenType.LESS,
@@ -416,7 +416,7 @@ class SyntacticAnalyzer:
             operator: Token = self._current_token
             self._consume(operator.type)
             right: NodeArithmeticExpression = self._arithmetic_expression()
-            return NodeComparison(left, operator.value, right)
+            return NodeComparisonExpression(left, operator.value, right)
 
         return NodeArithmeticExpressionAsBoolean(left)
 
@@ -479,29 +479,12 @@ class SyntacticAnalyzer:
             return NodeStringLiteral(token.value)
 
         if token.type == TokenType.IDENTIFIER:
-            lookahead_position: int = self._lexical_analyzer.position
-            lookahead_character: Optional[str] = self._lexical_analyzer.current_char
-            lookahead_line: int = self._lexical_analyzer.line
-            lookahead_column: int = self._lexical_analyzer.column
-
-            try:
+            next_token = self._peek_next_token()
+            if next_token.type == TokenType.LEFT_PARENTHESIS:
+                return self._function_call()
+            else:
                 self._consume(TokenType.IDENTIFIER)
-                if self._current_token.type == TokenType.LEFT_PARENTHESIS:
-                    self._lexical_analyzer.position = lookahead_position
-                    self._lexical_analyzer.current_char = lookahead_character
-                    self._lexical_analyzer.line = lookahead_line
-                    self._lexical_analyzer.column = lookahead_column
-                    self._current_token = token
-                    return self._function_call()
-                else:
-                    return NodeIdentifier(token.value)
-            except Exception:
-                self._lexical_analyzer.position = lookahead_position
-                self._lexical_analyzer.current_char = lookahead_character
-                self._lexical_analyzer.line = lookahead_line
-                self._lexical_analyzer.column = lookahead_column
-                self._current_token = token
-                raise
+                return NodeIdentifier(token.value)
 
         if token.type == TokenType.LEFT_PARENTHESIS:
             self._consume(TokenType.LEFT_PARENTHESIS)

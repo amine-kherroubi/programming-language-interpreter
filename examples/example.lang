@@ -13,8 +13,25 @@
         give result        
     }
 
+    stop
+
+    if (a > 2) {
+        let int m = 0
+    } elif (a < 0) {
+        a = a + 2
+    } else {
+        keep float k = 99.1
+    }
+
     exec doNothing()
     let float result = multiply(a, b)
     result = result ** 2
     show result
+
+    while (b < 10) {
+        b = b + 1
+        if b > 5 {
+            skip
+        }
+    }
 }

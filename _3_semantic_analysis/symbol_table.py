@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Optional, OrderedDict
 from _1_lexical_analysis.tokens import TokenType
 from _2_syntactic_analysis.ast import NodeBlock
@@ -115,8 +116,24 @@ class ProcedureSymbol(Symbol):
         return f"<PROCEDURE: {self.identifier}({params})>"
 
 
+class ScopeType(Enum):
+    PROGRAM = "PROGRAM"
+    FUNCTION = "FUNCTION"
+    PROCEDURE = "PROCEDURE"
+    IF_BLOCK = "IF_BLOCK"
+    ELIF_BLOCK = "ELIF_BLOCK"
+    ELSE_BLOCK = "ELSE_BLOCK"
+    WHILE_BLOCK = "WHILE_BLOCK"
+
+
 class ScopedSymbolTable:
-    __slots__ = ("_symbols", "scope_name", "scope_level", "enclosing_scope")
+    __slots__ = (
+        "_symbols",
+        "name",
+        "type",
+        "level",
+        "enclosing_scope",
+    )
 
     BUILT_IN_TYPES: list[BuiltInTypeSymbol] = [
         BuiltInTypeSymbol(TokenType.INT_TYPE.value),
@@ -127,24 +144,29 @@ class ScopedSymbolTable:
 
     def __init__(
         self,
-        scope_name: str,
-        scope_level: int,
+        name: str,
+        type: ScopeType,
+        level: int,
         enclosing_scope: Optional["ScopedSymbolTable"],
     ) -> None:
-        self.scope_name: str = scope_name
-        self.scope_level: int = scope_level
+        self.name: str = name
+        self.type: ScopeType = type
+        self.level: int = level
         self.enclosing_scope: Optional[ScopedSymbolTable] = enclosing_scope
         self._symbols: OrderedDict[str, Symbol] = OrderedDict()
 
-        if scope_level == 1:
+        if level == 1:
             self._init_builtins()
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(scope_name='{self.scope_name}', scope_level={self.scope_level})"
+        return (
+            f"{self.__class__.__name__}(name='{self.name}', type={self.type}, "
+            f"level={self.level}, enclosing_scope={self.enclosing_scope})"
+        )
 
     def __str__(self) -> str:
         symbols: str = ", ".join(str(symbol) for symbol in self._symbols.values())
-        return f"Scope '{self.scope_name}' (level {self.scope_level}): [{symbols}]"
+        return f"Scope '{self.name}' (level {self.level}): [{symbols}]"
 
     def _init_builtins(self) -> None:
         for builtin in self.BUILT_IN_TYPES:

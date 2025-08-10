@@ -2,8 +2,18 @@ from typing import Optional
 from utils.visitor import NodeVisitor
 from _2_syntactic_analysis.ast import (
     NodeAST,
+    NodeArithmeticExpressionAsBoolean,
+    NodeBinaryBooleanOperation,
+    NodeComparisonExpression,
+    NodeElif,
+    NodeElse,
+    NodeIfStatement,
     NodeProgram,
     NodeBlock,
+    NodeShowStatement,
+    NodeSkipStatement,
+    NodeStopStatement,
+    NodeUnaryBooleanOperation,
     NodeVariableDeclaration,
     NodeConstantDeclaration,
     NodeAssignmentStatement,
@@ -19,6 +29,7 @@ from _2_syntactic_analysis.ast import (
     NodeFloatLiteral,
     NodeStringLiteral,
     NodeBooleanLiteral,
+    NodeWhileStatement,
 )
 from _3_semantic_analysis.symbol_table import (
     ScopedSymbolTable,
@@ -27,16 +38,18 @@ from _3_semantic_analysis.symbol_table import (
     ConstantSymbol,
     FunctionSymbol,
     ProcedureSymbol,
+    ScopeType,
 )
 from utils.errors import SemanticError, ErrorCode
 
 
 class SemanticAnalyzer(NodeVisitor[None]):
-    __slots__ = ("_current_scope", "_current_subroutine")
+    __slots__ = "_current_scope"
 
     def __init__(self) -> None:
-        self._current_scope: ScopedSymbolTable = ScopedSymbolTable("global", 1, None)
-        self._current_subroutine: Optional[str] = None
+        self._current_scope: ScopedSymbolTable = ScopedSymbolTable(
+            "global", ScopeType.PROGRAM, 1, None
+        )
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
@@ -51,7 +64,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         self.visit(node.block)
 
     def visit_NodeBlock(self, node: NodeBlock) -> None:
-        for statement in node.statements:
+        for statement in node.statements or []:
             self.visit(statement)
 
     def visit_NodeVariableDeclaration(self, node: NodeVariableDeclaration) -> None:
@@ -103,13 +116,8 @@ class SemanticAnalyzer(NodeVisitor[None]):
             )
         )
 
-        self._enter_subroutine_scope(name, parameters)
-        previous_subroutine: Optional[str] = self._current_subroutine
-        self._current_subroutine = name
-
+        self._enter_scope(name, ScopeType.FUNCTION, parameters)
         self.visit(node.block)
-
-        self._current_subroutine = previous_subroutine
         self._exit_scope()
 
     def visit_NodeProcedureDeclaration(self, node: NodeProcedureDeclaration) -> None:
@@ -129,16 +137,11 @@ class SemanticAnalyzer(NodeVisitor[None]):
             ProcedureSymbol(name, parameters if parameters else None, node.block)
         )
 
-        self._enter_subroutine_scope(name, parameters)
-        previous_subroutine: Optional[str] = self._current_subroutine
-        self._current_subroutine = name
-
+        self._enter_scope(name, ScopeType.PROCEDURE, parameters)
         self.visit(node.block)
-
-        self._current_subroutine = previous_subroutine
         self._exit_scope()
 
-    def visit_NodeAssignment(self, node: NodeAssignmentStatement) -> None:
+    def visit_NodeAssignmentStatement(self, node: NodeAssignmentStatement) -> None:
         symbol: Optional[Symbol] = self._current_scope.lookup(node.identifier.name)
         if symbol is None:
             raise SemanticError(
@@ -209,7 +212,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
             self.visit(argument)
 
     def visit_NodeGiveStatement(self, node: NodeGiveStatement) -> None:
-        if not self._current_subroutine:
+        if self._current_scope.type not in (ScopeType.FUNCTION, ScopeType.PROCEDURE):
             raise SemanticError(
                 ErrorCode.WRONG_SYMBOL_TYPE,
                 "Give statement outside of function or procedure",
@@ -222,14 +225,14 @@ class SemanticAnalyzer(NodeVisitor[None]):
             )
 
         subroutine_symbol: Optional[Symbol] = (
-            self._current_scope.enclosing_scope.lookup(self._current_subroutine)
+            self._current_scope.enclosing_scope.lookup(self._current_scope.name)
         )
 
         if isinstance(subroutine_symbol, FunctionSymbol):
             if node.expression is None:
                 raise SemanticError(
                     ErrorCode.FUNCTION_EMPTY_GIVE,
-                    f"Function '{self._current_subroutine}' must give a value",
+                    f"Function '{self._current_scope.name}' must give a value",
                 )
             self.visit(node.expression)
 
@@ -237,8 +240,74 @@ class SemanticAnalyzer(NodeVisitor[None]):
             if node.expression is not None:
                 raise SemanticError(
                     ErrorCode.PROCEDURE_GIVING_VALUE,
-                    f"Procedure '{self._current_subroutine}' cannot give a value",
+                    f"Procedure '{self._current_scope.name}' cannot give a value",
                 )
+
+    def visit_NodeShowStatement(self, node: NodeShowStatement) -> None:
+        self.visit(node.expression)
+
+    def visit_NodeIfStatement(self, node: NodeIfStatement) -> None:
+        self.visit(node.condition)
+        self._enter_scope(
+            f"if_statement_{self._current_scope.level}",
+            ScopeType.IF_BLOCK,
+            None,
+        )
+        self.visit(node.block)
+        self._exit_scope()
+        for elif_ in node.elifs or []:
+            self.visit(elif_)
+        if node.else_:
+            self.visit(node.else_)
+
+    def visit_NodeElif(self, node: NodeElif) -> None:
+        self.visit(node.condition)
+        self._enter_scope(
+            f"elif_statement_{self._current_scope.level}",
+            ScopeType.ELIF_BLOCK,
+            None,
+        )
+        self.visit(node.block)
+        self._exit_scope()
+
+    def visit_NodeElse(self, node: NodeElse) -> None:
+        self._enter_scope(
+            f"else_statement_{self._current_scope.level}",
+            ScopeType.ELSE_BLOCK,
+            None,
+        )
+        self.visit(node.block)
+        self._exit_scope()
+
+    def visit_NodeWhileStatement(self, node: NodeWhileStatement):
+        self.visit(node.condition)
+        self._enter_scope(
+            f"while_statement_{self._current_scope.level}", ScopeType.WHILE_BLOCK, None
+        )
+        self.visit(node.block)
+        self._exit_scope()
+
+    def visit_NodeSkipStatement(self, node: NodeSkipStatement) -> None:
+        scope: Optional[ScopedSymbolTable] = self._current_scope
+        while scope is not None:
+            if scope.type == ScopeType.WHILE_BLOCK:
+                return
+            scope = scope.enclosing_scope
+        raise SemanticError(
+            ErrorCode.SKIP_STATEMENT_OUTSIDE_WHILE,
+            "skip statements can only be used inside while blocks",
+        )
+
+    def visit_NodeStopStatement(self, node: NodeStopStatement) -> None:
+        scope: Optional[ScopedSymbolTable] = self._current_scope
+        while scope is not None:
+            if scope.type == ScopeType.WHILE_BLOCK:
+                return
+            scope = scope.enclosing_scope
+        raise SemanticError(
+            ErrorCode.STOP_STATEMENT_OUTSIDE_WHILE,
+            "stop statements can only be used inside while blocks",
+        )
 
     def visit_NodeIdentifier(self, node: NodeIdentifier) -> None:
         if self._current_scope.lookup(node.name) is None:
@@ -247,12 +316,34 @@ class SemanticAnalyzer(NodeVisitor[None]):
                 f"Undeclared identifier '{node.name}'",
             )
 
-    def visit_NodeBinaryOperation(self, node: NodeBinaryArithmeticOperation) -> None:
+    def visit_NodeArithmeticExpressionAsBoolean(
+        self, node: NodeArithmeticExpressionAsBoolean
+    ) -> None:
+        self.visit(node.expression)
+
+    def visit_NodeBinaryArithmeticOperation(
+        self, node: NodeBinaryArithmeticOperation
+    ) -> None:
         self.visit(node.left)
         self.visit(node.right)
 
-    def visit_NodeUnaryOperation(self, node: NodeUnaryArithmeticOperation) -> None:
+    def visit_NodeUnaryArithmeticOperation(
+        self, node: NodeUnaryArithmeticOperation
+    ) -> None:
         self.visit(node.operand)
+
+    def visit_NodeBinaryBooleanOperation(
+        self, node: NodeBinaryBooleanOperation
+    ) -> None:
+        self.visit(node.left)
+        self.visit(node.right)
+
+    def visit_NodeUnaryBooleanOperation(self, node: NodeUnaryBooleanOperation) -> None:
+        self.visit(node.operand)
+
+    def visit_NodeComparisonExpression(self, node: NodeComparisonExpression) -> None:
+        self.visit(node.left)
+        self.visit(node.right)
 
     def visit_NodeIntegerLiteral(self, node: NodeIntegerLiteral) -> None:
         pass
@@ -266,14 +357,17 @@ class SemanticAnalyzer(NodeVisitor[None]):
     def visit_NodeBooleanLiteral(self, node: NodeBooleanLiteral) -> None:
         pass
 
-    def _enter_subroutine_scope(
-        self, name: str, parameters: list[VariableSymbol]
+    def _enter_scope(
+        self,
+        name: str,
+        type: ScopeType,
+        variable_symbols: Optional[list[VariableSymbol]],
     ) -> None:
         new_scope: ScopedSymbolTable = ScopedSymbolTable(
-            name, self._current_scope.scope_level + 1, self._current_scope
+            name, type, self._current_scope.level + 1, self._current_scope
         )
-        for parameter in parameters:
-            new_scope.define(parameter)
+        for variable_symbol in variable_symbols or []:
+            new_scope.define(variable_symbol)
         self._current_scope = new_scope
 
     def _exit_scope(self) -> None:
