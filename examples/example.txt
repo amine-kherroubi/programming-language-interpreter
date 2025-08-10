@@ -13,8 +13,6 @@
         give result        
     }
 
-    stop
-
     if (a > 2) {
         let int m = 0
     } elif (a < 0) {
@@ -28,10 +26,8 @@
     result = result ** 2
     show result
 
-    while (b < 10) {
-        b = b + 1
-        if b > 5 {
-            skip
-        }
+    while (a < 12) {
+        a = a + 1
+        show a
     }
 }

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Optional, OrderedDict
+from typing import Final, Optional, OrderedDict
 from _1_lexical_analysis.tokens import TokenType
 from _2_syntactic_analysis.ast import NodeBlock
 
@@ -135,7 +135,7 @@ class ScopedSymbolTable:
         "enclosing_scope",
     )
 
-    BUILT_IN_TYPES: list[BuiltInTypeSymbol] = [
+    BUILT_IN_TYPES: Final[list[BuiltInTypeSymbol]] = [
         BuiltInTypeSymbol(TokenType.INT_TYPE.value),
         BuiltInTypeSymbol(TokenType.FLOAT_TYPE.value),
         BuiltInTypeSymbol(TokenType.STRING_TYPE.value),

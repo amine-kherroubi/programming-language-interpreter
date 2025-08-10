@@ -255,8 +255,8 @@ class SemanticAnalyzer(NodeVisitor[None]):
         )
         self.visit(node.block)
         self._exit_scope()
-        for elif_ in node.elifs or []:
-            self.visit(elif_)
+        for elif_node in node.elifs or []:
+            self.visit(elif_node)
         if node.else_:
             self.visit(node.else_)
 

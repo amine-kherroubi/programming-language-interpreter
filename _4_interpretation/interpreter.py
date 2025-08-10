@@ -1,4 +1,4 @@
-from typing import Final, Optional
+from typing import Any, Final, Optional
 from utils.visitor import NodeVisitor
 from _4_interpretation.call_stack import (
     CallStack,
@@ -17,7 +17,15 @@ from utils.errors import RuntimeError, ErrorCode
 ValueType = Union[int, float, str, bool]
 
 
-class Interpreter(NodeVisitor[Optional[ValueType]]):
+class SkipException(Exception):
+    __slots__ = ()
+
+
+class StopException(Exception):
+    __slots__ = ()
+
+
+class Interpreter(NodeVisitor[Any]):
     __slots__ = ("_call_stack", "_functions", "_procedures")
 
     DEFAULT_VALUES: Final[dict[str, ValueType]] = {
@@ -46,7 +54,7 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
     def visit_NodeBlock(
         self, node: NodeBlock
     ) -> Optional[dict[str, Optional[ValueType]]]:
-        for statement in node.statements:
+        for statement in node.statements or []:
             result: Optional[Union[ValueType, dict[str, Optional[ValueType]]]] = (
                 self.visit(statement)
             )
@@ -58,11 +66,10 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         current_activation_record: ActivationRecord = self._call_stack.peek()
 
         for index, identifier in enumerate(node.identifiers):
-            variable_value: ValueType = (
-                self.visit(node.expressions[index])
-                if node.expressions
-                else self.DEFAULT_VALUES[node.type.name]
-            )
+            if node.expressions and index < len(node.expressions):
+                variable_value: ValueType = self.visit(node.expressions[index])
+            else:
+                variable_value: ValueType = self.DEFAULT_VALUES[node.type.name]
             current_activation_record[identifier.name] = variable_value
 
     def visit_NodeConstantDeclaration(self, node: NodeConstantDeclaration) -> None:
@@ -72,7 +79,7 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
             constant_value: ValueType = self.visit(node.expressions[index])
             current_activation_record[identifier.name] = constant_value
 
-    def visit_NodeAssignment(self, node: NodeAssignmentStatement) -> None:
+    def visit_NodeAssignmentStatement(self, node: NodeAssignmentStatement) -> None:
         assignment_value: ValueType = self.visit(node.expression)
         current_activation_record: ActivationRecord = self._call_stack.peek()
         current_activation_record[node.identifier.name] = assignment_value
@@ -84,6 +91,10 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
             self.visit(node.expression) if node.expression else None
         )
         return {"give": give_value}
+
+    def visit_NodeShowStatement(self, node: NodeShowStatement) -> None:
+        value: ValueType = self.visit(node.expression)
+        print(value)
 
     def visit_NodeFunctionDeclaration(self, node: NodeFunctionDeclaration) -> None:
         function_parameters: list[VariableSymbol] = [
@@ -115,22 +126,20 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         self._procedures[node.identifier.name] = procedure_symbol
 
     def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> ValueType:
-        function_symbol: Optional[FunctionSymbol] = self._functions.get(
-            node.identifier.name
-        )
-        if function_symbol is None:
-            raise RuntimeError(
-                ErrorCode.UNDECLARED_IDENTIFIER,
-                f"Function '{node.identifier.name}' is not declared.",
-            )
+        function_symbol: FunctionSymbol = self._functions.get(node.identifier.name)
 
         function_arguments: list[ValueType] = [
             self.visit(argument) for argument in (node.arguments or [])
         ]
 
+        current_level = self._call_stack.peek().nesting_level
         function_activation_record: ActivationRecord = ActivationRecord(
-            function_symbol.identifier, ActivationRecordType.FUNCTION, 2
+            function_symbol.identifier, ActivationRecordType.FUNCTION, current_level + 1
         )
+
+        current_record = self._call_stack.peek()
+        for var_name, var_value in current_record.members.items():
+            function_activation_record[var_name] = var_value
 
         if function_symbol.parameters:
             for parameter, argument in zip(
@@ -148,29 +157,35 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
             give_value: Optional[ValueType] = execution_result["give"]
             if give_value is not None:
                 return give_value
+            else:
+                raise RuntimeError(
+                    ErrorCode.FUNCTION_EMPTY_GIVE,
+                    f"Empty give statement is not allowed in function '{function_symbol.identifier}'.",
+                )
 
-        raise RuntimeError(
-            ErrorCode.FUNCTION_EMPTY_GIVE,
-            f"Function '{function_symbol.identifier}' did not give a value.",
-        )
+        else:
+            raise RuntimeError(
+                ErrorCode.FUNCTION_NOT_GIVING,
+                f"Function '{function_symbol.identifier}' must give a value.",
+            )
 
     def visit_NodeProcedureCall(self, node: NodeProcedureCall) -> None:
-        procedure_symbol: Optional[ProcedureSymbol] = self._procedures.get(
-            node.identifier.name
-        )
-        if procedure_symbol is None:
-            raise RuntimeError(
-                ErrorCode.UNDECLARED_IDENTIFIER,
-                f"Procedure '{node.identifier.name}' is not declared.",
-            )
+        procedure_symbol: ProcedureSymbol = self._procedures.get(node.identifier.name)
 
         procedure_arguments: list[ValueType] = [
             self.visit(argument) for argument in (node.arguments or [])
         ]
 
+        current_level = self._call_stack.peek().nesting_level
         procedure_activation_record: ActivationRecord = ActivationRecord(
-            procedure_symbol.identifier, ActivationRecordType.PROCEDURE, 2
+            procedure_symbol.identifier,
+            ActivationRecordType.PROCEDURE,
+            current_level + 1,
         )
+
+        current_record = self._call_stack.peek()
+        for var_name, var_value in current_record.members.items():
+            procedure_activation_record[var_name] = var_value
 
         if procedure_symbol.parameters:
             for parameter, argument in zip(
@@ -193,6 +208,50 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
                 f"Procedure '{procedure_symbol.identifier}' cannot give a value.",
             )
 
+    def visit_NodeIfStatement(
+        self, node: NodeIfStatement
+    ) -> Optional[dict[str, Optional[ValueType]]]:
+        if self._evaluate_boolean_expression(node.condition):
+            return self.visit(node.block)
+
+        if node.elifs:
+            for elif_node in node.elifs:
+                if self._evaluate_boolean_expression(elif_node.condition):
+                    return self.visit(elif_node.block)
+
+        if node.else_:
+            return self.visit(node.else_.block)
+
+        return None
+
+    def visit_NodeWhileStatement(
+        self, node: NodeWhileStatement
+    ) -> Optional[dict[str, Optional[ValueType]]]:
+        while True:
+            try:
+                condition_value: bool = self._evaluate_boolean_expression(
+                    node.condition
+                )
+                if not condition_value:
+                    break
+
+                result = self.visit(node.block)
+                if isinstance(result, dict) and "give" in result:
+                    return result
+
+            except SkipException:
+                continue
+            except StopException:
+                break
+
+        return None
+
+    def visit_NodeSkipStatement(self, node: NodeSkipStatement) -> None:
+        raise SkipException()
+
+    def visit_NodeStopStatement(self, node: NodeStopStatement) -> None:
+        raise StopException()
+
     def visit_NodeIdentifier(self, node: NodeIdentifier) -> ValueType:
         current_activation_record: ActivationRecord = self._call_stack.peek()
         identifier_value: Optional[ValueType] = current_activation_record.get(node.name)
@@ -204,7 +263,7 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
             )
         return identifier_value
 
-    def visit_NodeBinaryOperation(
+    def visit_NodeBinaryArithmeticOperation(
         self, node: NodeBinaryArithmeticOperation
     ) -> ValueType:
         left_operand: ValueType = self.visit(node.left)
@@ -218,10 +277,25 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
         if binary_operator == "*":
             return left_operand * right_operand
         if binary_operator == "/":
+            if right_operand == 0:
+                raise RuntimeError(
+                    ErrorCode.DIVISION_BY_ZERO,
+                    "Division by zero",
+                )
             return left_operand / right_operand
         if binary_operator == "//":
+            if right_operand == 0:
+                raise RuntimeError(
+                    ErrorCode.DIVISION_BY_ZERO,
+                    "Division by zero",
+                )
             return left_operand // right_operand
         if binary_operator == "%":
+            if right_operand == 0:
+                raise RuntimeError(
+                    ErrorCode.DIVISION_BY_ZERO,
+                    "Modulo by zero",
+                )
             return left_operand % right_operand
         if binary_operator == "**":
             return left_operand**right_operand
@@ -231,7 +305,9 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
             f"Unknown binary operator '{binary_operator}'",
         )
 
-    def visit_NodeUnaryOperation(self, node: NodeUnaryArithmeticOperation) -> ValueType:
+    def visit_NodeUnaryArithmeticOperation(
+        self, node: NodeUnaryArithmeticOperation
+    ) -> ValueType:
         operand_value: ValueType = self.visit(node.operand)
         unary_operator: str = node.operator
 
@@ -245,6 +321,77 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
             f"Unknown unary operator '{unary_operator}'",
         )
 
+    def visit_NodeBinaryBooleanOperation(
+        self, node: NodeBinaryBooleanOperation
+    ) -> bool:
+        if node.logical_operator == "and":
+            left_value = self._evaluate_boolean_expression(node.left)
+            if not left_value:
+                return False
+            right_value = self._evaluate_boolean_expression(node.right)
+            return right_value
+
+        elif node.logical_operator == "or":
+            left_value = self._evaluate_boolean_expression(node.left)
+            if left_value:
+                return True
+            right_value = self._evaluate_boolean_expression(node.right)
+            return right_value
+
+        else:
+            raise RuntimeError(
+                ErrorCode.INVALID_OPERATION,
+                f"Unknown boolean operator '{node.logical_operator}'",
+            )
+
+    def visit_NodeUnaryBooleanOperation(self, node: NodeUnaryBooleanOperation) -> bool:
+        operand_value = self._evaluate_boolean_expression(node.operand)
+
+        if node.logical_operator == "not":
+            return not operand_value
+        else:
+            raise RuntimeError(
+                ErrorCode.INVALID_OPERATION,
+                f"Unknown unary boolean operator '{node.logical_operator}'",
+            )
+
+    def visit_NodeComparisonExpression(self, node: NodeComparisonExpression) -> bool:
+        left_operand: ValueType = self.visit(node.left)
+        right_operand: ValueType = self.visit(node.right)
+        comparator: str = node.comparator
+
+        if comparator == "==":
+            return left_operand == right_operand
+        elif comparator == "!=":
+            return left_operand != right_operand
+        elif comparator == "<":
+            return left_operand < right_operand
+        elif comparator == ">":
+            return left_operand > right_operand
+        elif comparator == "<=":
+            return left_operand <= right_operand
+        elif comparator == ">=":
+            return left_operand >= right_operand
+        else:
+            raise RuntimeError(
+                ErrorCode.INVALID_OPERATION,
+                f"Unknown comparison operator '{comparator}'",
+            )
+
+    def visit_NodeArithmeticExpressionAsBoolean(
+        self, node: NodeArithmeticExpressionAsBoolean
+    ) -> bool:
+        value = self.visit(node.expression)
+
+        if isinstance(value, bool):
+            return value
+        elif isinstance(value, (int, float)):
+            return value != 0
+        elif isinstance(value, str):
+            return len(value) > 0
+        else:
+            return bool(value)
+
     def visit_NodeIntegerLiteral(self, node: NodeIntegerLiteral) -> int:
         return node.value
 
@@ -256,3 +403,13 @@ class Interpreter(NodeVisitor[Optional[ValueType]]):
 
     def visit_NodeBooleanLiteral(self, node: NodeBooleanLiteral) -> bool:
         return node.value
+
+    def _evaluate_boolean_expression(self, node: NodeBooleanExpression) -> bool:
+        result = self.visit(node)
+        if isinstance(result, bool):
+            return result
+        else:
+            raise RuntimeError(
+                ErrorCode.INVALID_OPERATION,
+                f"Expected boolean expression, got {type(result).__name__}",
+            )
