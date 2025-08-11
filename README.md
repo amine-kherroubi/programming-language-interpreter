@@ -9,15 +9,11 @@ A simple custom programming language interpreter with static typing and lexical 
 
 ## Language Features
 
-**- Type System** : Static type checking with three core types: `number` (supports both integers and floats), `string`, and `boolean`. The compiler performs comprehensive type checking at compile-time with detailed error reporting.
-
-**- Variable Management** : Declare mutable variables with `let` and immutable constants with `keep`. Multiple declarations and initializations are supported in a single statement for clean, concise code.
-
-**- Functions & Procedures** : Functions return values using the elegant `give` statement, while procedures handle side-effects without returns. Both support parameters, lexical scoping, and proper activation record management.
-
-**- Control Flow** : Intuitive conditional execution with `if`/`elif`/`else` chains and `while` loops. Loop control uses the expressive `skip` (continue) and `stop` (break) keywords that make intent crystal clear.
-
-**- Rich Expressions** : Full arithmetic support including `+`, `-`, `*`, `/`, `%`, `//`, `**` with proper precedence. Boolean operations with `and`, `or`, `not` and comprehensive comparison operators. Function calls seamlessly integrate into expressions.
+* **Type System** : Static type checking with three core types: `number` (supports both integers and floats), `string`, and `boolean`. The compiler performs comprehensive type checking at compile-time with detailed error reporting.
+* **Variable Management** : Declare mutable variables with `let` and immutable constants with `keep`. Multiple declarations and initializations are supported in a single statement for clean, concise code.
+* **Functions & Procedures** : Functions return values using the elegant `give` statement, while procedures handle side-effects without returns. Both support parameters, lexical scoping, and proper activation record management.
+* **Control Flow** : Intuitive conditional execution with `if`/`elif`/`else` chains and `while` loops. Loop control uses the expressive `skip` (continue) and `stop` (break) keywords that make intent crystal clear.
+* **Rich Expressions** : Full arithmetic support including `+`, `-`, `*`, `/`, `%`, `//`, `**` with proper precedence. Boolean operations with `and`, `or`, `not` and comprehensive comparison operators. Function calls seamlessly integrate into expressions.
 
 ---
 
