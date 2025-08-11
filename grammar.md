@@ -1,6 +1,6 @@
 # Language Grammar Specification
 
-## Lexical Grammar (Tokens)
+## Lexical Grammar (for Tokenization)
 
 ### Identifiers and Literals
 
@@ -78,7 +78,7 @@ COMMA                      ::= ","
 NEWLINE                    ::= "\n"
 ```
 
-## Syntax Grammar
+## Syntax Grammar (for Parsing)
 
 ### Program Structure
 
