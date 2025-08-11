@@ -11,7 +11,7 @@ STRING_LITERAL             ::= ('"' [^"\n]* '"') | ("'" [^'\n]* "'")
 BOOLEAN_LITERAL            ::= "true" | "false"
 ```
 
-### Type Keywords
+### Types
 
 ```bnf
 NUMBER_TYPE                ::= "number"
@@ -19,7 +19,7 @@ STRING_TYPE                ::= "string"
 BOOLEAN_TYPE               ::= "boolean"
 ```
 
-### Other Keywords
+### Keywords
 
 ```bnf
 LET                        ::= "let"
@@ -61,6 +61,12 @@ AND                        ::= "and"
 NOT                        ::= "not"
 ```
 
+### Special
+
+```bnf
+EOF                        ::= end-of-file
+```
+
 ### Delimiters
 
 ```bnf
@@ -77,7 +83,7 @@ NEWLINE                    ::= "\n"
 ### Program Structure
 
 ```bnf
-program                    ::= block
+program                    ::= block EOF
 
 block                      ::= LEFT_BRACE (statement NEWLINE)* RIGHT_BRACE
 
