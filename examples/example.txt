@@ -1,18 +1,18 @@
 {
-    let int fibonacci_limit = 10
-    let int a, b = 0, 1
+    let number fibonacci_limit = 10
+    let number a, b = 0, 1
     keep string title = "Fibonacci Generator"
 
-    func fibonacci(int n) -> int {
+    func fibonacci(number n) -> number {
         if n <= 1 {
             give n
         }
         give fibonacci(n - 1) + fibonacci(n - 2)
     }
 
-    proc printSequence(int limit) {
+    proc printSequence(number limit) {
         show title
-        let int i = 0
+        let number i = 0
         while i < limit {
             show fibonacci(i)
             i = i + 1

@@ -58,6 +58,9 @@ class LexicalAnalyzer:
         while self.current_char == "\n":
             self._advance()
 
+    def _is_digit(self, character: Optional[str]) -> bool:
+        return "0" <= character <= "9" if character else False
+
     def _tokenize_number(self) -> Token:
         start_line: int = self.line
         start_column: int = self.column
@@ -68,7 +71,7 @@ class LexicalAnalyzer:
             self.current_char.isdigit() or self.current_char == "."
         ):
             if self.current_char == ".":
-                if has_dot or not (self._peek() and self._peek().isdigit()):
+                if has_dot or not (self._peek() and self._is_digit(self._peek())):
                     break
                 has_dot = True
             number += self.current_char
@@ -84,15 +87,12 @@ class LexicalAnalyzer:
             )
 
         value: Union[float, int] = float(number) if has_dot else int(number)
-        token_type: TokenType = (
-            TokenType.FLOAT_LITERAL if has_dot else TokenType.INT_LITERAL
-        )
-        return Token(token_type, value, start_line, start_column)
+        return Token(TokenType.NUMBER_LITERAL, value, start_line, start_column)
 
     def _tokenize_string(self) -> Token:
         start_line: int = self.line
         start_column: int = self.column
-        quote: str = self.current_char
+        quote: Optional[str] = self.current_char
         self._advance()
 
         escape_map: Final[dict[str, str]] = {
@@ -155,9 +155,9 @@ class LexicalAnalyzer:
             self._advance()
 
         if identifier == "true":
-            return Token(TokenType.BOOL_LITERAL, True, start_line, start_column)
+            return Token(TokenType.BOOLEAN_LITERAL, True, start_line, start_column)
         if identifier == "false":
-            return Token(TokenType.BOOL_LITERAL, False, start_line, start_column)
+            return Token(TokenType.BOOLEAN_LITERAL, False, start_line, start_column)
         if identifier in RESERVED_KEYWORDS:
             return Token(
                 RESERVED_KEYWORDS[identifier], identifier, start_line, start_column
@@ -199,13 +199,17 @@ class LexicalAnalyzer:
                 return Token(TokenType.EOF, None, self.line, self.column)
 
             if self.current_char == "\n":
-                token: Token = Token(TokenType.NEWLINE, "\n", self.line, self.column)
+                newline_token: Token = Token(
+                    TokenType.NEWLINE, "\n", self.line, self.column
+                )
                 self._advance()
                 self._skip_consecutive_newlines()
-                return token
+                return newline_token
 
             if self.current_char.isdigit() or (
-                self.current_char == "." and self._peek() and self._peek().isdigit()
+                self.current_char == "."
+                and self._peek()
+                and self._is_digit(self._peek())
             ):
                 return self._tokenize_number()
 

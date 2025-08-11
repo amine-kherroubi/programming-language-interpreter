@@ -136,10 +136,9 @@ class ScopedSymbolTable:
     )
 
     BUILT_IN_TYPES: Final[list[BuiltInTypeSymbol]] = [
-        BuiltInTypeSymbol(TokenType.INT_TYPE.value),
-        BuiltInTypeSymbol(TokenType.FLOAT_TYPE.value),
+        BuiltInTypeSymbol(TokenType.NUMBER_TYPE.value),
         BuiltInTypeSymbol(TokenType.STRING_TYPE.value),
-        BuiltInTypeSymbol(TokenType.BOOL_TYPE.value),
+        BuiltInTypeSymbol(TokenType.BOOLEAN_TYPE.value),
     ]
 
     def __init__(

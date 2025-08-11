@@ -43,14 +43,12 @@ class TokenType(Enum):
     SKIP = "skip"
     STOP = "stop"
     SHOW = "show"
-    INT_TYPE = "int"
-    FLOAT_TYPE = "float"
+    NUMBER_TYPE = "number"
     STRING_TYPE = "string"
-    BOOL_TYPE = "bool"
-    INT_LITERAL = "INT_LITERAL"
-    FLOAT_LITERAL = "FLOAT_LITERAL"
+    BOOLEAN_TYPE = "boolean"
+    NUMBER_LITERAL = "NUMBER_LITERAL"
     STRING_LITERAL = "STRING_LITERAL"
-    BOOL_LITERAL = "BOOL_LITERAL"
+    BOOLEAN_LITERAL = "BOOLEAN_LITERAL"
     IDENTIFIER = "IDENTIFIER"
     NEWLINE = "NEWLINE"
     EOF = "EOF"
@@ -63,10 +61,9 @@ RESERVED_KEYWORDS: Final[dict[str, TokenType]] = {
     "func": TokenType.FUNC,
     "proc": TokenType.PROC,
     "exec": TokenType.EXEC,
-    "int": TokenType.INT_TYPE,
-    "float": TokenType.FLOAT_TYPE,
+    "number": TokenType.NUMBER_TYPE,
     "string": TokenType.STRING_TYPE,
-    "bool": TokenType.BOOL_TYPE,
+    "boolean": TokenType.BOOLEAN_TYPE,
     "and": TokenType.AND,
     "or": TokenType.OR,
     "not": TokenType.NOT,

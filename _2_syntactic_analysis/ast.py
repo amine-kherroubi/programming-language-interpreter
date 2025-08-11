@@ -385,21 +385,11 @@ class NodeComparisonExpression(NodeBooleanExpression):
         return f"{self.__class__.__name__}(left={self.left}, comparator={self.comparator}, right={self.right})"
 
 
-class NodeIntegerLiteral(NodeArithmeticExpression):
+class NodeNumberLiteral(NodeArithmeticExpression):
     __slots__ = ("value",)
 
     def __init__(self, value: int) -> None:
         self.value: int = value
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(value={self.value})"
-
-
-class NodeFloatLiteral(NodeArithmeticExpression):
-    __slots__ = ("value",)
-
-    def __init__(self, value: float) -> None:
-        self.value: float = value
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value={self.value})"

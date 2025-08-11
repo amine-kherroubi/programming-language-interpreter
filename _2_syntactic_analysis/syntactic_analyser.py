@@ -32,8 +32,7 @@ from _2_syntactic_analysis.ast import (
     NodeProcedureCall,
     NodeBinaryArithmeticOperation,
     NodeUnaryArithmeticOperation,
-    NodeIntegerLiteral,
-    NodeFloatLiteral,
+    NodeNumberLiteral,
     NodeStringLiteral,
     NodeBooleanLiteral,
     NodeWhileStatement,
@@ -332,10 +331,9 @@ class SyntacticAnalyzer:
     def _type(self) -> NodeType:
         token: Token = self._current_token
         if token.type in {
-            TokenType.INT_TYPE,
-            TokenType.FLOAT_TYPE,
+            TokenType.NUMBER_TYPE,
             TokenType.STRING_TYPE,
-            TokenType.BOOL_TYPE,
+            TokenType.BOOLEAN_TYPE,
         }:
             self._consume(token.type)
             return NodeType(token)
@@ -384,7 +382,7 @@ class SyntacticAnalyzer:
             if saved_token.type == TokenType.NOT:
                 return True
 
-            if saved_token.type == TokenType.BOOL_LITERAL:
+            if saved_token.type == TokenType.BOOLEAN_LITERAL:
                 return True
 
             return False
@@ -434,8 +432,8 @@ class SyntacticAnalyzer:
         return self._primary_boolean_expression()
 
     def _primary_boolean_expression(self) -> NodeBooleanExpression:
-        if self._current_token.type == TokenType.BOOL_LITERAL:
-            token = self._consume(TokenType.BOOL_LITERAL)
+        if self._current_token.type == TokenType.BOOLEAN_LITERAL:
+            token = self._consume(TokenType.BOOLEAN_LITERAL)
             return NodeBooleanLiteral(token.value)
 
         if self._current_token.type == TokenType.LEFT_PARENTHESIS:
@@ -509,13 +507,9 @@ class SyntacticAnalyzer:
     def _primary_expression(self) -> NodeArithmeticExpression:
         token: Token = self._current_token
 
-        if token.type == TokenType.INT_LITERAL:
-            self._consume(TokenType.INT_LITERAL)
-            return NodeIntegerLiteral(token.value)
-
-        if token.type == TokenType.FLOAT_LITERAL:
-            self._consume(TokenType.FLOAT_LITERAL)
-            return NodeFloatLiteral(token.value)
+        if token.type == TokenType.NUMBER_LITERAL:
+            self._consume(TokenType.NUMBER_LITERAL)
+            return NodeNumberLiteral(token.value)
 
         if token.type == TokenType.STRING_LITERAL:
             self._consume(TokenType.STRING_LITERAL)

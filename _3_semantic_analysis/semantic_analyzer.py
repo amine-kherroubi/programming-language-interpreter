@@ -25,8 +25,7 @@ from _2_syntactic_analysis.ast import (
     NodeIdentifier,
     NodeBinaryArithmeticOperation,
     NodeUnaryArithmeticOperation,
-    NodeIntegerLiteral,
-    NodeFloatLiteral,
+    NodeNumberLiteral,
     NodeStringLiteral,
     NodeBooleanLiteral,
     NodeWhileStatement,
@@ -354,10 +353,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         self.visit(node.left)
         self.visit(node.right)
 
-    def visit_NodeIntegerLiteral(self, node: NodeIntegerLiteral) -> None:
-        pass
-
-    def visit_NodeFloatLiteral(self, node: NodeFloatLiteral) -> None:
+    def visit_NodeNumberLiteral(self, node: NodeNumberLiteral) -> None:
         pass
 
     def visit_NodeStringLiteral(self, node: NodeStringLiteral) -> None:

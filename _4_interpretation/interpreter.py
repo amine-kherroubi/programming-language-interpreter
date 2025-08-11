@@ -392,10 +392,7 @@ class Interpreter(NodeVisitor[Any]):
         else:
             return bool(value)
 
-    def visit_NodeIntegerLiteral(self, node: NodeIntegerLiteral) -> int:
-        return node.value
-
-    def visit_NodeFloatLiteral(self, node: NodeFloatLiteral) -> float:
+    def visit_NodeNumberLiteral(self, node: NodeNumberLiteral) -> int:
         return node.value
 
     def visit_NodeStringLiteral(self, node: NodeStringLiteral) -> str:
