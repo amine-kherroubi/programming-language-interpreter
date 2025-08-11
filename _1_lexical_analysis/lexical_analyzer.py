@@ -44,7 +44,7 @@ class LexicalAnalyzer:
     def _skip_whitespace(self) -> None:
         while (
             self.current_char
-            and self.current_char.isspace()
+            and self._is_space(self.current_char)
             and self.current_char != "\n"
         ):
             self._advance()
@@ -61,6 +61,26 @@ class LexicalAnalyzer:
     def _is_digit(self, character: Optional[str]) -> bool:
         return "0" <= character <= "9" if character else False
 
+    def _is_alphabetic_underscore_dollar(self, character: Optional[str]) -> bool:
+        return (
+            (
+                ("a" <= character <= "z")
+                or ("A" <= character <= "Z")
+                or character == "_"
+                or character == "$"
+            )
+            if character
+            else False
+        )
+
+    def _is_alphanumeric_underscore_dollar(self, character: Optional[str]) -> bool:
+        return self._is_digit(character) or self._is_alphabetic_underscore_dollar(
+            character
+        )
+
+    def _is_space(self, character: Optional[str]) -> bool:
+        return character in " \t\n\r\f\v" if character else False
+
     def _tokenize_number(self) -> Token:
         start_line: int = self.line
         start_column: int = self.column
@@ -68,7 +88,7 @@ class LexicalAnalyzer:
         has_dot: bool = False
 
         while self.current_char and (
-            self.current_char.isdigit() or self.current_char == "."
+            self._is_digit(self.current_char) or self.current_char == "."
         ):
             if self.current_char == ".":
                 if has_dot or not (self._peek() and self._is_digit(self._peek())):
@@ -149,7 +169,7 @@ class LexicalAnalyzer:
         identifier: str = ""
 
         while self.current_char and (
-            self.current_char.isalnum() or self.current_char == "_"
+            self._is_alphanumeric_underscore_dollar(self.current_char)
         ):
             identifier += self.current_char
             self._advance()
@@ -206,7 +226,7 @@ class LexicalAnalyzer:
                 self._skip_consecutive_newlines()
                 return newline_token
 
-            if self.current_char.isdigit() or (
+            if self._is_digit(self.current_char) or (
                 self.current_char == "."
                 and self._peek()
                 and self._is_digit(self._peek())
@@ -216,7 +236,10 @@ class LexicalAnalyzer:
             if self.current_char in ("'", '"'):
                 return self._tokenize_string()
 
-            if self.current_char.isalpha() or self.current_char == "_":
+            if (
+                self._is_alphabetic_underscore_dollar(self.current_char)
+                or self.current_char == "_"
+            ):
                 return self._tokenize_identifier()
 
             token: Optional[Token] = self._tokenize_multi_character_operator()
