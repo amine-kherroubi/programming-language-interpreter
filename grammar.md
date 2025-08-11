@@ -19,7 +19,7 @@ STRING_TYPE                ::= "string"
 BOOLEAN_TYPE               ::= "boolean"
 ```
 
-### Control Flow Keywords
+### Other Keywords
 
 ```bnf
 LET                        ::= "let"
