@@ -386,30 +386,30 @@ class NodeComparisonExpression(NodeBooleanExpression):
 
 
 class NodeNumberLiteral(NodeArithmeticExpression):
-    __slots__ = ("value",)
+    __slots__ = ("lexeme",)
 
-    def __init__(self, value: int) -> None:
-        self.value: int = value
+    def __init__(self, lexeme: str) -> None:
+        self.lexeme: str = lexeme
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(value={self.value})"
+        return f"{self.__class__.__name__}(lexeme={self.lexeme})"
 
 
 class NodeStringLiteral(NodeArithmeticExpression):
-    __slots__ = ("value",)
+    __slots__ = ("lexeme",)
 
-    def __init__(self, value: str) -> None:
-        self.value: str = value
+    def __init__(self, lexeme: str) -> None:
+        self.lexeme: str = lexeme
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(value={self.value!r})"
+        return f"{self.__class__.__name__}(lexeme={self.lexeme!r})"
 
 
 class NodeBooleanLiteral(NodeBooleanExpression):
-    __slots__ = ("value",)
+    __slots__ = ("lexeme",)
 
-    def __init__(self, value: bool) -> None:
-        self.value: bool = value
+    def __init__(self, lexeme: str) -> None:
+        self.lexeme: str = lexeme
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(value={self.value})"
+        return f"{self.__class__.__name__}(lexeme={self.lexeme})"

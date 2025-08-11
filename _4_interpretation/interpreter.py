@@ -392,14 +392,14 @@ class Interpreter(NodeVisitor[Any]):
         else:
             return bool(value)
 
-    def visit_NodeNumberLiteral(self, node: NodeNumberLiteral) -> int:
-        return node.value
+    def visit_NodeNumberLiteral(self, node: NodeNumberLiteral) -> Union[int, float]:
+        return float(node.lexeme) if "." in node.lexeme else int(node.lexeme)
 
     def visit_NodeStringLiteral(self, node: NodeStringLiteral) -> str:
-        return node.value
+        return node.lexeme[1:-1]
 
     def visit_NodeBooleanLiteral(self, node: NodeBooleanLiteral) -> bool:
-        return node.value
+        return node.lexeme == "true"
 
     def _evaluate_boolean_expression(self, node: NodeBooleanExpression) -> bool:
         result = self.visit(node)

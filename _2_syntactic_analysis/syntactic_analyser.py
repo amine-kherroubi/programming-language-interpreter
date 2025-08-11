@@ -1,6 +1,6 @@
 from typing import Final, Optional
 from _1_lexical_analysis.lexical_analyzer import LexicalAnalyzer
-from _1_lexical_analysis.tokens import Token, TokenType
+from _1_lexical_analysis.tokens import Token, TokenType, TokenWithLexeme
 from _2_syntactic_analysis.ast import (
     NodeAST,
     NodeArithmeticExpressionAsBoolean,
@@ -40,12 +40,12 @@ from _2_syntactic_analysis.ast import (
 from utils.errors import SyntacticError, ErrorCode
 
 
-class SyntacticAnalyzer:
+class SyntacticAnalyzer(object):
     __slots__ = ("_lexical_analyzer", "_current_token")
 
-    def __init__(self, lexer: LexicalAnalyzer) -> None:
-        self._lexical_analyzer: LexicalAnalyzer = lexer
-        self._current_token: Token = lexer.next_token()
+    def __init__(self, lexical_analyzer: LexicalAnalyzer) -> None:
+        self._lexical_analyzer: LexicalAnalyzer = lexical_analyzer
+        self._current_token: Token = lexical_analyzer.next_token()
 
     def parse(self) -> NodeAST:
         node: NodeProgram = self._program()
@@ -70,14 +70,14 @@ class SyntacticAnalyzer:
 
     def _peek_next_token(self) -> Token:
         lookahead_position: int = self._lexical_analyzer.position
-        lookahead_character: Optional[str] = self._lexical_analyzer.current_char
+        lookahead_character: Optional[str] = self._lexical_analyzer.current_character
         lookahead_line: int = self._lexical_analyzer.line
         lookahead_column: int = self._lexical_analyzer.column
 
         next_token: Token = self._lexical_analyzer.next_token()
 
         self._lexical_analyzer.position = lookahead_position
-        self._lexical_analyzer.current_char = lookahead_character
+        self._lexical_analyzer.current_character = lookahead_character
         self._lexical_analyzer.line = lookahead_line
         self._lexical_analyzer.column = lookahead_column
 
@@ -346,7 +346,8 @@ class SyntacticAnalyzer:
 
     def _identifier(self) -> NodeIdentifier:
         token: Token = self._consume(TokenType.IDENTIFIER)
-        return NodeIdentifier(token.value)
+        assert isinstance(token, TokenWithLexeme)
+        return NodeIdentifier(token.lexeme)
 
     def _expression(self) -> NodeExpression:
         if self._is_boolean_expression():
@@ -356,7 +357,7 @@ class SyntacticAnalyzer:
 
     def _is_boolean_expression(self) -> bool:
         saved_position: int = self._lexical_analyzer.position
-        saved_char: Optional[str] = self._lexical_analyzer.current_char
+        saved_char: Optional[str] = self._lexical_analyzer.current_character
         saved_line: int = self._lexical_analyzer.line
         saved_column: int = self._lexical_analyzer.column
         saved_token: Token = self._current_token
@@ -392,7 +393,7 @@ class SyntacticAnalyzer:
 
         finally:
             self._lexical_analyzer.position = saved_position
-            self._lexical_analyzer.current_char = saved_char
+            self._lexical_analyzer.current_character = saved_char
             self._lexical_analyzer.line = saved_line
             self._lexical_analyzer.column = saved_column
             self._current_token = saved_token
@@ -401,50 +402,51 @@ class SyntacticAnalyzer:
         return self._logical_or_expression()
 
     def _logical_or_expression(self) -> NodeBooleanExpression:
-        left = self._logical_and_expression()
+        left: NodeBooleanExpression = self._logical_and_expression()
 
         while self._current_token.type == TokenType.OR:
-            operator = self._current_token
+            operator: Token = self._current_token
             self._consume(TokenType.OR)
-            right = self._logical_and_expression()
-            left = NodeBinaryBooleanOperation(left, operator.value, right)
+            right: NodeBooleanExpression = self._logical_and_expression()
+            left = NodeBinaryBooleanOperation(left, operator.type.value, right)
 
         return left
 
     def _logical_and_expression(self) -> NodeBooleanExpression:
-        left = self._logical_not_expression()
+        left: NodeBooleanExpression = self._logical_not_expression()
 
         while self._current_token.type == TokenType.AND:
-            operator = self._current_token
+            operator: Token = self._current_token
             self._consume(TokenType.AND)
-            right = self._logical_not_expression()
-            left = NodeBinaryBooleanOperation(left, operator.value, right)
+            right: NodeBooleanExpression = self._logical_not_expression()
+            left = NodeBinaryBooleanOperation(left, operator.type.value, right)
 
         return left
 
     def _logical_not_expression(self) -> NodeBooleanExpression:
         if self._current_token.type == TokenType.NOT:
-            operator = self._current_token
+            operator: Token = self._current_token
             self._consume(TokenType.NOT)
             operand = self._primary_boolean_expression()
-            return NodeUnaryBooleanOperation(operator.value, operand)
+            return NodeUnaryBooleanOperation(operator.type.value, operand)
 
         return self._primary_boolean_expression()
 
     def _primary_boolean_expression(self) -> NodeBooleanExpression:
         if self._current_token.type == TokenType.BOOLEAN_LITERAL:
-            token = self._consume(TokenType.BOOLEAN_LITERAL)
-            return NodeBooleanLiteral(token.value)
+            token: Token = self._consume(TokenType.BOOLEAN_LITERAL)
+            assert isinstance(token, TokenWithLexeme)
+            return NodeBooleanLiteral(token.lexeme)
 
         if self._current_token.type == TokenType.LEFT_PARENTHESIS:
             self._consume(TokenType.LEFT_PARENTHESIS)
-            boolean_expression = self._boolean_expression()
+            boolean_expression: NodeBooleanExpression = self._boolean_expression()
             self._consume(TokenType.RIGHT_PARENTHESIS)
             return boolean_expression
 
-        left = self._arithmetic_expression()
+        left: NodeArithmeticExpression = self._arithmetic_expression()
 
-        comparison_operators = {
+        comparison_operators: Final[set[TokenType]] = {
             TokenType.EQUAL,
             TokenType.NOT_EQUAL,
             TokenType.LESS,
@@ -454,10 +456,10 @@ class SyntacticAnalyzer:
         }
 
         if self._current_token.type in comparison_operators:
-            operator = self._current_token
+            operator: Token = self._current_token
             self._consume(operator.type)
-            right = self._arithmetic_expression()
-            return NodeComparisonExpression(left, operator.value, right)
+            right: NodeArithmeticExpression = self._arithmetic_expression()
+            return NodeComparisonExpression(left, operator.type.value, right)
 
         return NodeArithmeticExpressionAsBoolean(left)
 
@@ -470,7 +472,7 @@ class SyntacticAnalyzer:
             operator: Token = self._current_token
             self._consume(operator.type)
             right: NodeArithmeticExpression = self._multiplicative_expression()
-            left = NodeBinaryArithmeticOperation(left, operator.value, right)
+            left = NodeBinaryArithmeticOperation(left, operator.type.value, right)
         return left
 
     def _multiplicative_expression(self) -> NodeArithmeticExpression:
@@ -484,7 +486,7 @@ class SyntacticAnalyzer:
             operator: Token = self._current_token
             self._consume(operator.type)
             right: NodeArithmeticExpression = self._power_expression()
-            left = NodeBinaryArithmeticOperation(left, operator.value, right)
+            left = NodeBinaryArithmeticOperation(left, operator.type.value, right)
         return left
 
     def _power_expression(self) -> NodeArithmeticExpression:
@@ -493,7 +495,7 @@ class SyntacticAnalyzer:
             operator: Token = self._current_token
             self._consume(TokenType.POWER)
             right: NodeArithmeticExpression = self._power_expression()
-            return NodeBinaryArithmeticOperation(left, operator.value, right)
+            return NodeBinaryArithmeticOperation(left, operator.type.value, right)
         return left
 
     def _unary_expression(self) -> NodeArithmeticExpression:
@@ -501,7 +503,7 @@ class SyntacticAnalyzer:
             operator: Token = self._current_token
             self._consume(operator.type)
             operand: NodeArithmeticExpression = self._unary_expression()
-            return NodeUnaryArithmeticOperation(operator.value, operand)
+            return NodeUnaryArithmeticOperation(operator.type.value, operand)
         return self._primary_expression()
 
     def _primary_expression(self) -> NodeArithmeticExpression:
@@ -509,11 +511,13 @@ class SyntacticAnalyzer:
 
         if token.type == TokenType.NUMBER_LITERAL:
             self._consume(TokenType.NUMBER_LITERAL)
-            return NodeNumberLiteral(token.value)
+            assert isinstance(token, TokenWithLexeme)
+            return NodeNumberLiteral(token.lexeme)
 
         if token.type == TokenType.STRING_LITERAL:
             self._consume(TokenType.STRING_LITERAL)
-            return NodeStringLiteral(token.value)
+            assert isinstance(token, TokenWithLexeme)
+            return NodeStringLiteral(token.lexeme)
 
         if token.type == TokenType.IDENTIFIER:
             next_token = self._peek_next_token()
@@ -521,7 +525,8 @@ class SyntacticAnalyzer:
                 return self._function_call()
             else:
                 self._consume(TokenType.IDENTIFIER)
-                return NodeIdentifier(token.value)
+                assert isinstance(token, TokenWithLexeme)
+                return NodeIdentifier(token.lexeme)
 
         if token.type == TokenType.LEFT_PARENTHESIS:
             self._consume(TokenType.LEFT_PARENTHESIS)

@@ -1,8 +1,5 @@
 from enum import Enum
-from typing import Optional, Union, Final
-
-
-ValueType = Union[int, str, float, bool]
+from typing import Final
 
 
 class TokenType(Enum):
@@ -54,7 +51,34 @@ class TokenType(Enum):
     EOF = "EOF"
 
 
-RESERVED_KEYWORDS: Final[dict[str, TokenType]] = {
+SINGLE_CHARACTER_LEXEME_TO_TOKEN_TYPE: Final[dict[str, TokenType]] = {
+    "{": TokenType.LEFT_BRACE,
+    "}": TokenType.RIGHT_BRACE,
+    "(": TokenType.LEFT_PARENTHESIS,
+    ")": TokenType.RIGHT_PARENTHESIS,
+    ",": TokenType.COMMA,
+    ":": TokenType.COLON,
+    "=": TokenType.ASSIGN,
+    "+": TokenType.PLUS,
+    "-": TokenType.MINUS,
+    "*": TokenType.MULTIPLY,
+    "/": TokenType.DIVIDE,
+    "%": TokenType.MODULO,
+    "<": TokenType.LESS,
+    ">": TokenType.GREATER,
+}
+
+MULTI_CHARACTER_OPERATOR_LEXEME_TO_TOKEN_TYPE: Final[dict[str, TokenType]] = {
+    "->": TokenType.ARROW,
+    "**": TokenType.POWER,
+    "//": TokenType.FLOOR_DIVIDE,
+    "==": TokenType.EQUAL,
+    "!=": TokenType.NOT_EQUAL,
+    "<=": TokenType.LESS_EQUAL,
+    ">=": TokenType.GREATER_EQUAL,
+}
+
+RESERVED_KEYWORD_LEXEME_TO_TOKEN_TYPE: Final[dict[str, TokenType]] = {
     "let": TokenType.LET,
     "keep": TokenType.KEEP,
     "give": TokenType.GIVE,
@@ -76,63 +100,58 @@ RESERVED_KEYWORDS: Final[dict[str, TokenType]] = {
     "show": TokenType.SHOW,
 }
 
-SINGLE_CHARACTER_TOKEN_TYPES: Final[dict[str, TokenType]] = {
-    "{": TokenType.LEFT_BRACE,
-    "}": TokenType.RIGHT_BRACE,
-    "(": TokenType.LEFT_PARENTHESIS,
-    ")": TokenType.RIGHT_PARENTHESIS,
-    ",": TokenType.COMMA,
-    ":": TokenType.COLON,
-    "=": TokenType.ASSIGN,
-    "+": TokenType.PLUS,
-    "-": TokenType.MINUS,
-    "*": TokenType.MULTIPLY,
-    "/": TokenType.DIVIDE,
-    "%": TokenType.MODULO,
-    "<": TokenType.LESS,
-    ">": TokenType.GREATER,
-}
-
-MULTI_CHAR_OPERATORS: Final[dict[str, TokenType]] = {
-    "->": TokenType.ARROW,
-    "**": TokenType.POWER,
-    "//": TokenType.FLOOR_DIVIDE,
-    "==": TokenType.EQUAL,
-    "!=": TokenType.NOT_EQUAL,
-    "<=": TokenType.LESS_EQUAL,
-    ">=": TokenType.GREATER_EQUAL,
-}
-
 
 class Token:
-    __slots__ = ("type", "value", "line", "column")
+    __slots__ = ("type", "line", "column")
 
-    def __init__(
-        self, token_type: TokenType, value: Optional[ValueType], line: int, column: int
-    ) -> None:
+    def __init__(self, token_type: TokenType, line: int, column: int) -> None:
         self.type: Final[TokenType] = token_type
-        self.value: Final[Optional[ValueType]] = value
         self.line: Final[int] = line
         self.column: Final[int] = column
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(type={self.type}, value={self.value!r}, "
-            f"line={self.line}, column={self.column})"
-        )
+        return f"{self.__class__.__name__}(type={self.type}, line={self.line}, column={self.column})"
 
     def __str__(self) -> str:
-        return f"({self.type.value}, {self.value!r})[line={self.line}, column={self.column}]"
+        return f"({self.type.value})[line={self.line}, column={self.column}]"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Token):
-            return NotImplemented
+            return False
         return (
             self.type == other.type
-            and self.value == other.value
             and self.line == other.line
             and self.column == other.column
         )
 
     def __hash__(self) -> int:
-        return hash((self.type, self.value, self.line, self.column))
+        return hash((self.type, self.line, self.column))
+
+
+class TokenWithLexeme(Token):
+    __slots__ = ("lexeme",)
+
+    def __init__(
+        self, token_type: TokenType, lexeme: str, line: int, column: int
+    ) -> None:
+        super().__init__(token_type, line, column)
+        self.lexeme: Final[str] = lexeme
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(type={self.type}, lexeme={self.lexeme!r}, line={self.line}, column={self.column})"
+
+    def __str__(self) -> str:
+        return f"({self.type.value}: {self.lexeme!r})[line={self.line}, column={self.column}]"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, TokenWithLexeme):
+            return False
+        return (
+            self.type == other.type
+            and self.lexeme == other.lexeme
+            and self.line == other.line
+            and self.column == other.column
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.type, self.lexeme, self.line, self.column))

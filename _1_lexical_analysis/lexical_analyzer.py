@@ -1,61 +1,67 @@
-from typing import Optional, Union, Final
+from typing import Optional, Final
 from utils.errors import LexicalError, ErrorCode
 from _1_lexical_analysis.tokens import (
     Token,
+    TokenWithLexeme,
     TokenType,
-    RESERVED_KEYWORDS,
-    SINGLE_CHARACTER_TOKEN_TYPES,
-    MULTI_CHAR_OPERATORS,
+    RESERVED_KEYWORD_LEXEME_TO_TOKEN_TYPE,
+    SINGLE_CHARACTER_LEXEME_TO_TOKEN_TYPE,
+    MULTI_CHARACTER_OPERATOR_LEXEME_TO_TOKEN_TYPE,
 )
 
 
-class LexicalAnalyzer:
-    __slots__ = ("text", "position", "current_char", "line", "column")
+class LexicalAnalyzer(object):
+    __slots__ = ("source_code", "position", "current_character", "line", "column")
 
-    def __init__(self, text: str) -> None:
-        self.text: str = text
+    def __init__(self, source_code: str) -> None:
+        self.source_code: str = source_code
         self.position: int = 0
-        self.current_char: Optional[str] = text[0] if text else None
+        self.current_character: Optional[str] = source_code[0] if source_code else None
         self.line: int = 1
         self.column: int = 1
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(text={self.text!r})"
+        return f"{self.__class__.__name__}(source_code={self.source_code!r})"
 
     def __str__(self) -> str:
-        return f"Character {self.current_char!r} at position {self.position} (line {self.line}, column {self.column})"
+        return f"Character {self.current_character!r} at position {self.position} (line {self.line}, column {self.column})"
+
+    def _is_at_end(self) -> bool:
+        return self.position >= len(self.source_code)
 
     def _advance(self) -> None:
-        if self.current_char == "\n":
+        if self.current_character == "\n":
             self.line += 1
             self.column = 1
         else:
             self.column += 1
 
         self.position += 1
-        self.current_char = (
-            self.text[self.position] if self.position < len(self.text) else None
+        self.current_character = (
+            self.source_code[self.position]
+            if self.position < len(self.source_code)
+            else None
         )
 
     def _peek(self, offset: int = 1) -> Optional[str]:
         index: int = self.position + offset
-        return self.text[index] if index < len(self.text) else None
+        return self.source_code[index] if index < len(self.source_code) else None
 
     def _skip_whitespace(self) -> None:
         while (
-            self.current_char
-            and self._is_space(self.current_char)
-            and self.current_char != "\n"
+            self.current_character
+            and self._is_space(self.current_character)
+            and self.current_character != "\n"
         ):
             self._advance()
 
     def _skip_comment(self) -> None:
         self._advance()
-        while self.current_char and self.current_char != "\n":
+        while self.current_character and self.current_character != "\n":
             self._advance()
 
     def _skip_consecutive_newlines(self) -> None:
-        while self.current_char == "\n":
+        while self.current_character == "\n":
             self._advance()
 
     def _is_digit(self, character: Optional[str]) -> bool:
@@ -81,38 +87,39 @@ class LexicalAnalyzer:
     def _is_space(self, character: Optional[str]) -> bool:
         return character in " \t\n\r\f\v" if character else False
 
-    def _tokenize_number(self) -> Token:
+    def _tokenize_number(self) -> TokenWithLexeme:
         start_line: int = self.line
         start_column: int = self.column
-        number: str = ""
+        number_lexeme: str = ""
         has_dot: bool = False
 
-        while self.current_char and (
-            self._is_digit(self.current_char) or self.current_char == "."
+        while self.current_character and (
+            self._is_digit(self.current_character) or self.current_character == "."
         ):
-            if self.current_char == ".":
+            if self.current_character == ".":
                 if has_dot or not (self._peek() and self._is_digit(self._peek())):
                     break
                 has_dot = True
-            number += self.current_char
+            number_lexeme += self.current_character
             self._advance()
 
-        if not number or number == ".":
+        if not number_lexeme or number_lexeme == ".":
             raise LexicalError(
                 ErrorCode.INVALID_NUMBER_FORMAT,
-                f"Invalid number: '{number}'",
+                f"Invalid number: '{number_lexeme}'",
                 self.position,
                 self.line,
                 self.column,
             )
 
-        value: Union[float, int] = float(number) if has_dot else int(number)
-        return Token(TokenType.NUMBER_LITERAL, value, start_line, start_column)
+        return TokenWithLexeme(
+            TokenType.NUMBER_LITERAL, number_lexeme, start_line, start_column
+        )
 
-    def _tokenize_string(self) -> Token:
+    def _tokenize_string(self) -> TokenWithLexeme:
         start_line: int = self.line
         start_column: int = self.column
-        quote: Optional[str] = self.current_char
+        quote: str = self.current_character
         self._advance()
 
         escape_map: Final[dict[str, str]] = {
@@ -124,9 +131,9 @@ class LexicalAnalyzer:
             '"': '"',
         }
 
-        value: str = ""
-        while self.current_char and self.current_char != quote:
-            if self.current_char == "\n":
+        string_lexeme: str = quote
+        while self.current_character and self.current_character != quote:
+            if self.current_character == "\n":
                 raise LexicalError(
                     ErrorCode.UNTERMINATED_STRING,
                     "Unterminated string (newline)",
@@ -135,9 +142,9 @@ class LexicalAnalyzer:
                     self.column,
                 )
 
-            if self.current_char == "\\":
+            if self.current_character == "\\":
                 self._advance()
-                if not self.current_char:
+                if not self.current_character:
                     raise LexicalError(
                         ErrorCode.UNTERMINATED_STRING,
                         "Unterminated string (escape end)",
@@ -145,13 +152,15 @@ class LexicalAnalyzer:
                         self.line,
                         self.column,
                     )
-                value += escape_map.get(self.current_char, self.current_char)
+                string_lexeme += escape_map.get(
+                    self.current_character, self.current_character
+                )
             else:
-                value += self.current_char
+                string_lexeme += self.current_character
 
             self._advance()
 
-        if self.current_char != quote:
+        if self.current_character != quote:
             raise LexicalError(
                 ErrorCode.UNTERMINATED_STRING,
                 f"Unterminated string, expected '{quote}'",
@@ -160,47 +169,58 @@ class LexicalAnalyzer:
                 self.column,
             )
 
+        string_lexeme += quote
+
         self._advance()
-        return Token(TokenType.STRING_LITERAL, value, start_line, start_column)
+        return TokenWithLexeme(
+            TokenType.STRING_LITERAL, string_lexeme, start_line, start_column
+        )
 
     def _tokenize_identifier(self) -> Token:
         start_line: int = self.line
         start_column: int = self.column
-        identifier: str = ""
+        identifier_lexeme: str = ""
 
-        while self.current_char and (
-            self._is_alphanumeric_underscore_dollar(self.current_char)
+        while self.current_character and (
+            self._is_alphanumeric_underscore_dollar(self.current_character)
         ):
-            identifier += self.current_char
+            identifier_lexeme += self.current_character
             self._advance()
 
-        if identifier == "true":
-            return Token(TokenType.BOOLEAN_LITERAL, True, start_line, start_column)
-        if identifier == "false":
-            return Token(TokenType.BOOLEAN_LITERAL, False, start_line, start_column)
-        if identifier in RESERVED_KEYWORDS:
-            return Token(
-                RESERVED_KEYWORDS[identifier], identifier, start_line, start_column
+        if identifier_lexeme in ("true", "false"):
+            return TokenWithLexeme(
+                TokenType.BOOLEAN_LITERAL, identifier_lexeme, start_line, start_column
             )
 
-        return Token(TokenType.IDENTIFIER, identifier, start_line, start_column)
+        if identifier_lexeme in RESERVED_KEYWORD_LEXEME_TO_TOKEN_TYPE:
+            return Token(
+                RESERVED_KEYWORD_LEXEME_TO_TOKEN_TYPE[identifier_lexeme],
+                start_line,
+                start_column,
+            )
+
+        return TokenWithLexeme(
+            TokenType.IDENTIFIER, identifier_lexeme, start_line, start_column
+        )
 
     def _tokenize_multi_character_operator(self) -> Optional[Token]:
         start_line: int = self.line
         start_column: int = self.column
-        for operator, token_type in sorted(
-            MULTI_CHAR_OPERATORS.items(), key=lambda x: len(x[0]), reverse=True
+        for operator_lexeme, token_type in sorted(
+            MULTI_CHARACTER_OPERATOR_LEXEME_TO_TOKEN_TYPE.items(),
+            key=lambda x: len(x[0]),
+            reverse=True,
         ):
-            if self._matches_operator(operator):
-                for _ in range(len(operator)):
+            if self._matches_operator(operator_lexeme):
+                for _ in range(len(operator_lexeme)):
                     self._advance()
-                return Token(token_type, operator, start_line, start_column)
+                return Token(token_type, start_line, start_column)
         return None
 
-    def _matches_operator(self, operator: str) -> bool:
-        for i, char in enumerate(operator):
+    def _matches_operator(self, operator_lexeme: str) -> bool:
+        for i, char in enumerate(operator_lexeme):
             if i == 0:
-                if self.current_char != char:
+                if self.current_character != char:
                     return False
             else:
                 if self._peek(i) != char:
@@ -211,34 +231,32 @@ class LexicalAnalyzer:
         while True:
             self._skip_whitespace()
 
-            if self.current_char == "#":
+            if self.current_character == "#":
                 self._skip_comment()
                 continue
 
-            if self.current_char is None:
-                return Token(TokenType.EOF, None, self.line, self.column)
+            if self.current_character is None:
+                return Token(TokenType.EOF, self.line, self.column)
 
-            if self.current_char == "\n":
-                newline_token: Token = Token(
-                    TokenType.NEWLINE, "\n", self.line, self.column
-                )
+            if self.current_character == "\n":
+                newline_token: Token = Token(TokenType.NEWLINE, self.line, self.column)
                 self._advance()
                 self._skip_consecutive_newlines()
                 return newline_token
 
-            if self._is_digit(self.current_char) or (
-                self.current_char == "."
+            if self._is_digit(self.current_character) or (
+                self.current_character == "."
                 and self._peek()
                 and self._is_digit(self._peek())
             ):
                 return self._tokenize_number()
 
-            if self.current_char in ("'", '"'):
+            if self.current_character in ("'", '"'):
                 return self._tokenize_string()
 
             if (
-                self._is_alphabetic_underscore_dollar(self.current_char)
-                or self.current_char == "_"
+                self._is_alphabetic_underscore_dollar(self.current_character)
+                or self.current_character == "_"
             ):
                 return self._tokenize_identifier()
 
@@ -246,17 +264,18 @@ class LexicalAnalyzer:
             if token:
                 return token
 
-            if self.current_char in SINGLE_CHARACTER_TOKEN_TYPES:
-                token_type: TokenType = SINGLE_CHARACTER_TOKEN_TYPES[self.current_char]
-                char: str = self.current_char
+            if self.current_character in SINGLE_CHARACTER_LEXEME_TO_TOKEN_TYPE:
+                token_type: TokenType = SINGLE_CHARACTER_LEXEME_TO_TOKEN_TYPE[
+                    self.current_character
+                ]
                 start_line: int = self.line
                 start_column: int = self.column
                 self._advance()
-                return Token(token_type, char, start_line, start_column)
+                return Token(token_type, start_line, start_column)
 
             raise LexicalError(
                 ErrorCode.INVALID_CHARACTER,
-                f"Invalid character: '{self.current_char}'",
+                f"Invalid character: '{self.current_character}'",
                 self.position,
                 self.line,
                 self.column,
