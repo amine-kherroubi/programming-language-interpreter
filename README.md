@@ -1,125 +1,157 @@
+
 # Custom Programming Language Interpreter
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
-A simple custom programming language interpreter with static typing and lexical scoping. The language syntax draws inspiration from Python, C, and Pascal, combining Python's keywords (`if`, `elif`, `else`, `while`, `and`, `or`, `not`) with C-style braces and Pascal-like explicit type declarations. The interpreter implements a four-phase architecture with lexical analysis, recursive descent parsing, semantic analysis, and tree-walking interpretation.
+A simple custom programming language interpreter with static typing and lexical scoping. The language syntax draws inspiration from Python, C, and Ada, combining Python's keywords (`if`, `elif`, `else`, `while`, `and`, `or`, `not`) with C-style braces and Ada-like distinction between functions and procedures, along with new stylish keywords like `give`, `show`, `skip`, `stop`. The interpreter implements a four-phase architecture with lexical analysis, recursive descent parsing, semantic analysis, and tree-walking interpretation.
+
+---
 
 ## Language Features
 
-The language provides static type checking with four primitive types: `int`, `float`, `string`, and `bool`. Variables are declared using `let` for mutable bindings and `keep` for immutable constants. The type system enforces compile-time type checking with comprehensive error reporting.
+**- Type System** : Static type checking with three core types: `number` (supports both integers and floats), `string`, and `boolean`. The compiler performs comprehensive type checking at compile-time with detailed error reporting.
 
-Functions are named constructs that return values using the `give` statement, while procedures handle side-effect operations without return values. Both support parameter passing and lexical scoping with proper variable lifetime management.
+**- Variable Management** : Declare mutable variables with `let` and immutable constants with `keep`. Multiple declarations and initializations are supported in a single statement for clean, concise code.
 
-Control flow includes conditional execution with `if`, `elif`, and `else` statements, along with `while` loops. Loop control is provided through `skip` for continue semantics and `stop` for break semantics. All constructs support proper nesting and scoping rules.
+**- Functions & Procedures** : Functions return values using the elegant `give` statement, while procedures handle side-effects without returns. Both support parameters, lexical scoping, and proper activation record management.
 
-Expression evaluation supports full arithmetic operations including addition, subtraction, multiplication, division, modulo, floor division, and exponentiation. Logical operations include `and`, `or`, and `not`, with comparison operators for relational testing. Operator precedence follows mathematical conventions.
+**- Control Flow** : Intuitive conditional execution with `if`/`elif`/`else` chains and `while` loops. Loop control uses the expressive `skip` (continue) and `stop` (break) keywords that make intent crystal clear.
+
+**- Rich Expressions** : Full arithmetic support including `+`, `-`, `*`, `/`, `%`, `//`, `**` with proper precedence. Boolean operations with `and`, `or`, `not` and comprehensive comparison operators. Function calls seamlessly integrate into expressions.
+
+---
 
 ## Installation and Usage
 
-The interpreter requires Python 3.10 or higher. Clone the repository and run the interpreter directly on source files.
+Requires Python 3.10+. Clone and run directly on your source files:
 
 ```bash
 git clone https://github.com/amine-kherroubi/programming-language-interpreter
 cd programming-language-interpreter
 ```
 
-To perform static analysis only, run the interpreter without execution flags:
+**Static Analysis Only** (syntax and semantic checking):
 
 ```bash
 python main.py examples/example.lang
 ```
 
-For complete interpretation including runtime execution, use the run flag:
+**Full Interpretation** (analysis + execution):
 
 ```bash
 python main.py examples/example.lang --run
 ```
 
+---
+
 ## Language Syntax
 
-Variable declarations support single and multiple bindings with optional initialization:
+**Variable Declarations** with optional initialization:
 
 ```
-let int x = 10
-let float y, z = 3.14, 2.71
-keep string message = "Hello World"
+let number x, y, z = 10, 3.14, 2.71  # Mutable variables
+keep string greeting = "Hello World"  # Immutable constant
 ```
 
-Functions declare parameters with types and specify return types using arrow notation:
+**Functions** with typed parameters and return types:
 
 ```
-func add(int a, int b) -> int {
-    give a + b
+func fibonacci(number n) -> number {
+    if n <= 1 {
+        give n
+    }
+    give fibonacci(n - 1) + fibonacci(n - 2)  # Recursive calls supported
 }
 
-func max(int x, int y) -> int {
-    if x > y {
-        give x
-    } else {
-        give y
+let number result = fibonacci(8)  # Clean function calls
+```
+
+**Procedures** for side-effect operations:
+
+```
+proc displayMessage(string msg, number count) {
+    let number i = 0
+    while i < count {
+        show msg
+        i = i + 1
+    }
+}
+
+exec displayMessage("Hello!", 3)  # Explicit procedure execution
+```
+
+**Control Flow** with natural syntax:
+
+```
+if score >= 90 {
+    show "Excellent!"
+} elif score >= 70 {
+    show "Good job"
+} else {
+    show "Keep practicing"
+}
+
+while running and not finished {
+    # Process logic here
+    if should_continue {
+        skip  # Continue to next iteration
+    }
+    if should_exit {
+        stop  # Break out of loop
     }
 }
 ```
 
-Procedures operate similarly but omit return type specifications:
-
-```
-proc printValue(int value) {
-    show value
-}
-
-proc processData(string data) {
-    show "Processing: "
-    show data
-}
-```
-
-Control flow structures support nested execution with proper scoping:
-
-```
-if condition {
-    # statements
-} elif alternative_condition {
-    # statements
-} else {
-    # statements
-}
-
-while expression {
-    # statements
-    skip  # continue to next iteration
-    stop  # exit loop
-}
-```
+---
 
 ## Complete Example
 
+Here's a program showcasing the language's elegance:
+
 ```
 {
-    let int fibonacci_limit = 10
-    let int a, b = 0, 1
-    keep string title = "Fibonacci Generator"
-
-    func fibonacci(int n) -> int {
+    keep number limit = 10
+    keep string title = "Fibonacci Sequence Generator"
+  
+    func fibonacci(number n) -> number {
         if n <= 1 {
             give n
         }
         give fibonacci(n - 1) + fibonacci(n - 2)
     }
-
-    proc printSequence(int limit) {
+  
+    func numberToString(number n) -> string {
+        # Convert number to string representation
+        if n == 0 { give "0" }
+        if n == 1 { give "1" }
+        if n == 2 { give "2" }
+        # ... additional conversion logic
+        give "unknown"
+    }
+  
+    proc printSequence(number max) {
         show title
-        let int i = 0
-        while i < limit {
-            show fibonacci(i)
+        show "Generating fibonacci numbers:"
+      
+        let number i = 0
+        while i < max {
+            let number value = fibonacci(i)
+            let string indexStr = numberToString(i)
+            let string valueStr = numberToString(value)
+            show "F(" + indexStr + ") = " + valueStr
             i = i + 1
+          
+            if i > 5 {
+                stop  # Exit loop after 5 iterations
+            }
         }
     }
-
-    exec printSequence(fibonacci_limit)
-
-    if fibonacci(5) > 3 {
-        show "Fibonacci(5) is greater than 3"
+  
+    exec printSequence(limit)
+  
+    let boolean should_display = true
+    if should_display {
+        show "Program completed successfully!"
     }
 }
 ```
