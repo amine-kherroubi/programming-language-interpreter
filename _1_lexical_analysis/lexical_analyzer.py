@@ -119,6 +119,7 @@ class LexicalAnalyzer(object):
     def _tokenize_string(self) -> TokenWithLexeme:
         start_line: int = self.line
         start_column: int = self.column
+        assert self.current_character is not None
         quote: str = self.current_character
         self._advance()
 

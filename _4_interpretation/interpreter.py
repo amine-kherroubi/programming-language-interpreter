@@ -15,6 +15,7 @@ from utils.errors import RuntimeError, ErrorCode
 
 
 ValueType = Union[int, float, str, bool]
+NumericType = Union[int, float]
 
 
 class SkipException(Exception):
@@ -270,6 +271,9 @@ class Interpreter(NodeVisitor[Any]):
         right_operand: ValueType = self.visit(node.right)
         binary_operator: str = node.operator
 
+        assert isinstance(left_operand, NumericType) and isinstance(
+            right_operand, NumericType
+        )
         if binary_operator == "+":
             return left_operand + right_operand
         if binary_operator == "-":
@@ -311,6 +315,7 @@ class Interpreter(NodeVisitor[Any]):
         operand_value: ValueType = self.visit(node.operand)
         unary_operator: str = node.operator
 
+        assert isinstance(operand_value, NumericType)
         if unary_operator == "+":
             return +operand_value
         if unary_operator == "-":
@@ -360,6 +365,9 @@ class Interpreter(NodeVisitor[Any]):
         right_operand: ValueType = self.visit(node.right)
         comparator: str = node.comparator
 
+        assert isinstance(left_operand, NumericType) and isinstance(
+            right_operand, NumericType
+        )
         if comparator == "==":
             return left_operand == right_operand
         elif comparator == "!=":
