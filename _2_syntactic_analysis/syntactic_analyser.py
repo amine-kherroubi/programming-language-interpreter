@@ -1,43 +1,9 @@
+from __future__ import annotations
 from typing import Final, Optional
 from _1_lexical_analysis.lexical_analyzer import LexicalAnalyzer
-from _1_lexical_analysis.tokens import Token, TokenType, TokenWithLexeme
-from _2_syntactic_analysis.ast import (
-    NodeAST,
-    NodeArithmeticExpressionAsBoolean,
-    NodeBinaryBooleanOperation,
-    NodeBlock,
-    NodeBooleanExpression,
-    NodeComparisonExpression,
-    NodeElif,
-    NodeElse,
-    NodeExpression,
-    NodeIfStatement,
-    NodeProgram,
-    NodeShowStatement,
-    NodeSkipStatement,
-    NodeStatement,
-    NodeArithmeticExpression,
-    NodeIdentifier,
-    NodeStopStatement,
-    NodeType,
-    NodeUnaryBooleanOperation,
-    NodeVariableDeclaration,
-    NodeConstantDeclaration,
-    NodeAssignmentStatement,
-    NodeGiveStatement,
-    NodeParameter,
-    NodeFunctionDeclaration,
-    NodeProcedureDeclaration,
-    NodeFunctionCall,
-    NodeProcedureCall,
-    NodeBinaryArithmeticOperation,
-    NodeUnaryArithmeticOperation,
-    NodeNumberLiteral,
-    NodeStringLiteral,
-    NodeBooleanLiteral,
-    NodeWhileStatement,
-)
-from utils.errors import SyntacticError, ErrorCode
+from _1_lexical_analysis.tokens import TokenType, Token, TokenWithLexeme
+from _2_syntactic_analysis.ast import *
+from utils.error_handling import SyntacticError, ErrorCode
 
 
 class SyntacticAnalyzer(object):

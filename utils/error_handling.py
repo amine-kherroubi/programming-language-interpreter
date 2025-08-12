@@ -1,5 +1,7 @@
+from __future__ import annotations
 from enum import Enum
-from _1_lexical_analysis.tokens import Token
+from typing import Final
+from _1_lexical_analysis.tokens import Token, TokenWithLexeme
 
 
 class ErrorCode(Enum):
@@ -33,9 +35,11 @@ class ErrorCode(Enum):
 
 
 class Error(Exception):
+    __slots__ = ("error_code", "message")
+
     def __init__(self, error_code: ErrorCode, message: str) -> None:
-        self.error_code = error_code
-        self.message = message
+        self.error_code: Final[ErrorCode] = error_code
+        self.message: Final[str] = message
         super().__init__(str(self))
 
     def __str__(self) -> str:
@@ -46,12 +50,14 @@ class Error(Exception):
 
 
 class LexicalError(Error):
+    __slots__ = ("position", "line", "column")
+
     def __init__(
         self, error_code: ErrorCode, message: str, position: int, line: int, column: int
     ) -> None:
-        self.position = position
-        self.line = line
-        self.column = column
+        self.position: Final[int] = position
+        self.line: Final[int] = line
+        self.column: Final[int] = column
         super().__init__(error_code, message)
 
     def __str__(self) -> str:
@@ -69,14 +75,16 @@ class LexicalError(Error):
 
 
 class SyntacticError(Error):
+    __slots__ = ("token",)
+
     def __init__(self, error_code: ErrorCode, message: str, token: Token) -> None:
-        self.token = token
+        self.token: Final[Token] = token
         super().__init__(error_code, message)
 
     def __str__(self) -> str:
         token_info = f"{self.token.type.value}"
-        if self.token.value is not None:
-            token_info += f" '{self.token.value}'"
+        if isinstance(self.token, TokenWithLexeme):
+            token_info += f" '{self.token.lexeme}'"
         return (
             f"{self.__class__.__name__}: {self.message} "
             f"(found: {token_info}) at line {self.token.line}, column {self.token.column}"
@@ -90,8 +98,12 @@ class SyntacticError(Error):
 
 
 class SemanticError(Error):
+    __slots__ = ()
+
     pass
 
 
 class RuntimeError(Error):
+    __slots__ = ()
+
     pass

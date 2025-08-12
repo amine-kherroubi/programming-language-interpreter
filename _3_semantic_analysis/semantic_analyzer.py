@@ -1,45 +1,8 @@
+from __future__ import annotations
 from typing import Optional
-from utils.visitor import NodeVisitor
-from _2_syntactic_analysis.ast import (
-    NodeAST,
-    NodeArithmeticExpressionAsBoolean,
-    NodeBinaryBooleanOperation,
-    NodeComparisonExpression,
-    NodeElif,
-    NodeElse,
-    NodeIfStatement,
-    NodeProgram,
-    NodeBlock,
-    NodeShowStatement,
-    NodeSkipStatement,
-    NodeStopStatement,
-    NodeUnaryBooleanOperation,
-    NodeVariableDeclaration,
-    NodeConstantDeclaration,
-    NodeAssignmentStatement,
-    NodeFunctionDeclaration,
-    NodeProcedureDeclaration,
-    NodeFunctionCall,
-    NodeProcedureCall,
-    NodeGiveStatement,
-    NodeIdentifier,
-    NodeBinaryArithmeticOperation,
-    NodeUnaryArithmeticOperation,
-    NodeNumberLiteral,
-    NodeStringLiteral,
-    NodeBooleanLiteral,
-    NodeWhileStatement,
-)
-from _3_semantic_analysis.symbol_table import (
-    ScopedSymbolTable,
-    Symbol,
-    VariableSymbol,
-    ConstantSymbol,
-    FunctionSymbol,
-    ProcedureSymbol,
-    ScopeType,
-)
-from utils.errors import SemanticError, ErrorCode
+from _2_syntactic_analysis.ast import *
+from _3_semantic_analysis.symbol_table import *
+from utils.error_handling import SemanticError, ErrorCode
 
 
 class SemanticAnalyzer(NodeVisitor[None]):

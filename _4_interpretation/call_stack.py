@@ -1,3 +1,4 @@
+from __future__ import annotations
 from enum import Enum
 from typing import Optional, Union
 
@@ -10,22 +11,22 @@ class ActivationRecordType(Enum):
     PROCEDURE = "PROCEDURE"
 
 
-class ActivationRecord:
+class ActivationRecord(object):
     __slots__ = ("name", "type", "nesting_level", "members")
 
     def __init__(
         self, name: str, type: ActivationRecordType, nesting_level: int
     ) -> None:
-        self.name = name
-        self.type = type
-        self.nesting_level = nesting_level
+        self.name: str = name
+        self.type: ActivationRecordType = type
+        self.nesting_level: int = nesting_level
         self.members: dict[str, ValueType] = {}
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name='{self.name}', type={self.type.name}, nesting_level={self.nesting_level})"
 
     def __str__(self) -> str:
-        lines = [f"{self.nesting_level}: {self.type.name} {self.name}:"]
+        lines: list[str] = [f"{self.nesting_level}: {self.type.name} {self.name}:"]
         lines.extend(f"\t{key}: {value}" for key, value in self.members.items())
         return "\n".join(lines)
 
@@ -39,7 +40,7 @@ class ActivationRecord:
         return self.members.get(key)
 
 
-class CallStack:
+class CallStack(object):
     __slots__ = ("_activation_records",)
 
     def __init__(self) -> None:

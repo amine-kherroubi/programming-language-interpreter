@@ -1,3 +1,4 @@
+from __future__ import annotations
 from enum import Enum
 from typing import Final
 
@@ -101,7 +102,7 @@ RESERVED_KEYWORD_LEXEME_TO_TOKEN_TYPE: Final[dict[str, TokenType]] = {
 }
 
 
-class Token:
+class Token(object):
     __slots__ = ("type", "line", "column")
 
     def __init__(self, token_type: TokenType, line: int, column: int) -> None:
@@ -138,7 +139,10 @@ class TokenWithLexeme(Token):
         self.lexeme: Final[str] = lexeme
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(type={self.type}, lexeme={self.lexeme!r}, line={self.line}, column={self.column})"
+        return (
+            f"{self.__class__.__name__}(type={self.type}, lexeme={self.lexeme!r}, "
+            f"line={self.line}, column={self.column})"
+        )
 
     def __str__(self) -> str:
         return f"({self.type.value}: {self.lexeme!r})[line={self.line}, column={self.column}]"

@@ -1,10 +1,5 @@
-from utils.visitor import NodeVisitor
-from syntactic_analysis.ast import (
-    NodeAST,
-    NodeBinaryArithmeticOperation,
-    NodeNumber,
-    NodeUnaryArithmeticOperation,
-)
+from __future__ import annotations
+from _2_syntactic_analysis.ast import *
 
 
 class PrefixTranslator(NodeVisitor[str]):
@@ -22,8 +17,8 @@ class PrefixTranslator(NodeVisitor[str]):
         else:
             return f"({node.operator} {operand_str})"
 
-    def visit_NodeNumber(self, node: NodeNumber) -> str:
-        return str(node.value)
+    def visit_NodeNumberLiteral(self, node: NodeNumberLiteral) -> str:
+        return node.lexeme[1:-1]
 
     def translate(self, tree: NodeAST) -> str:
         return self.visit(tree)

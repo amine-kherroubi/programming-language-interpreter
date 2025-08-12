@@ -1,5 +1,6 @@
+from __future__ import annotations
 from typing import Optional, Final
-from utils.errors import LexicalError, ErrorCode
+from utils.error_handling import LexicalError, ErrorCode
 from _1_lexical_analysis.tokens import (
     Token,
     TokenWithLexeme,

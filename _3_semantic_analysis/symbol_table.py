@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Final, Optional, OrderedDict
@@ -34,7 +35,7 @@ class BuiltInTypeSymbol(TypelessSymbol):
     __slots__ = ()
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier='{self.identifier}')"
+        return f"{self.__class__.__name__}(identifier={self.identifier})"
 
     def __str__(self) -> str:
         return f"<BUILT-IN: {self.identifier}>"
@@ -44,7 +45,9 @@ class VariableSymbol(TypedSymbol):
     __slots__ = ()
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier='{self.identifier}', type='{self.type}')"
+        return (
+            f"{self.__class__.__name__}(identifier={self.identifier}, type={self.type})"
+        )
 
     def __str__(self) -> str:
         return f"<VARIABLE: {self.identifier}, {self.type}>"
@@ -58,7 +61,9 @@ class ConstantSymbol(TypedSymbol):
         self.is_constant: bool = True
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier='{self.identifier}', type='{self.type}')"
+        return (
+            f"{self.__class__.__name__}(identifier={self.identifier}, type={self.type})"
+        )
 
     def __str__(self) -> str:
         return f"<CONSTANT: {self.identifier}, {self.type}>"
@@ -80,7 +85,10 @@ class FunctionSymbol(Symbol):
         self.block: NodeBlock = block
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier='{self.identifier}', parameters={self.parameters}, give_type='{self.give_type}')"
+        return (
+            f"{self.__class__.__name__}(identifier={self.identifier}, parameters={self.parameters}, "
+            f"give_type={self.give_type}, block={self.block})"
+        )
 
     def __str__(self) -> str:
         params: str = (
@@ -105,7 +113,10 @@ class ProcedureSymbol(Symbol):
         self.block: NodeBlock = block
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(identifier='{self.identifier}', parameters={self.parameters})"
+        return (
+            f"{self.__class__.__name__}(identifier={self.identifier}, parameters={self.parameters}, "
+            f"block={self.block}"
+        )
 
     def __str__(self) -> str:
         params: str = (
@@ -126,7 +137,7 @@ class ScopeType(Enum):
     WHILE_BLOCK = "WHILE_BLOCK"
 
 
-class ScopedSymbolTable:
+class ScopedSymbolTable(object):
     __slots__ = (
         "_symbols",
         "name",
@@ -146,7 +157,7 @@ class ScopedSymbolTable:
         name: str,
         type: ScopeType,
         level: int,
-        enclosing_scope: Optional["ScopedSymbolTable"],
+        enclosing_scope: Optional[ScopedSymbolTable],
     ) -> None:
         self.name: str = name
         self.type: ScopeType = type
