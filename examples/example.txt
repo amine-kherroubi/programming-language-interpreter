@@ -1,27 +1,34 @@
 {
-    let number fibonacci_limit = 10
-    let number a, b = 0, 1
-    keep string title = "Fibonacci Generator"
-
+    keep number limit = 10
+    keep string title = "Fibonacci Sequence Generator"
+  
     func fibonacci(number n) -> number {
         if n <= 1 {
             give n
         }
         give fibonacci(n - 1) + fibonacci(n - 2)
     }
-
-    proc printSequence(number limit) {
+  
+    proc printSequence(number max) {
         show title
+        show "Generating fibonacci numbers:"
+      
         let number i = 0
-        while i < limit {
-            show fibonacci(i)
+        while i < max {
+            let number value = fibonacci(i)
+            show "F(" + i + ") = " + value
             i = i + 1
+          
+            if i > 5 {
+                stop  # Exit loop after 5 iterations
+            }
         }
     }
-
-    exec printSequence(fibonacci_limit)
-
-    if fibonacci(5) > 3 {
-        show "Fibonacci(5) is greater than 3"
+  
+    exec printSequence(limit)
+  
+    let boolean should_display = true
+    if should_display {
+        show "Program completed successfully!"
     }
 }

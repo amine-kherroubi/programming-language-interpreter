@@ -271,10 +271,9 @@ class Interpreter(NodeVisitor[Any]):
         right_operand: ValueType = self.visit(node.right)
         binary_operator: str = node.operator
 
-        assert isinstance(left_operand, NumericType) and isinstance(
-            right_operand, NumericType
-        )
         if binary_operator == "+":
+            if isinstance(left_operand, str) or isinstance(right_operand, str):
+                return str(left_operand) + str(right_operand)
             return left_operand + right_operand
         if binary_operator == "-":
             return left_operand - right_operand
@@ -365,9 +364,6 @@ class Interpreter(NodeVisitor[Any]):
         right_operand: ValueType = self.visit(node.right)
         comparator: str = node.comparator
 
-        assert isinstance(left_operand, NumericType) and isinstance(
-            right_operand, NumericType
-        )
         if comparator == "==":
             return left_operand == right_operand
         elif comparator == "!=":
