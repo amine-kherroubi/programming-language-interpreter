@@ -33,6 +33,9 @@ IF                         ::= "if"
 ELIF                       ::= "elif"
 ELSE                       ::= "else"
 WHILE                      ::= "while"
+FOR                        ::= "for"
+TO                         ::= "to"
+STEP                       ::= "step"
 SKIP                       ::= "skip"
 STOP                       ::= "stop"
 ```
@@ -97,6 +100,7 @@ statement                  ::= variable_declaration
                              | show_statement
                              | if_statement
                              | while_statement
+                             | for_statement
                              | skip_statement
                              | stop_statement
 ```
@@ -146,6 +150,7 @@ elifs                      ::= (ELIF boolean_expression block)+
 else_clause                ::= ELSE block
 
 while_statement            ::= WHILE boolean_expression block
+for_statement              ::= FOR assignment_statement TO arithmetic_expression (STEP arithmetic_expression)? block
 
 skip_statement             ::= SKIP
 

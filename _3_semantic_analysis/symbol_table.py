@@ -135,6 +135,7 @@ class ScopeType(Enum):
     ELIF_BLOCK = "ELIF_BLOCK"
     ELSE_BLOCK = "ELSE_BLOCK"
     WHILE_BLOCK = "WHILE_BLOCK"
+    FOR_BLOCK = "FOR_BLOCK"
 
 
 class ScopedSymbolTable(object):

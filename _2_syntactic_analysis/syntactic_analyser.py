@@ -101,6 +101,8 @@ class SyntacticAnalyzer(object):
                 return self._if_statement()
             case TokenType.WHILE:
                 return self._while_statement()
+            case TokenType.FOR:
+                return self._for_statement()
             case TokenType.SKIP:
                 return self._skip_statement()
             case TokenType.STOP:
@@ -273,8 +275,7 @@ class SyntacticAnalyzer(object):
     def _elif(self) -> NodeElif:
         self._consume(TokenType.ELIF)
         condition: NodeBooleanExpression = self._boolean_expression()
-        block: NodeBlock = self._block()
-        return NodeElif(condition, block)
+        return NodeElif(condition, self._block())
 
     def _else(self) -> NodeElse:
         self._consume(TokenType.ELSE)
@@ -283,8 +284,20 @@ class SyntacticAnalyzer(object):
     def _while_statement(self) -> NodeWhileStatement:
         self._consume(TokenType.WHILE)
         condition: NodeBooleanExpression = self._boolean_expression()
-        block: NodeBlock = self._block()
-        return NodeWhileStatement(condition, block)
+        return NodeWhileStatement(condition, self._block())
+
+    def _for_statement(self) -> NodeForStatement:
+        self._consume(TokenType.FOR)
+        initial_assignment: NodeAssignmentStatement = self._assignment_statement()
+        self._consume(TokenType.TO)
+        termination_expression: NodeArithmeticExpression = self._arithmetic_expression()
+        step_expression: Optional[NodeArithmeticExpression] = None
+        if self._current_token.type == TokenType.STEP:
+            self._consume(TokenType.STEP)
+            step_expression = self._arithmetic_expression()
+        return NodeForStatement(
+            initial_assignment, termination_expression, step_expression, self._block()
+        )
 
     def _skip_statement(self) -> NodeSkipStatement:
         self._consume(TokenType.SKIP)

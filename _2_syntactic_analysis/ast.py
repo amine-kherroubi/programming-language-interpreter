@@ -54,6 +54,9 @@ class NodeVisitor(Generic[T], ABC):
     def visit_NodeWhileStatement(self, node: NodeWhileStatement) -> T:
         return self._raise_not_implemented(node)
 
+    def visit_NodeForStatement(self, node: NodeForStatement) -> T:
+        return self._raise_not_implemented(node)
+
     def visit_NodeSkipStatement(self, node: NodeSkipStatement) -> T:
         return self._raise_not_implemented(node)
 
@@ -348,6 +351,37 @@ class NodeWhileStatement(NodeStatement):
     def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}(condition={self.condition}, block={self.block})"
+        )
+
+
+class NodeForStatement(NodeStatement):
+    __slots__ = (
+        "initial_assignment",
+        "termination_expression",
+        "step_expression",
+        "block",
+    )
+
+    def __init__(
+        self,
+        initial_assignment: NodeAssignmentStatement,
+        termination_expression: NodeArithmeticExpression,
+        step_expression: Optional[NodeArithmeticExpression],
+        block: NodeBlock,
+    ) -> None:
+        self.initial_assignment: NodeAssignmentStatement = initial_assignment
+        self.termination_expression: NodeArithmeticExpression = termination_expression
+        self.step_expression: Optional[NodeArithmeticExpression] = step_expression
+        self.block: NodeBlock = block
+
+    def accept(self, visitor: NodeVisitor[T]) -> T:
+        return visitor.visit_NodeForStatement(self)
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(initial_assignment={self.initial_assignment}, "
+            f"termination_expression={self.termination_expression}, "
+            f"step_expression={self.step_expression}, block={self.block})"
         )
 
 

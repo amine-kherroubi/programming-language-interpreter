@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Any, Final, Optional, Union
 from _2_syntactic_analysis.ast import *
+from _2_syntactic_analysis.ast import NodeForStatement
 from _3_semantic_analysis.symbol_table import (
     FunctionSymbol,
     ProcedureSymbol,
@@ -30,10 +31,9 @@ class Interpreter(NodeVisitor[Any]):
     __slots__ = ("_call_stack", "_functions", "_procedures")
 
     DEFAULT_VALUES: Final[dict[str, ValueType]] = {
-        "int": 0,
-        "float": 0,
+        "number": 0,
         "string": "",
-        "bool": False,
+        "boolean": False,
     }
 
     def __init__(self) -> None:
@@ -230,10 +230,10 @@ class Interpreter(NodeVisitor[Any]):
     ) -> Optional[dict[str, Optional[ValueType]]]:
         while True:
             try:
-                condition_value: bool = self._evaluate_boolean_expression(
-                    node.condition
+                termination_condition_is_true: bool = (
+                    not self._evaluate_boolean_expression(node.condition)
                 )
-                if not condition_value:
+                if termination_condition_is_true:
                     break
 
                 result = self.visit(node.block)
@@ -241,6 +241,74 @@ class Interpreter(NodeVisitor[Any]):
                     return result
 
             except SkipException:
+                continue
+            except StopException:
+                break
+
+        return None
+
+    def visit_NodeForStatement(self, node: NodeForStatement) -> Any:
+        initial_value: ValueType = self.visit(node.initial_assignment.expression)
+        if not isinstance(initial_value, NumericType):
+            raise RuntimeError(
+                ErrorCode.INVALID_INTIAL_VALUE,
+                f"Expected number as initial value, got {type(initial_value).__name__}",
+            )
+
+        termination_value: ValueType = self.visit(node.termination_expression)
+        if not isinstance(termination_value, NumericType):
+            raise RuntimeError(
+                ErrorCode.INVALID_TERMINATION_VALUE,
+                f"Expected number as termination value, got {type(termination_value).__name__}",
+            )
+
+        step_value: ValueType
+        if node.step_expression:
+            step_value = self.visit(node.step_expression)
+            if not isinstance(step_value, NumericType):
+                raise RuntimeError(
+                    ErrorCode.INVALID_STEP_VALUE,
+                    f"Expected number as step value, got {type(step_value).__name__}",
+                )
+        else:
+            if initial_value <= termination_value:
+                step_value = 1
+            else:
+                step_value = -1
+
+        self.visit(node.initial_assignment)
+
+        current_activation_record: ActivationRecord = self._call_stack.peek()
+        iteration_variable_name: str = node.initial_assignment.identifier.name
+
+        while True:
+            try:
+                current_value: Optional[ValueType] = current_activation_record.get(
+                    iteration_variable_name
+                )
+                assert isinstance(current_value, NumericType)
+
+                if step_value > 0:
+                    if current_value > termination_value:
+                        break
+                else:
+                    if current_value < termination_value:
+                        break
+
+                result = self.visit(node.block)
+                if isinstance(result, dict) and "give" in result:
+                    return result
+
+                current_activation_record[iteration_variable_name] = (
+                    current_value + step_value
+                )
+
+            except SkipException:
+                current_value = current_activation_record.get(iteration_variable_name)
+                assert isinstance(current_value, NumericType)
+                current_activation_record[iteration_variable_name] = (
+                    current_value + step_value
+                )
                 continue
             except StopException:
                 break

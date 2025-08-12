@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 from _2_syntactic_analysis.ast import *
+from _2_syntactic_analysis.ast import NodeForStatement
 from _3_semantic_analysis.symbol_table import *
 from utils.error_handling import SemanticError, ErrorCode
 
@@ -250,11 +251,28 @@ class SemanticAnalyzer(NodeVisitor[None]):
         self.visit(node.block)
         self._exit_scope()
 
-    def visit_NodeWhileStatement(self, node: NodeWhileStatement):
+    def visit_NodeWhileStatement(self, node: NodeWhileStatement) -> None:
         self.visit(node.condition)
+
         self._enter_scope(
             f"while_statement_{self._current_scope.level}", ScopeType.WHILE_BLOCK, None
         )
+
+        self.visit(node.block)
+        self._exit_scope()
+
+    def visit_NodeForStatement(self, node: NodeForStatement) -> None:
+        self.visit(node.termination_expression)
+        if node.step_expression:
+            self.visit(node.step_expression)
+
+        self._enter_scope(
+            f"for_statement_{self._current_scope.level}",
+            ScopeType.FOR_BLOCK,
+            None,
+        )
+
+        self.visit(node.initial_assignment)
         self.visit(node.block)
         self._exit_scope()
 

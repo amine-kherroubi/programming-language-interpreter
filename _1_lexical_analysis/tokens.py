@@ -38,6 +38,9 @@ class TokenType(Enum):
     ELIF = "elif"
     ELSE = "else"
     WHILE = "while"
+    FOR = "for"
+    TO = "to"
+    STEP = "step"
     SKIP = "skip"
     STOP = "stop"
     SHOW = "show"
@@ -96,6 +99,9 @@ RESERVED_KEYWORD_LEXEME_TO_TOKEN_TYPE: Final[dict[str, TokenType]] = {
     "elif": TokenType.ELIF,
     "else": TokenType.ELSE,
     "while": TokenType.WHILE,
+    "for": TokenType.FOR,
+    "to": TokenType.TO,
+    "step": TokenType.STEP,
     "skip": TokenType.SKIP,
     "stop": TokenType.STOP,
     "show": TokenType.SHOW,
