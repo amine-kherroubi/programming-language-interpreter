@@ -116,15 +116,6 @@ Here's a program showcasing the language's elegance:
         give fibonacci(n - 1) + fibonacci(n - 2)
     }
   
-    func numberToString(number n) -> string {
-        # Convert number to string representation
-        if n == 0 { give "0" }
-        if n == 1 { give "1" }
-        if n == 2 { give "2" }
-        # ... additional conversion logic
-        give "unknown"
-    }
-  
     proc printSequence(number max) {
         show title
         show "Generating fibonacci numbers:"
@@ -132,9 +123,7 @@ Here's a program showcasing the language's elegance:
         let number i = 0
         while i < max {
             let number value = fibonacci(i)
-            let string indexStr = numberToString(i)
-            let string valueStr = numberToString(value)
-            show "F(" + indexStr + ") = " + valueStr
+            show "F(" + i + ") = " + value
             i = i + 1
           
             if i > 5 {
