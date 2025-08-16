@@ -1,15 +1,10 @@
 import sys
-from _1_lexical_analysis.lexical_analyzer import LexicalAnalyzer
-from _2_syntactic_analysis.syntactic_analyser import SyntacticAnalyzer
+from _1_lexical_analysis.lexical_analyzer import LexicalAnalyzer, LexicalError
+from _1_lexical_analysis.tokens import TokenError
+from _2_syntactic_analysis.syntactic_analyser import SyntacticAnalyzer, SyntacticError
 from _2_syntactic_analysis.ast import NodeAST
-from _3_semantic_analysis.semantic_analyzer import SemanticAnalyzer
+from _3_semantic_analysis.semantic_analyzer import SemanticAnalyzer, SemanticError
 from _4_interpretation.interpreter import Interpreter
-from utils.error_handling import (
-    LexicalError,
-    SyntacticError,
-    SemanticError,
-    RuntimeError,
-)
 
 
 def main() -> None:
@@ -41,7 +36,13 @@ def main() -> None:
             interpreter = Interpreter()
             interpreter.interpret(ast)
 
-    except (LexicalError, SyntacticError, SemanticError, RuntimeError) as error:
+    except (
+        TokenError,
+        LexicalError,
+        SyntacticError,
+        SemanticError,
+        RuntimeError,
+    ) as error:
         print(error)
 
     except Exception as unknown_error:

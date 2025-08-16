@@ -12,7 +12,7 @@ from _4_interpretation.call_stack import (
     ActivationRecord,
     ActivationRecordType,
 )
-from utils.error_handling import RuntimeError, ErrorCode
+from utils.error_handling import Error, ErrorCode
 
 
 ValueType = Union[int, float, str, bool]
@@ -25,6 +25,15 @@ class SkipException(Exception):
 
 class StopException(Exception):
     __slots__ = ()
+
+
+class RuntimeError(Error):
+    __slots__ = ()
+
+    def __init__(self, error_code: ErrorCode, message: str) -> None:
+        if not error_code.name.startswith("RUN_"):
+            raise ValueError(f"{error_code} is not a valid runtime error code")
+        super().__init__(error_code, message)
 
 
 class Interpreter(NodeVisitor[Any]):
@@ -160,13 +169,13 @@ class Interpreter(NodeVisitor[Any]):
                 return give_value
             else:
                 raise RuntimeError(
-                    ErrorCode.FUNCTION_EMPTY_GIVE,
+                    ErrorCode.SEM_FUNCTION_EMPTY_GIVE,
                     f"Empty give statement is not allowed in function '{function_symbol.identifier}'.",
                 )
 
         else:
             raise RuntimeError(
-                ErrorCode.FUNCTION_NOT_GIVING,
+                ErrorCode.SEM_FUNCTION_NOT_GIVING,
                 f"Function '{function_symbol.identifier}' must give a value.",
             )
 
@@ -205,7 +214,7 @@ class Interpreter(NodeVisitor[Any]):
             and execution_result.get("give") is not None
         ):
             raise RuntimeError(
-                ErrorCode.PROCEDURE_GIVING_VALUE,
+                ErrorCode.SEM_PROCEDURE_GIVING_VALUE,
                 f"Procedure '{procedure_symbol.identifier}' cannot give a value.",
             )
 
@@ -251,14 +260,14 @@ class Interpreter(NodeVisitor[Any]):
         initial_value: ValueType = self.visit(node.initial_assignment.expression)
         if not isinstance(initial_value, NumericType):
             raise RuntimeError(
-                ErrorCode.INVALID_INTIAL_VALUE,
+                ErrorCode.RUN_INVALID_INTIAL_VALUE,
                 f"Expected number as initial value, got {type(initial_value).__name__}",
             )
 
         termination_value: ValueType = self.visit(node.termination_expression)
         if not isinstance(termination_value, NumericType):
             raise RuntimeError(
-                ErrorCode.INVALID_TERMINATION_VALUE,
+                ErrorCode.RUN_INVALID_TERMINATION_VALUE,
                 f"Expected number as termination value, got {type(termination_value).__name__}",
             )
 
@@ -267,7 +276,7 @@ class Interpreter(NodeVisitor[Any]):
             step_value = self.visit(node.step_expression)
             if not isinstance(step_value, NumericType):
                 raise RuntimeError(
-                    ErrorCode.INVALID_STEP_VALUE,
+                    ErrorCode.RUN_INVALID_STEP_VALUE,
                     f"Expected number as step value, got {type(step_value).__name__}",
                 )
         else:
@@ -327,7 +336,7 @@ class Interpreter(NodeVisitor[Any]):
 
         if identifier_value is None:
             raise RuntimeError(
-                ErrorCode.UNDECLARED_IDENTIFIER,
+                ErrorCode.SEM_UNDECLARED_IDENTIFIER,
                 f"Identifier '{node.name}' is not defined.",
             )
         return identifier_value
@@ -350,21 +359,21 @@ class Interpreter(NodeVisitor[Any]):
         if binary_operator == "/":
             if right_operand == 0:
                 raise RuntimeError(
-                    ErrorCode.DIVISION_BY_ZERO,
+                    ErrorCode.RUN_DIVISION_BY_ZERO,
                     "Division by zero",
                 )
             return left_operand / right_operand
         if binary_operator == "//":
             if right_operand == 0:
                 raise RuntimeError(
-                    ErrorCode.DIVISION_BY_ZERO,
+                    ErrorCode.RUN_DIVISION_BY_ZERO,
                     "Division by zero",
                 )
             return left_operand // right_operand
         if binary_operator == "%":
             if right_operand == 0:
                 raise RuntimeError(
-                    ErrorCode.DIVISION_BY_ZERO,
+                    ErrorCode.RUN_DIVISION_BY_ZERO,
                     "Modulo by zero",
                 )
             return left_operand % right_operand
@@ -372,7 +381,7 @@ class Interpreter(NodeVisitor[Any]):
             return left_operand**right_operand
 
         raise RuntimeError(
-            ErrorCode.INVALID_OPERATION,
+            ErrorCode.RUN_INVALID_OPERATION,
             f"Unknown binary operator '{binary_operator}'",
         )
 
@@ -389,7 +398,7 @@ class Interpreter(NodeVisitor[Any]):
             return -operand_value
 
         raise RuntimeError(
-            ErrorCode.INVALID_OPERATION,
+            ErrorCode.RUN_INVALID_OPERATION,
             f"Unknown unary operator '{unary_operator}'",
         )
 
@@ -412,7 +421,7 @@ class Interpreter(NodeVisitor[Any]):
 
         else:
             raise RuntimeError(
-                ErrorCode.INVALID_OPERATION,
+                ErrorCode.RUN_INVALID_OPERATION,
                 f"Unknown boolean operator '{node.logical_operator}'",
             )
 
@@ -423,7 +432,7 @@ class Interpreter(NodeVisitor[Any]):
             return not operand_value
         else:
             raise RuntimeError(
-                ErrorCode.INVALID_OPERATION,
+                ErrorCode.RUN_INVALID_OPERATION,
                 f"Unknown unary boolean operator '{node.logical_operator}'",
             )
 
@@ -446,7 +455,7 @@ class Interpreter(NodeVisitor[Any]):
             return left_operand >= right_operand
         else:
             raise RuntimeError(
-                ErrorCode.INVALID_OPERATION,
+                ErrorCode.RUN_INVALID_OPERATION,
                 f"Unknown comparison operator '{comparator}'",
             )
 
@@ -479,6 +488,6 @@ class Interpreter(NodeVisitor[Any]):
             return result
         else:
             raise RuntimeError(
-                ErrorCode.INVALID_OPERATION,
+                ErrorCode.RUN_INVALID_OPERATION,
                 f"Expected boolean expression, got {type(result).__name__}",
             )

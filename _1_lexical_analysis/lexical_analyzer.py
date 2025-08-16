@@ -1,14 +1,39 @@
 from __future__ import annotations
 from typing import Optional, Final
-from utils.error_handling import LexicalError, ErrorCode
+from utils.error_handling import Error, ErrorCode
 from _1_lexical_analysis.tokens import (
     Token,
     TokenWithLexeme,
     TokenType,
-    RESERVED_KEYWORD_LEXEME_TO_TOKEN_TYPE,
-    SINGLE_CHARACTER_LEXEME_TO_TOKEN_TYPE,
-    MULTI_CHARACTER_OPERATOR_LEXEME_TO_TOKEN_TYPE,
+    LexemeToTokenTypeMappings,
 )
+
+
+class LexicalError(Error):
+    __slots__ = ("position", "line", "column")
+
+    def __init__(
+        self, error_code: ErrorCode, message: str, position: int, line: int, column: int
+    ) -> None:
+        if not error_code.name.startswith("LEX_"):
+            raise ValueError(f"{error_code} is not a valid lexical error code")
+        self.position: Final[int] = position
+        self.line: Final[int] = line
+        self.column: Final[int] = column
+        super().__init__(error_code, message)
+
+    def __str__(self) -> str:
+        return (
+            f"{self.__class__.__name__}: {self.message} "
+            f"at position {self.position} (line {self.line}, column {self.column})"
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(error_code={self.error_code}, "
+            f"message='{self.message}', position={self.position}, "
+            f"line={self.line}, column={self.column})"
+        )
 
 
 class LexicalAnalyzer(object):
@@ -106,7 +131,7 @@ class LexicalAnalyzer(object):
 
         if not number_lexeme or number_lexeme == ".":
             raise LexicalError(
-                ErrorCode.INVALID_NUMBER_FORMAT,
+                ErrorCode.LEX_INVALID_NUMBER_FORMAT,
                 f"Invalid number: '{number_lexeme}'",
                 self.position,
                 self.line,
@@ -137,7 +162,7 @@ class LexicalAnalyzer(object):
         while self.current_character and self.current_character != quote:
             if self.current_character == "\n":
                 raise LexicalError(
-                    ErrorCode.UNTERMINATED_STRING,
+                    ErrorCode.LEX_UNTERMINATED_STRING,
                     "Unterminated string (newline)",
                     self.position,
                     self.line,
@@ -148,7 +173,7 @@ class LexicalAnalyzer(object):
                 self._advance()
                 if not self.current_character:
                     raise LexicalError(
-                        ErrorCode.UNTERMINATED_STRING,
+                        ErrorCode.LEX_UNTERMINATED_STRING,
                         "Unterminated string (escape end)",
                         self.position,
                         self.line,
@@ -164,7 +189,7 @@ class LexicalAnalyzer(object):
 
         if self.current_character != quote:
             raise LexicalError(
-                ErrorCode.UNTERMINATED_STRING,
+                ErrorCode.LEX_UNTERMINATED_STRING,
                 f"Unterminated string, expected '{quote}'",
                 self.position,
                 self.line,
@@ -194,9 +219,9 @@ class LexicalAnalyzer(object):
                 TokenType.BOOLEAN_LITERAL, start_line, start_column, identifier_lexeme
             )
 
-        if identifier_lexeme in RESERVED_KEYWORD_LEXEME_TO_TOKEN_TYPE:
+        if identifier_lexeme in LexemeToTokenTypeMappings.KEYWORDS:
             return Token(
-                RESERVED_KEYWORD_LEXEME_TO_TOKEN_TYPE[identifier_lexeme],
+                LexemeToTokenTypeMappings.KEYWORDS[identifier_lexeme],
                 start_line,
                 start_column,
             )
@@ -209,7 +234,7 @@ class LexicalAnalyzer(object):
         start_line: int = self.line
         start_column: int = self.column
         for operator_lexeme, token_type in sorted(
-            MULTI_CHARACTER_OPERATOR_LEXEME_TO_TOKEN_TYPE.items(),
+            LexemeToTokenTypeMappings.MULTI_CHARACTER_OPERATORS.items(),
             key=lambda x: len(x[0]),
             reverse=True,
         ):
@@ -266,17 +291,22 @@ class LexicalAnalyzer(object):
             if token:
                 return token
 
-            if self.current_character in SINGLE_CHARACTER_LEXEME_TO_TOKEN_TYPE:
-                token_type: TokenType = SINGLE_CHARACTER_LEXEME_TO_TOKEN_TYPE[
-                    self.current_character
-                ]
+            if (
+                self.current_character
+                in LexemeToTokenTypeMappings.SINGLE_CHARACTER_LEXEMS
+            ):
+                token_type: TokenType = (
+                    LexemeToTokenTypeMappings.SINGLE_CHARACTER_LEXEMS[
+                        self.current_character
+                    ]
+                )
                 start_line: int = self.line
                 start_column: int = self.column
                 self._advance()
                 return Token(token_type, start_line, start_column)
 
             raise LexicalError(
-                ErrorCode.INVALID_CHARACTER,
+                ErrorCode.LEX_INVALID_CHARACTER,
                 f"Invalid character: '{self.current_character}'",
                 self.position,
                 self.line,

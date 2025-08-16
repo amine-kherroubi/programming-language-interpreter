@@ -3,7 +3,16 @@ from typing import Optional
 from _2_syntactic_analysis.ast import *
 from _2_syntactic_analysis.ast import NodeForStatement
 from _3_semantic_analysis.symbol_table import *
-from utils.error_handling import SemanticError, ErrorCode
+from utils.error_handling import Error, ErrorCode
+
+
+class SemanticError(Error):
+    __slots__ = ()
+
+    def __init__(self, error_code: ErrorCode, message: str) -> None:
+        if not error_code.name.startswith("SEM_"):
+            raise ValueError(f"{error_code} is not a valid semantic error code")
+        super().__init__(error_code, message)
 
 
 class SemanticAnalyzer(NodeVisitor[None]):
@@ -34,7 +43,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         for index, identifier in enumerate(node.identifiers):
             if self._current_scope.lookup(identifier.name, current_scope_only=True):
                 raise SemanticError(
-                    ErrorCode.DUPLICATE_IDENTIFIER,
+                    ErrorCode.SEM_DUPLICATE_IDENTIFIER,
                     f"Variable '{identifier.name}' already declared in this scope",
                 )
 
@@ -48,7 +57,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         for index, identifier in enumerate(node.identifiers):
             if self._current_scope.lookup(identifier.name, current_scope_only=True):
                 raise SemanticError(
-                    ErrorCode.DUPLICATE_IDENTIFIER,
+                    ErrorCode.SEM_DUPLICATE_IDENTIFIER,
                     f"Constant '{identifier.name}' already declared in this scope",
                 )
 
@@ -61,7 +70,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         name: str = node.identifier.name
         if self._current_scope.lookup(name, current_scope_only=True):
             raise SemanticError(
-                ErrorCode.DUPLICATE_IDENTIFIER,
+                ErrorCode.SEM_DUPLICATE_IDENTIFIER,
                 f"Function '{name}' already declared in this scope",
             )
 
@@ -87,7 +96,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         name: str = node.identifier.name
         if self._current_scope.lookup(name, current_scope_only=True):
             raise SemanticError(
-                ErrorCode.DUPLICATE_IDENTIFIER,
+                ErrorCode.SEM_DUPLICATE_IDENTIFIER,
                 f"Procedure '{name}' already declared in this scope",
             )
 
@@ -108,17 +117,17 @@ class SemanticAnalyzer(NodeVisitor[None]):
         symbol: Optional[Symbol] = self._current_scope.lookup(node.identifier.name)
         if symbol is None:
             raise SemanticError(
-                ErrorCode.UNDECLARED_IDENTIFIER,
+                ErrorCode.SEM_UNDECLARED_IDENTIFIER,
                 f"Undeclared variable '{node.identifier.name}'",
             )
         if isinstance(symbol, ConstantSymbol):
             raise SemanticError(
-                ErrorCode.ASSIGNMENT_TO_CONSTANT,
+                ErrorCode.SEM_ASSIGNMENT_TO_CONSTANT,
                 f"Cannot assign to constant '{node.identifier.name}'",
             )
         if not isinstance(symbol, VariableSymbol):
             raise SemanticError(
-                ErrorCode.WRONG_SYMBOL_TYPE,
+                ErrorCode.SEM_WRONG_SYMBOL_TYPE,
                 f"'{node.identifier.name}' is not a variable",
             )
 
@@ -128,12 +137,12 @@ class SemanticAnalyzer(NodeVisitor[None]):
         symbol: Optional[Symbol] = self._current_scope.lookup(node.identifier.name)
         if symbol is None:
             raise SemanticError(
-                ErrorCode.UNDECLARED_IDENTIFIER,
+                ErrorCode.SEM_UNDECLARED_IDENTIFIER,
                 f"Undeclared function '{node.identifier.name}'",
             )
         if not isinstance(symbol, FunctionSymbol):
             raise SemanticError(
-                ErrorCode.WRONG_SYMBOL_TYPE,
+                ErrorCode.SEM_WRONG_SYMBOL_TYPE,
                 f"'{node.identifier.name}' is not a function",
             )
 
@@ -143,7 +152,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         actual_arguments_count: int = len(node.arguments) if node.arguments else 0
         if expected_arguments_count != actual_arguments_count:
             raise SemanticError(
-                ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
+                ErrorCode.SEM_WRONG_NUMBER_OF_ARGUMENTS,
                 f"'{node.identifier.name}' expects {expected_arguments_count} arguments, got {actual_arguments_count}",
             )
         for argument in node.arguments or []:
@@ -153,12 +162,12 @@ class SemanticAnalyzer(NodeVisitor[None]):
         symbol: Optional[Symbol] = self._current_scope.lookup(node.identifier.name)
         if symbol is None:
             raise SemanticError(
-                ErrorCode.UNDECLARED_IDENTIFIER,
+                ErrorCode.SEM_UNDECLARED_IDENTIFIER,
                 f"Undeclared procedure '{node.identifier.name}'",
             )
         if not isinstance(symbol, ProcedureSymbol):
             raise SemanticError(
-                ErrorCode.WRONG_SYMBOL_TYPE,
+                ErrorCode.SEM_WRONG_SYMBOL_TYPE,
                 f"'{node.identifier.name}' is not a procedure",
             )
 
@@ -168,7 +177,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         actual_arguments_count: int = len(node.arguments) if node.arguments else 0
         if expected_arguments_count != actual_arguments_count:
             raise SemanticError(
-                ErrorCode.WRONG_NUMBER_OF_ARGUMENTS,
+                ErrorCode.SEM_WRONG_NUMBER_OF_ARGUMENTS,
                 f"'{node.identifier.name}' expects {expected_arguments_count} arguments, got {actual_arguments_count}",
             )
         for argument in node.arguments or []:
@@ -184,13 +193,13 @@ class SemanticAnalyzer(NodeVisitor[None]):
 
         if scope is None:
             raise SemanticError(
-                ErrorCode.WRONG_SYMBOL_TYPE,
+                ErrorCode.SEM_WRONG_SYMBOL_TYPE,
                 "Give statement outside of function or procedure",
             )
 
         if not scope.enclosing_scope:
             raise SemanticError(
-                ErrorCode.WRONG_SYMBOL_TYPE,
+                ErrorCode.SEM_WRONG_SYMBOL_TYPE,
                 "Invalid scope structure",
             )
 
@@ -199,19 +208,19 @@ class SemanticAnalyzer(NodeVisitor[None]):
         if isinstance(subroutine_symbol, FunctionSymbol):
             if node.expression is None:
                 raise SemanticError(
-                    ErrorCode.FUNCTION_EMPTY_GIVE,
+                    ErrorCode.SEM_FUNCTION_EMPTY_GIVE,
                     f"Function '{scope.name}' must give a value",
                 )
             self.visit(node.expression)
         elif isinstance(subroutine_symbol, ProcedureSymbol):
             if node.expression is not None:
                 raise SemanticError(
-                    ErrorCode.PROCEDURE_GIVING_VALUE,
+                    ErrorCode.SEM_PROCEDURE_GIVING_VALUE,
                     f"Procedure '{scope.name}' cannot give a value",
                 )
         else:
             raise SemanticError(
-                ErrorCode.WRONG_SYMBOL_TYPE,
+                ErrorCode.SEM_WRONG_SYMBOL_TYPE,
                 f"Give statement in invalid context: {scope.name}",
             )
 
@@ -283,7 +292,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
                 return
             scope = scope.enclosing_scope
         raise SemanticError(
-            ErrorCode.SKIP_STATEMENT_OUTSIDE_WHILE,
+            ErrorCode.SEM_SKIP_STATEMENT_OUTSIDE_WHILE,
             "skip statements can only be used inside while blocks",
         )
 
@@ -294,14 +303,14 @@ class SemanticAnalyzer(NodeVisitor[None]):
                 return
             scope = scope.enclosing_scope
         raise SemanticError(
-            ErrorCode.STOP_STATEMENT_OUTSIDE_WHILE,
+            ErrorCode.SEM_STOP_STATEMENT_OUTSIDE_WHILE,
             "stop statements can only be used inside while blocks",
         )
 
     def visit_NodeIdentifier(self, node: NodeIdentifier) -> None:
         if self._current_scope.lookup(node.name) is None:
             raise SemanticError(
-                ErrorCode.UNDECLARED_IDENTIFIER,
+                ErrorCode.SEM_UNDECLARED_IDENTIFIER,
                 f"Undeclared identifier '{node.name}'",
             )
 

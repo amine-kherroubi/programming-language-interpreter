@@ -3,7 +3,32 @@ from typing import Final, Optional
 from _1_lexical_analysis.lexical_analyzer import LexicalAnalyzer
 from _1_lexical_analysis.tokens import TokenType, Token, TokenWithLexeme
 from _2_syntactic_analysis.ast import *
-from utils.error_handling import SyntacticError, ErrorCode
+from utils.error_handling import Error, ErrorCode
+
+
+class SyntacticError(Error):
+    __slots__ = ("token",)
+
+    def __init__(self, error_code: ErrorCode, message: str, token: Token) -> None:
+        if not error_code.name.startswith("SYN_"):
+            raise ValueError(f"{error_code} is not a valid syntactic error code")
+        self.token: Final[Token] = token
+        super().__init__(error_code, message)
+
+    def __str__(self) -> str:
+        token_info = f"{self.token.type.value}"
+        if isinstance(self.token, TokenWithLexeme):
+            token_info += f" '{self.token.lexeme}'"
+        return (
+            f"{self.__class__.__name__}: {self.message} "
+            f"(found: {token_info}) at line {self.token.line}, column {self.token.column}"
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(error_code={self.error_code}, "
+            f"message='{self.message}', token={self.token!r})"
+        )
 
 
 class SyntacticAnalyzer(object):
@@ -17,7 +42,7 @@ class SyntacticAnalyzer(object):
         node: NodeProgram = self._program()
         if self._current_token.type != TokenType.EOF:
             raise SyntacticError(
-                ErrorCode.UNEXPECTED_TOKEN,
+                ErrorCode.SYN_UNEXPECTED_TOKEN,
                 f"Expected EOF, got {self._current_token.type.value}",
                 self._current_token,
             )
@@ -29,7 +54,7 @@ class SyntacticAnalyzer(object):
             self._current_token = self._lexical_analyzer.next_token()
             return token
         raise SyntacticError(
-            ErrorCode.UNEXPECTED_TOKEN,
+            ErrorCode.SYN_UNEXPECTED_TOKEN,
             f"Expected {expected_type.value}, got {self._current_token.type.value}",
             self._current_token,
         )
@@ -71,7 +96,7 @@ class SyntacticAnalyzer(object):
                 self._consume(TokenType.NEWLINE)
             elif self._current_token.type != TokenType.RIGHT_BRACE:
                 raise SyntacticError(
-                    ErrorCode.UNEXPECTED_TOKEN,
+                    ErrorCode.SYN_UNEXPECTED_TOKEN,
                     f"Expected NEWLINE or RIGHT_BRACE, got {self._current_token.type.value}",
                     self._current_token,
                 )
@@ -109,7 +134,7 @@ class SyntacticAnalyzer(object):
                 return self._stop_statement()
             case _:
                 raise SyntacticError(
-                    ErrorCode.UNEXPECTED_TOKEN,
+                    ErrorCode.SYN_UNEXPECTED_TOKEN,
                     f"Expected statement, got {self._current_token.type.value}",
                     self._current_token,
                 )
@@ -125,7 +150,7 @@ class SyntacticAnalyzer(object):
             expressions = self._expression_list()
             if len(identifiers) != len(expressions):
                 raise SyntacticError(
-                    ErrorCode.WRONG_NUMBER_OF_EXPRESSIONS,
+                    ErrorCode.SYN_WRONG_NUMBER_OF_EXPRESSIONS,
                     f"Expected {len(identifiers)} expressions, got {len(expressions)}",
                     self._current_token,
                 )
@@ -141,7 +166,7 @@ class SyntacticAnalyzer(object):
 
         if len(identifiers) != len(expressions):
             raise SyntacticError(
-                ErrorCode.WRONG_NUMBER_OF_EXPRESSIONS,
+                ErrorCode.SYN_WRONG_NUMBER_OF_EXPRESSIONS,
                 f"Expected {len(identifiers)} expressions, got {len(expressions)}",
                 self._current_token,
             )
@@ -318,7 +343,7 @@ class SyntacticAnalyzer(object):
             return NodeType(token)
 
         raise SyntacticError(
-            ErrorCode.UNEXPECTED_TOKEN,
+            ErrorCode.SYN_UNEXPECTED_TOKEN,
             f"Expected type, got {token.type.value}",
             token,
         )
@@ -516,7 +541,7 @@ class SyntacticAnalyzer(object):
             return arithmetic_expression
 
         raise SyntacticError(
-            ErrorCode.UNEXPECTED_TOKEN,
+            ErrorCode.SYN_UNEXPECTED_TOKEN,
             f"Expected arithmetic expression, got {token.type.value}",
             token,
         )
