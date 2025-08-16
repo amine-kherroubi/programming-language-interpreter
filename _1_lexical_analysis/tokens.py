@@ -1,4 +1,5 @@
 from __future__ import annotations
+from dataclasses import dataclass
 from enum import Enum
 from typing import Final
 
@@ -108,60 +109,30 @@ RESERVED_KEYWORD_LEXEME_TO_TOKEN_TYPE: Final[dict[str, TokenType]] = {
 }
 
 
-class Token(object):
-    __slots__ = ("type", "line", "column")
-
-    def __init__(self, token_type: TokenType, line: int, column: int) -> None:
-        self.type: Final[TokenType] = token_type
-        self.line: Final[int] = line
-        self.column: Final[int] = column
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(type={self.type}, line={self.line}, column={self.column})"
+@dataclass(frozen=True, slots=True)
+class Token:
+    type: Final[TokenType]
+    line: Final[int]
+    column: Final[int]
 
     def __str__(self) -> str:
-        return f"({self.type.value})[line={self.line}, column={self.column}]"
+        return f"Token({self.type.value})[{self.line}:{self.column}]"
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Token):
-            return False
-        return (
-            self.type == other.type
-            and self.line == other.line
-            and self.column == other.column
-        )
-
-    def __hash__(self) -> int:
-        return hash((self.type, self.line, self.column))
+    def __post_init__(self) -> None:
+        if self.line < 1:
+            raise ValueError("Line number must be >= 1", self)
+        if self.column < 1:
+            raise ValueError("Column number must be >= 1", self)
 
 
+@dataclass(frozen=True, slots=True)
 class TokenWithLexeme(Token):
-    __slots__ = ("lexeme",)
-
-    def __init__(
-        self, token_type: TokenType, lexeme: str, line: int, column: int
-    ) -> None:
-        super().__init__(token_type, line, column)
-        self.lexeme: Final[str] = lexeme
-
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(type={self.type}, lexeme={self.lexeme!r}, "
-            f"line={self.line}, column={self.column})"
-        )
+    lexeme: Final[str]
 
     def __str__(self) -> str:
-        return f"({self.type.value}: {self.lexeme!r})[line={self.line}, column={self.column}]"
+        return f"Token({self.type.value}: {self.lexeme!r})[{self.line}:{self.column}]"
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, TokenWithLexeme):
-            return False
-        return (
-            self.type == other.type
-            and self.lexeme == other.lexeme
-            and self.line == other.line
-            and self.column == other.column
-        )
-
-    def __hash__(self) -> int:
-        return hash((self.type, self.lexeme, self.line, self.column))
+    def __post_init__(self) -> None:
+        Token.__post_init__(self)
+        if not self.lexeme:
+            raise ValueError("Lexeme cannot be empty", self)

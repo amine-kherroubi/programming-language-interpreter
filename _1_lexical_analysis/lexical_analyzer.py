@@ -114,7 +114,7 @@ class LexicalAnalyzer(object):
             )
 
         return TokenWithLexeme(
-            TokenType.NUMBER_LITERAL, number_lexeme, start_line, start_column
+            TokenType.NUMBER_LITERAL, start_line, start_column, number_lexeme
         )
 
     def _tokenize_string(self) -> TokenWithLexeme:
@@ -175,7 +175,7 @@ class LexicalAnalyzer(object):
 
         self._advance()
         return TokenWithLexeme(
-            TokenType.STRING_LITERAL, string_lexeme, start_line, start_column
+            TokenType.STRING_LITERAL, start_line, start_column, string_lexeme
         )
 
     def _tokenize_identifier(self) -> Token:
@@ -191,7 +191,7 @@ class LexicalAnalyzer(object):
 
         if identifier_lexeme in ("true", "false"):
             return TokenWithLexeme(
-                TokenType.BOOLEAN_LITERAL, identifier_lexeme, start_line, start_column
+                TokenType.BOOLEAN_LITERAL, start_line, start_column, identifier_lexeme
             )
 
         if identifier_lexeme in RESERVED_KEYWORD_LEXEME_TO_TOKEN_TYPE:
@@ -202,7 +202,7 @@ class LexicalAnalyzer(object):
             )
 
         return TokenWithLexeme(
-            TokenType.IDENTIFIER, identifier_lexeme, start_line, start_column
+            TokenType.IDENTIFIER, start_line, start_column, identifier_lexeme
         )
 
     def _tokenize_multi_character_operator(self) -> Optional[Token]:
