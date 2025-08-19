@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional, Final
+from typing import Final
 from utils.error_handling import Error, ErrorCode
 from _1_lexical_analysis.tokens import (
     Token,
@@ -42,7 +42,7 @@ class LexicalAnalyzer(object):
     def __init__(self, source_code: str) -> None:
         self.source_code: str = source_code
         self.position: int = 0
-        self.current_character: Optional[str] = source_code[0] if source_code else None
+        self.current_character: str | None = source_code[0] if source_code else None
         self.line: int = 1
         self.column: int = 1
 
@@ -69,7 +69,7 @@ class LexicalAnalyzer(object):
             else None
         )
 
-    def _peek(self, offset: int = 1) -> Optional[str]:
+    def _peek(self, offset: int = 1) -> str | None:
         index: int = self.position + offset
         return self.source_code[index] if index < len(self.source_code) else None
 
@@ -90,10 +90,10 @@ class LexicalAnalyzer(object):
         while self.current_character == "\n":
             self._advance()
 
-    def _is_digit(self, character: Optional[str]) -> bool:
+    def _is_digit(self, character: str | None) -> bool:
         return "0" <= character <= "9" if character else False
 
-    def _is_alphabetic_underscore_dollar(self, character: Optional[str]) -> bool:
+    def _is_alphabetic_underscore_dollar(self, character: str | None) -> bool:
         return (
             (
                 ("a" <= character <= "z")
@@ -105,12 +105,12 @@ class LexicalAnalyzer(object):
             else False
         )
 
-    def _is_alphanumeric_underscore_dollar(self, character: Optional[str]) -> bool:
+    def _is_alphanumeric_underscore_dollar(self, character: str | None) -> bool:
         return self._is_digit(character) or self._is_alphabetic_underscore_dollar(
             character
         )
 
-    def _is_space(self, character: Optional[str]) -> bool:
+    def _is_space(self, character: str | None) -> bool:
         return character in " \t\n\r\f\v" if character else False
 
     def _tokenize_number(self) -> TokenWithLexeme:
@@ -230,7 +230,7 @@ class LexicalAnalyzer(object):
             TokenType.IDENTIFIER, start_line, start_column, identifier_lexeme
         )
 
-    def _tokenize_multi_character_operator(self) -> Optional[Token]:
+    def _tokenize_multi_character_operator(self) -> Token | None:
         start_line: int = self.line
         start_column: int = self.column
         for operator_lexeme, token_type in sorted(
@@ -287,7 +287,7 @@ class LexicalAnalyzer(object):
             ):
                 return self._tokenize_identifier()
 
-            token: Optional[Token] = self._tokenize_multi_character_operator()
+            token: Token | None = self._tokenize_multi_character_operator()
             if token:
                 return token
 

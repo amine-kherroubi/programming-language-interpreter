@@ -1,8 +1,7 @@
 from __future__ import annotations
 from enum import Enum
-from typing import Optional, Union
 
-ValueType = Union[int, float, str, bool]
+ValueType = int | float | str | bool
 
 
 class ActivationRecordType(Enum):
@@ -36,7 +35,7 @@ class ActivationRecord(object):
     def __getitem__(self, key: str) -> ValueType:
         return self.members[key]
 
-    def get(self, key: str) -> Optional[ValueType]:
+    def get(self, key: str) -> ValueType | None:
         return self.members.get(key)
 
 

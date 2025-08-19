@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Optional
 from _2_syntactic_analysis.ast import *
 from _2_syntactic_analysis.ast import NodeForStatement
 from _3_semantic_analysis.symbol_table import *
@@ -114,7 +113,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         self._exit_scope()
 
     def visit_NodeAssignmentStatement(self, node: NodeAssignmentStatement) -> None:
-        symbol: Optional[Symbol] = self._current_scope.lookup(node.identifier.name)
+        symbol: Symbol | None = self._current_scope.lookup(node.identifier.name)
         if symbol is None:
             raise SemanticError(
                 ErrorCode.SEM_UNDECLARED_IDENTIFIER,
@@ -134,7 +133,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         self.visit(node.expression)
 
     def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> None:
-        symbol: Optional[Symbol] = self._current_scope.lookup(node.identifier.name)
+        symbol: Symbol | None = self._current_scope.lookup(node.identifier.name)
         if symbol is None:
             raise SemanticError(
                 ErrorCode.SEM_UNDECLARED_IDENTIFIER,
@@ -159,7 +158,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
             self.visit(argument)
 
     def visit_NodeProcedureCall(self, node: NodeProcedureCall) -> None:
-        symbol: Optional[Symbol] = self._current_scope.lookup(node.identifier.name)
+        symbol: Symbol | None = self._current_scope.lookup(node.identifier.name)
         if symbol is None:
             raise SemanticError(
                 ErrorCode.SEM_UNDECLARED_IDENTIFIER,
@@ -184,7 +183,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
             self.visit(argument)
 
     def visit_NodeGiveStatement(self, node: NodeGiveStatement) -> None:
-        scope: Optional[ScopedSymbolTable] = self._current_scope
+        scope: ScopedSymbolTable | None = self._current_scope
 
         while scope is not None:
             if scope.type in (ScopeType.FUNCTION, ScopeType.PROCEDURE):
@@ -203,7 +202,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
                 "Invalid scope structure",
             )
 
-        subroutine_symbol: Optional[Symbol] = scope.enclosing_scope.lookup(scope.name)
+        subroutine_symbol: Symbol | None = scope.enclosing_scope.lookup(scope.name)
 
         if isinstance(subroutine_symbol, FunctionSymbol):
             if node.expression is None:
@@ -286,7 +285,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         self._exit_scope()
 
     def visit_NodeSkipStatement(self, node: NodeSkipStatement) -> None:
-        scope: Optional[ScopedSymbolTable] = self._current_scope
+        scope: ScopedSymbolTable | None = self._current_scope
         while scope is not None:
             if scope.type == ScopeType.WHILE_BLOCK:
                 return
@@ -297,7 +296,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         )
 
     def visit_NodeStopStatement(self, node: NodeStopStatement) -> None:
-        scope: Optional[ScopedSymbolTable] = self._current_scope
+        scope: ScopedSymbolTable | None = self._current_scope
         while scope is not None:
             if scope.type == ScopeType.WHILE_BLOCK:
                 return
@@ -356,7 +355,7 @@ class SemanticAnalyzer(NodeVisitor[None]):
         self,
         name: str,
         type: ScopeType,
-        variable_symbols: Optional[list[VariableSymbol]],
+        variable_symbols: list[VariableSymbol] | None,
     ) -> None:
         new_scope: ScopedSymbolTable = ScopedSymbolTable(
             name, type, self._current_scope.level + 1, self._current_scope

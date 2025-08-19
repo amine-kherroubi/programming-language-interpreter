@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Generic, NoReturn, Optional, TypeVar
+from typing import Generic, NoReturn, TypeVar
 from _1_lexical_analysis.tokens import Token
 
 T = TypeVar("T")
@@ -141,8 +141,8 @@ class NodeBooleanExpression(NodeExpression):
 class NodeBlock(NodeAST):
     __slots__ = ("statements",)
 
-    def __init__(self, statements: Optional[list[NodeStatement]]) -> None:
-        self.statements: Optional[list[NodeStatement]] = statements
+    def __init__(self, statements: list[NodeStatement] | None) -> None:
+        self.statements: list[NodeStatement] | None = statements
 
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_NodeBlock(self)
@@ -197,11 +197,11 @@ class NodeVariableDeclaration(NodeStatement):
         self,
         var_type: NodeType,
         identifiers: list[NodeIdentifier],
-        expressions: Optional[list[NodeExpression]] = None,
+        expressions: list[NodeExpression] | None = None,
     ) -> None:
         self.type: NodeType = var_type
         self.identifiers: list[NodeIdentifier] = identifiers
-        self.expressions: Optional[list[NodeExpression]] = expressions
+        self.expressions: list[NodeExpression] | None = expressions
 
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_NodeVariableDeclaration(self)
@@ -253,8 +253,8 @@ class NodeAssignmentStatement(NodeStatement):
 class NodeGiveStatement(NodeStatement):
     __slots__ = ("expression",)
 
-    def __init__(self, expression: Optional[NodeExpression]) -> None:
-        self.expression: Optional[NodeExpression] = expression
+    def __init__(self, expression: NodeExpression | None) -> None:
+        self.expression: NodeExpression | None = expression
 
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_NodeGiveStatement(self)
@@ -319,13 +319,13 @@ class NodeIfStatement(NodeStatement):
         self,
         condition: NodeBooleanExpression,
         block: NodeBlock,
-        elifs: Optional[list[NodeElif]],
-        else_: Optional[NodeElse],
+        elifs: list[NodeElif] | None,
+        else_: NodeElse | None,
     ) -> None:
         self.condition: NodeBooleanExpression = condition
         self.block: NodeBlock = block
-        self.elifs: Optional[list[NodeElif]] = elifs
-        self.else_: Optional[NodeElse] = else_
+        self.elifs: list[NodeElif] | None = elifs
+        self.else_: NodeElse | None = else_
 
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_NodeIfStatement(self)
@@ -366,12 +366,12 @@ class NodeForStatement(NodeStatement):
         self,
         initial_assignment: NodeAssignmentStatement,
         termination_expression: NodeArithmeticExpression,
-        step_expression: Optional[NodeArithmeticExpression],
+        step_expression: NodeArithmeticExpression | None,
         block: NodeBlock,
     ) -> None:
         self.initial_assignment: NodeAssignmentStatement = initial_assignment
         self.termination_expression: NodeArithmeticExpression = termination_expression
-        self.step_expression: Optional[NodeArithmeticExpression] = step_expression
+        self.step_expression: NodeArithmeticExpression | None = step_expression
         self.block: NodeBlock = block
 
     def accept(self, visitor: NodeVisitor[T]) -> T:
@@ -427,12 +427,12 @@ class NodeFunctionDeclaration(NodeStatement):
     def __init__(
         self,
         identifier: NodeIdentifier,
-        parameters: Optional[list[NodeParameter]],
+        parameters: list[NodeParameter] | None,
         give_type: NodeType,
         block: NodeBlock,
     ) -> None:
         self.identifier: NodeIdentifier = identifier
-        self.parameters: Optional[list[NodeParameter]] = parameters
+        self.parameters: list[NodeParameter] | None = parameters
         self.give_type: NodeType = give_type
         self.block: NodeBlock = block
 
@@ -452,11 +452,11 @@ class NodeProcedureDeclaration(NodeStatement):
     def __init__(
         self,
         identifier: NodeIdentifier,
-        parameters: Optional[list[NodeParameter]],
+        parameters: list[NodeParameter] | None,
         block: NodeBlock,
     ) -> None:
         self.identifier: NodeIdentifier = identifier
-        self.parameters: Optional[list[NodeParameter]] = parameters
+        self.parameters: list[NodeParameter] | None = parameters
         self.block: NodeBlock = block
 
     def accept(self, visitor: NodeVisitor[T]) -> T:
@@ -472,10 +472,10 @@ class NodeFunctionCall(NodeArithmeticExpression):
     def __init__(
         self,
         identifier: NodeIdentifier,
-        arguments: Optional[list[NodeExpression]],
+        arguments: list[NodeExpression] | None,
     ) -> None:
         self.identifier: NodeIdentifier = identifier
-        self.arguments: Optional[list[NodeExpression]] = arguments
+        self.arguments: list[NodeExpression] | None = arguments
 
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_NodeFunctionCall(self)
@@ -490,10 +490,10 @@ class NodeProcedureCall(NodeStatement):
     def __init__(
         self,
         identifier: NodeIdentifier,
-        arguments: Optional[list[NodeExpression]],
+        arguments: list[NodeExpression] | None,
     ) -> None:
         self.identifier: NodeIdentifier = identifier
-        self.arguments: Optional[list[NodeExpression]] = arguments
+        self.arguments: list[NodeExpression] | None = arguments
 
     def accept(self, visitor: NodeVisitor[T]) -> T:
         return visitor.visit_NodeProcedureCall(self)

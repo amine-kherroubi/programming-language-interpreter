@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Final, Optional, Union
+from typing import Any, Final
 from _2_syntactic_analysis.ast import *
 from _2_syntactic_analysis.ast import NodeForStatement
 from _3_semantic_analysis.symbol_table import (
@@ -15,8 +15,8 @@ from _4_interpretation.call_stack import (
 from utils.error_handling import Error, ErrorCode
 
 
-ValueType = Union[int, float, str, bool]
-NumericType = Union[int, float]
+ValueType = int | float | str | bool
+NumericType = int | float
 
 
 class SkipException(Exception):
@@ -61,12 +61,10 @@ class Interpreter(NodeVisitor[Any]):
         self.visit(node.block)
         self._call_stack.pop()
 
-    def visit_NodeBlock(
-        self, node: NodeBlock
-    ) -> Optional[dict[str, Optional[ValueType]]]:
+    def visit_NodeBlock(self, node: NodeBlock) -> dict[str, ValueType | None] | None:
         for statement in node.statements or []:
-            result: Optional[Union[ValueType, dict[str, Optional[ValueType]]]] = (
-                self.visit(statement)
+            result: ValueType | dict[str, ValueType | None] | None = self.visit(
+                statement
             )
             if isinstance(result, dict) and "give" in result:
                 return result
@@ -96,8 +94,8 @@ class Interpreter(NodeVisitor[Any]):
 
     def visit_NodeGiveStatement(
         self, node: NodeGiveStatement
-    ) -> dict[str, Optional[ValueType]]:
-        give_value: Optional[ValueType] = (
+    ) -> dict[str, ValueType | None]:
+        give_value: ValueType | None = (
             self.visit(node.expression) if node.expression else None
         )
         return {"give": give_value}
@@ -158,13 +156,13 @@ class Interpreter(NodeVisitor[Any]):
                 function_activation_record[parameter.identifier] = argument
 
         self._call_stack.push(function_activation_record)
-        execution_result: Optional[Union[ValueType, dict[str, Optional[ValueType]]]] = (
-            self.visit(function_symbol.block)
+        execution_result: ValueType | dict[str, ValueType | None] | None = self.visit(
+            function_symbol.block
         )
         self._call_stack.pop()
 
         if isinstance(execution_result, dict) and "give" in execution_result:
-            give_value: Optional[ValueType] = execution_result["give"]
+            give_value: ValueType | None = execution_result["give"]
             if give_value is not None:
                 return give_value
             else:
@@ -204,8 +202,8 @@ class Interpreter(NodeVisitor[Any]):
                 procedure_activation_record[parameter.identifier] = argument
 
         self._call_stack.push(procedure_activation_record)
-        execution_result: Optional[Union[ValueType, dict[str, Optional[ValueType]]]] = (
-            self.visit(procedure_symbol.block)
+        execution_result: ValueType | dict[str, ValueType | None] | None = self.visit(
+            procedure_symbol.block
         )
         self._call_stack.pop()
 
@@ -220,7 +218,7 @@ class Interpreter(NodeVisitor[Any]):
 
     def visit_NodeIfStatement(
         self, node: NodeIfStatement
-    ) -> Optional[dict[str, Optional[ValueType]]]:
+    ) -> dict[str, ValueType | None] | None:
         if self._evaluate_boolean_expression(node.condition):
             return self.visit(node.block)
 
@@ -236,7 +234,7 @@ class Interpreter(NodeVisitor[Any]):
 
     def visit_NodeWhileStatement(
         self, node: NodeWhileStatement
-    ) -> Optional[dict[str, Optional[ValueType]]]:
+    ) -> dict[str, ValueType | None] | None:
         while True:
             try:
                 termination_condition_is_true: bool = (
@@ -292,7 +290,7 @@ class Interpreter(NodeVisitor[Any]):
 
         while True:
             try:
-                current_value: Optional[ValueType] = current_activation_record.get(
+                current_value: ValueType | None = current_activation_record.get(
                     iteration_variable_name
                 )
                 assert isinstance(current_value, NumericType)
@@ -332,7 +330,7 @@ class Interpreter(NodeVisitor[Any]):
 
     def visit_NodeIdentifier(self, node: NodeIdentifier) -> ValueType:
         current_activation_record: ActivationRecord = self._call_stack.peek()
-        identifier_value: Optional[ValueType] = current_activation_record.get(node.name)
+        identifier_value: ValueType | None = current_activation_record.get(node.name)
 
         if identifier_value is None:
             raise RuntimeError(
@@ -473,7 +471,7 @@ class Interpreter(NodeVisitor[Any]):
         else:
             return bool(value)
 
-    def visit_NodeNumberLiteral(self, node: NodeNumberLiteral) -> Union[int, float]:
+    def visit_NodeNumberLiteral(self, node: NodeNumberLiteral) -> int | float:
         return float(node.lexeme) if "." in node.lexeme else int(node.lexeme)
 
     def visit_NodeStringLiteral(self, node: NodeStringLiteral) -> str:

@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from functools import cached_property
-from typing import Final, Union
+from typing import Final
 from utils.error_handling import Error, ErrorCode
 
 
@@ -171,7 +171,7 @@ class TokenWithLexeme(Token):
             )
 
     @cached_property
-    def numeric_value(self) -> Union[int, float]:
+    def numeric_value(self) -> int | float:
         if self.type != TokenType.NUMBER_LITERAL:
             raise TokenError(
                 ErrorCode.TOK_INVALID_TOKEN_TYPE,

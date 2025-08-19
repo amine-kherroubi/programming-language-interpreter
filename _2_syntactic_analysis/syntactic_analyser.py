@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Final, Optional
+from typing import Final
 from _1_lexical_analysis.lexical_analyzer import LexicalAnalyzer
 from _1_lexical_analysis.tokens import TokenType, Token, TokenWithLexeme
 from _2_syntactic_analysis.ast import *
@@ -61,7 +61,7 @@ class SyntacticAnalyzer(object):
 
     def _peek_next_token(self) -> Token:
         lookahead_position: int = self._lexical_analyzer.position
-        lookahead_character: Optional[str] = self._lexical_analyzer.current_character
+        lookahead_character: str | None = self._lexical_analyzer.current_character
         lookahead_line: int = self._lexical_analyzer.line
         lookahead_column: int = self._lexical_analyzer.column
 
@@ -143,7 +143,7 @@ class SyntacticAnalyzer(object):
         self._consume(TokenType.LET)
         var_type: NodeType = self._type()
         identifiers: list[NodeIdentifier] = self._identifier_list()
-        expressions: Optional[list[NodeExpression]] = None
+        expressions: list[NodeExpression] | None = None
 
         if self._current_token.type == TokenType.ASSIGN:
             self._consume(TokenType.ASSIGN)
@@ -192,7 +192,7 @@ class SyntacticAnalyzer(object):
         name: NodeIdentifier = self._identifier()
         self._consume(TokenType.LEFT_PARENTHESIS)
 
-        parameters: Optional[list[NodeParameter]] = None
+        parameters: list[NodeParameter] | None = None
         if self._current_token.type != TokenType.RIGHT_PARENTHESIS:
             parameters = self._parameter_list()
 
@@ -206,7 +206,7 @@ class SyntacticAnalyzer(object):
         name: NodeIdentifier = self._identifier()
         self._consume(TokenType.LEFT_PARENTHESIS)
 
-        parameters: Optional[list[NodeParameter]] = None
+        parameters: list[NodeParameter] | None = None
         if self._current_token.type != TokenType.RIGHT_PARENTHESIS:
             parameters = self._parameter_list()
 
@@ -234,7 +234,7 @@ class SyntacticAnalyzer(object):
         name: NodeIdentifier = self._identifier()
         self._consume(TokenType.LEFT_PARENTHESIS)
 
-        arguments: Optional[list[NodeExpression]] = None
+        arguments: list[NodeExpression] | None = None
         if self._current_token.type != TokenType.RIGHT_PARENTHESIS:
             arguments = self._argument_list()
 
@@ -246,7 +246,7 @@ class SyntacticAnalyzer(object):
         name: NodeIdentifier = self._identifier()
         self._consume(TokenType.LEFT_PARENTHESIS)
 
-        arguments: Optional[list[NodeExpression]] = None
+        arguments: list[NodeExpression] | None = None
         if self._current_token.type != TokenType.RIGHT_PARENTHESIS:
             arguments = self._argument_list()
 
@@ -280,8 +280,8 @@ class SyntacticAnalyzer(object):
         self._consume(TokenType.IF)
         condition: NodeBooleanExpression = self._boolean_expression()
         block: NodeBlock = self._block()
-        elifs: Optional[list[NodeElif]] = None
-        else_: Optional[NodeElse] = None
+        elifs: list[NodeElif] | None = None
+        else_: NodeElse | None = None
 
         if self._current_token.type == TokenType.ELIF:
             elifs = self._elifs()
@@ -316,7 +316,7 @@ class SyntacticAnalyzer(object):
         initial_assignment: NodeAssignmentStatement = self._assignment_statement()
         self._consume(TokenType.TO)
         termination_expression: NodeArithmeticExpression = self._arithmetic_expression()
-        step_expression: Optional[NodeArithmeticExpression] = None
+        step_expression: NodeArithmeticExpression | None = None
         if self._current_token.type == TokenType.STEP:
             self._consume(TokenType.STEP)
             step_expression = self._arithmetic_expression()
@@ -361,7 +361,7 @@ class SyntacticAnalyzer(object):
 
     def _is_boolean_expression(self) -> bool:
         saved_position: int = self._lexical_analyzer.position
-        saved_char: Optional[str] = self._lexical_analyzer.current_character
+        saved_char: str | None = self._lexical_analyzer.current_character
         saved_line: int = self._lexical_analyzer.line
         saved_column: int = self._lexical_analyzer.column
         saved_token: Token = self._current_token

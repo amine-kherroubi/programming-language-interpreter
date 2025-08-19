@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Final, Optional, OrderedDict
+from typing import Final, OrderedDict
 from _1_lexical_analysis.tokens import TokenType
 from _2_syntactic_analysis.ast import NodeBlock
 
@@ -75,12 +75,12 @@ class FunctionSymbol(Symbol):
     def __init__(
         self,
         identifier: str,
-        parameters: Optional[list[VariableSymbol]],
+        parameters: list[VariableSymbol] | None,
         give_type: str,
         block: NodeBlock,
     ) -> None:
         super().__init__(identifier)
-        self.parameters: Optional[list[VariableSymbol]] = parameters
+        self.parameters: list[VariableSymbol] | None = parameters
         self.give_type: str = give_type
         self.block: NodeBlock = block
 
@@ -105,11 +105,11 @@ class ProcedureSymbol(Symbol):
     def __init__(
         self,
         identifier: str,
-        parameters: Optional[list[VariableSymbol]],
+        parameters: list[VariableSymbol] | None,
         block: NodeBlock,
     ) -> None:
         super().__init__(identifier)
-        self.parameters: Optional[list[VariableSymbol]] = parameters
+        self.parameters: list[VariableSymbol] | None = parameters
         self.block: NodeBlock = block
 
     def __repr__(self) -> str:
@@ -158,12 +158,12 @@ class ScopedSymbolTable(object):
         name: str,
         type: ScopeType,
         level: int,
-        enclosing_scope: Optional[ScopedSymbolTable],
+        enclosing_scope: ScopedSymbolTable | None,
     ) -> None:
         self.name: str = name
         self.type: ScopeType = type
         self.level: int = level
-        self.enclosing_scope: Optional[ScopedSymbolTable] = enclosing_scope
+        self.enclosing_scope: ScopedSymbolTable | None = enclosing_scope
         self._symbols: OrderedDict[str, Symbol] = OrderedDict()
 
         if level == 1:
@@ -186,8 +186,8 @@ class ScopedSymbolTable(object):
     def define(self, symbol: Symbol) -> None:
         self._symbols[symbol.identifier] = symbol
 
-    def lookup(self, name: str, current_scope_only: bool = False) -> Optional[Symbol]:
-        symbol: Optional[Symbol] = self._symbols.get(name)
+    def lookup(self, name: str, current_scope_only: bool = False) -> Symbol | None:
+        symbol: Symbol | None = self._symbols.get(name)
         if symbol:
             return symbol
         if not current_scope_only and self.enclosing_scope:

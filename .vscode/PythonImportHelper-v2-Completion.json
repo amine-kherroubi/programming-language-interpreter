@@ -1,0 +1,1276 @@
+[
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "*",
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "isExtraImport": true,
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "*",
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "isExtraImport": true,
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "*",
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "isExtraImport": true,
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "*",
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "isExtraImport": true,
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeForStatement",
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "isExtraImport": true,
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeBlock",
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "isExtraImport": true,
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "*",
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "isExtraImport": true,
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeForStatement",
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "isExtraImport": true,
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeAST",
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "isExtraImport": true,
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "Enum",
+        "importPath": "enum",
+        "description": "enum",
+        "isExtraImport": true,
+        "detail": "enum",
+        "documentation": {}
+    },
+    {
+        "label": "Enum",
+        "importPath": "enum",
+        "description": "enum",
+        "isExtraImport": true,
+        "detail": "enum",
+        "documentation": {}
+    },
+    {
+        "label": "Enum",
+        "importPath": "enum",
+        "description": "enum",
+        "isExtraImport": true,
+        "detail": "enum",
+        "documentation": {}
+    },
+    {
+        "label": "Enum",
+        "importPath": "enum",
+        "description": "enum",
+        "isExtraImport": true,
+        "detail": "enum",
+        "documentation": {}
+    },
+    {
+        "label": "Final",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Final",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Final",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Generic",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "NoReturn",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "TypeVar",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Final",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Final",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "OrderedDict",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Final",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Error",
+        "importPath": "utils.error_handling",
+        "description": "utils.error_handling",
+        "isExtraImport": true,
+        "detail": "utils.error_handling",
+        "documentation": {}
+    },
+    {
+        "label": "ErrorCode",
+        "importPath": "utils.error_handling",
+        "description": "utils.error_handling",
+        "isExtraImport": true,
+        "detail": "utils.error_handling",
+        "documentation": {}
+    },
+    {
+        "label": "Error",
+        "importPath": "utils.error_handling",
+        "description": "utils.error_handling",
+        "isExtraImport": true,
+        "detail": "utils.error_handling",
+        "documentation": {}
+    },
+    {
+        "label": "ErrorCode",
+        "importPath": "utils.error_handling",
+        "description": "utils.error_handling",
+        "isExtraImport": true,
+        "detail": "utils.error_handling",
+        "documentation": {}
+    },
+    {
+        "label": "Error",
+        "importPath": "utils.error_handling",
+        "description": "utils.error_handling",
+        "isExtraImport": true,
+        "detail": "utils.error_handling",
+        "documentation": {}
+    },
+    {
+        "label": "ErrorCode",
+        "importPath": "utils.error_handling",
+        "description": "utils.error_handling",
+        "isExtraImport": true,
+        "detail": "utils.error_handling",
+        "documentation": {}
+    },
+    {
+        "label": "Error",
+        "importPath": "utils.error_handling",
+        "description": "utils.error_handling",
+        "isExtraImport": true,
+        "detail": "utils.error_handling",
+        "documentation": {}
+    },
+    {
+        "label": "ErrorCode",
+        "importPath": "utils.error_handling",
+        "description": "utils.error_handling",
+        "isExtraImport": true,
+        "detail": "utils.error_handling",
+        "documentation": {}
+    },
+    {
+        "label": "Error",
+        "importPath": "utils.error_handling",
+        "description": "utils.error_handling",
+        "isExtraImport": true,
+        "detail": "utils.error_handling",
+        "documentation": {}
+    },
+    {
+        "label": "ErrorCode",
+        "importPath": "utils.error_handling",
+        "description": "utils.error_handling",
+        "isExtraImport": true,
+        "detail": "utils.error_handling",
+        "documentation": {}
+    },
+    {
+        "label": "Token",
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "TokenWithLexeme",
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "TokenType",
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "LexemeToTokenTypeMappings",
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "Token",
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "TokenType",
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "Token",
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "TokenWithLexeme",
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "TokenType",
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "TokenError",
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "dataclass",
+        "importPath": "dataclasses",
+        "description": "dataclasses",
+        "isExtraImport": true,
+        "detail": "dataclasses",
+        "documentation": {}
+    },
+    {
+        "label": "cached_property",
+        "importPath": "functools",
+        "description": "functools",
+        "isExtraImport": true,
+        "detail": "functools",
+        "documentation": {}
+    },
+    {
+        "label": "ABC",
+        "importPath": "abc",
+        "description": "abc",
+        "isExtraImport": true,
+        "detail": "abc",
+        "documentation": {}
+    },
+    {
+        "label": "abstractmethod",
+        "importPath": "abc",
+        "description": "abc",
+        "isExtraImport": true,
+        "detail": "abc",
+        "documentation": {}
+    },
+    {
+        "label": "ABC",
+        "importPath": "abc",
+        "description": "abc",
+        "isExtraImport": true,
+        "detail": "abc",
+        "documentation": {}
+    },
+    {
+        "label": "abstractmethod",
+        "importPath": "abc",
+        "description": "abc",
+        "isExtraImport": true,
+        "detail": "abc",
+        "documentation": {}
+    },
+    {
+        "label": "LexicalAnalyzer",
+        "importPath": "_1_lexical_analysis.lexical_analyzer",
+        "description": "_1_lexical_analysis.lexical_analyzer",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.lexical_analyzer",
+        "documentation": {}
+    },
+    {
+        "label": "LexicalAnalyzer",
+        "importPath": "_1_lexical_analysis.lexical_analyzer",
+        "description": "_1_lexical_analysis.lexical_analyzer",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.lexical_analyzer",
+        "documentation": {}
+    },
+    {
+        "label": "LexicalError",
+        "importPath": "_1_lexical_analysis.lexical_analyzer",
+        "description": "_1_lexical_analysis.lexical_analyzer",
+        "isExtraImport": true,
+        "detail": "_1_lexical_analysis.lexical_analyzer",
+        "documentation": {}
+    },
+    {
+        "label": "*",
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "isExtraImport": true,
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "FunctionSymbol",
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "isExtraImport": true,
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "ProcedureSymbol",
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "isExtraImport": true,
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "VariableSymbol",
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "isExtraImport": true,
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "CallStack",
+        "importPath": "_4_interpretation.call_stack",
+        "description": "_4_interpretation.call_stack",
+        "isExtraImport": true,
+        "detail": "_4_interpretation.call_stack",
+        "documentation": {}
+    },
+    {
+        "label": "ActivationRecord",
+        "importPath": "_4_interpretation.call_stack",
+        "description": "_4_interpretation.call_stack",
+        "isExtraImport": true,
+        "detail": "_4_interpretation.call_stack",
+        "documentation": {}
+    },
+    {
+        "label": "ActivationRecordType",
+        "importPath": "_4_interpretation.call_stack",
+        "description": "_4_interpretation.call_stack",
+        "isExtraImport": true,
+        "detail": "_4_interpretation.call_stack",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "SyntacticAnalyzer",
+        "importPath": "_2_syntactic_analysis.syntactic_analyser",
+        "description": "_2_syntactic_analysis.syntactic_analyser",
+        "isExtraImport": true,
+        "detail": "_2_syntactic_analysis.syntactic_analyser",
+        "documentation": {}
+    },
+    {
+        "label": "SyntacticError",
+        "importPath": "_2_syntactic_analysis.syntactic_analyser",
+        "description": "_2_syntactic_analysis.syntactic_analyser",
+        "isExtraImport": true,
+        "detail": "_2_syntactic_analysis.syntactic_analyser",
+        "documentation": {}
+    },
+    {
+        "label": "SemanticAnalyzer",
+        "importPath": "_3_semantic_analysis.semantic_analyzer",
+        "description": "_3_semantic_analysis.semantic_analyzer",
+        "isExtraImport": true,
+        "detail": "_3_semantic_analysis.semantic_analyzer",
+        "documentation": {}
+    },
+    {
+        "label": "SemanticError",
+        "importPath": "_3_semantic_analysis.semantic_analyzer",
+        "description": "_3_semantic_analysis.semantic_analyzer",
+        "isExtraImport": true,
+        "detail": "_3_semantic_analysis.semantic_analyzer",
+        "documentation": {}
+    },
+    {
+        "label": "Interpreter",
+        "importPath": "_4_interpretation.interpreter",
+        "description": "_4_interpretation.interpreter",
+        "isExtraImport": true,
+        "detail": "_4_interpretation.interpreter",
+        "documentation": {}
+    },
+    {
+        "label": "PostfixTranslator",
+        "kind": 6,
+        "importPath": "utils.others.postfix_translator",
+        "description": "utils.others.postfix_translator",
+        "peekOfCode": "class PostfixTranslator(NodeVisitor[str]):\n    __slots__ = ()\n    def visit_NodeBinaryOperation(self, node: NodeBinaryArithmeticOperation) -> str:\n        left_str: str = self.visit(node.left)\n        right_str: str = self.visit(node.right)\n        return f\"{left_str} {right_str} {node.operator}\"\n    def visit_NodeUnaryOperation(self, node: NodeUnaryArithmeticOperation) -> str:\n        operand_str: str = self.visit(node.operand)\n        if node.operator == \"+\":\n            return operand_str",
+        "detail": "utils.others.postfix_translator",
+        "documentation": {}
+    },
+    {
+        "label": "PrefixTranslator",
+        "kind": 6,
+        "importPath": "utils.others.prefix_translator",
+        "description": "utils.others.prefix_translator",
+        "peekOfCode": "class PrefixTranslator(NodeVisitor[str]):\n    __slots__ = ()\n    def visit_NodeBinaryOperation(self, node: NodeBinaryArithmeticOperation) -> str:\n        left_str: str = self.visit(node.left)\n        right_str: str = self.visit(node.right)\n        return f\"({node.operator} {left_str} {right_str})\"\n    def visit_NodeUnaryOperation(self, node: NodeUnaryArithmeticOperation) -> str:\n        operand_str: str = self.visit(node.operand)\n        if node.operator == \"+\":\n            return operand_str",
+        "detail": "utils.others.prefix_translator",
+        "documentation": {}
+    },
+    {
+        "label": "ErrorCode",
+        "kind": 6,
+        "importPath": "utils.error_handling",
+        "description": "utils.error_handling",
+        "peekOfCode": "class ErrorCode(Enum):\n    # Token errors\n    TOK_INVALID_TOKEN_TYPE = \"INVALID_TOKEN_TYPE\"\n    TOK_INVALID_LEXEME = \"INVALID_LEXEME\"\n    TOK_WRONG_POSITIONAL_ATTRIBUTE_VALUE = \"WRONG_POSITIONAL_ATTRIBUTE_VALUE\"\n    # Lexical errors\n    LEX_INVALID_CHARACTER = \"INVALID_CHARACTER\"\n    LEX_UNTERMINATED_STRING = \"UNTERMINATED_STRING\"\n    LEX_INVALID_NUMBER_FORMAT = \"INVALID_NUMBER_FORMAT\"\n    # Syntactic errors",
+        "detail": "utils.error_handling",
+        "documentation": {}
+    },
+    {
+        "label": "Error",
+        "kind": 6,
+        "importPath": "utils.error_handling",
+        "description": "utils.error_handling",
+        "peekOfCode": "class Error(Exception):\n    __slots__ = (\"error_code\", \"message\")\n    def __init__(self, error_code: ErrorCode, message: str) -> None:\n        self.error_code: Final[ErrorCode] = error_code\n        self.message: Final[str] = message\n        super().__init__(str(self))\n    def __str__(self) -> str:\n        return f\"{self.__class__.__name__}: {self.message}\"\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(error_code={self.error_code}, message='{self.message}')\"",
+        "detail": "utils.error_handling",
+        "documentation": {}
+    },
+    {
+        "label": "LexicalError",
+        "kind": 6,
+        "importPath": "_1_lexical_analysis.lexical_analyzer",
+        "description": "_1_lexical_analysis.lexical_analyzer",
+        "peekOfCode": "class LexicalError(Error):\n    __slots__ = (\"position\", \"line\", \"column\")\n    def __init__(\n        self, error_code: ErrorCode, message: str, position: int, line: int, column: int\n    ) -> None:\n        if not error_code.name.startswith(\"LEX_\"):\n            raise ValueError(f\"{error_code} is not a valid lexical error code\")\n        self.position: Final[int] = position\n        self.line: Final[int] = line\n        self.column: Final[int] = column",
+        "detail": "_1_lexical_analysis.lexical_analyzer",
+        "documentation": {}
+    },
+    {
+        "label": "LexicalAnalyzer",
+        "kind": 6,
+        "importPath": "_1_lexical_analysis.lexical_analyzer",
+        "description": "_1_lexical_analysis.lexical_analyzer",
+        "peekOfCode": "class LexicalAnalyzer(object):\n    __slots__ = (\"source_code\", \"position\", \"current_character\", \"line\", \"column\")\n    def __init__(self, source_code: str) -> None:\n        self.source_code: str = source_code\n        self.position: int = 0\n        self.current_character: str | None = source_code[0] if source_code else None\n        self.line: int = 1\n        self.column: int = 1\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(source_code={self.source_code!r})\"",
+        "detail": "_1_lexical_analysis.lexical_analyzer",
+        "documentation": {}
+    },
+    {
+        "label": "TokenType",
+        "kind": 6,
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "peekOfCode": "class TokenType(Enum):\n    LEFT_BRACE = \"{\"\n    RIGHT_BRACE = \"}\"\n    LEFT_PARENTHESIS = \"(\"\n    RIGHT_PARENTHESIS = \")\"\n    COMMA = \",\"\n    COLON = \":\"\n    ASSIGN = \"=\"\n    PLUS = \"+\"\n    MINUS = \"-\"",
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "LexemeToTokenTypeMappings",
+        "kind": 6,
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "peekOfCode": "class LexemeToTokenTypeMappings(object):\n    def __new__(cls):\n        raise TypeError(f\"{cls.__name__} cannot be instantiated\")\n    SINGLE_CHARACTER_LEXEMS: Final = {\n        \"{\": TokenType.LEFT_BRACE,\n        \"}\": TokenType.RIGHT_BRACE,\n        \"(\": TokenType.LEFT_PARENTHESIS,\n        \")\": TokenType.RIGHT_PARENTHESIS,\n        \",\": TokenType.COMMA,\n        \":\": TokenType.COLON,",
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "TokenError",
+        "kind": 6,
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "peekOfCode": "class TokenError(Error):\n    def __init__(self, error_code: ErrorCode, message: str, token: Token) -> None:\n        if not error_code.name.startswith(\"TOK_\"):\n            raise ValueError(f\"{error_code} is not a valid token error code\")\n        self.token: Final[Token] = token\n        super().__init__(error_code, message)\n    def __str__(self) -> str:\n        return f\"{self.__class__.__name__}: {self.message} ({self.token})\"\n    def __repr__(self) -> str:\n        return (",
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "Token",
+        "kind": 6,
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "peekOfCode": "class Token(object):\n    type: Final[TokenType]\n    line: Final[int]\n    column: Final[int]\n    def __str__(self) -> str:\n        return f\"Token({self.type.value})[{self.line}:{self.column}]\"\n    def __post_init__(self) -> None:\n        if self.line < 1:\n            raise TokenError(\n                ErrorCode.TOK_WRONG_POSITIONAL_ATTRIBUTE_VALUE,",
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "TokenWithLexeme",
+        "kind": 6,
+        "importPath": "_1_lexical_analysis.tokens",
+        "description": "_1_lexical_analysis.tokens",
+        "peekOfCode": "class TokenWithLexeme(Token):\n    lexeme: Final[str]\n    def __str__(self) -> str:\n        return f\"Token({self.type.value}: {self.lexeme!r})[{self.line}:{self.column}]\"\n    def __post_init__(self) -> None:\n        Token.__post_init__(self)\n        if not self.lexeme:\n            raise TokenError(\n                ErrorCode.TOK_INVALID_LEXEME, \"Lexeme cannot be empty\", self\n            )",
+        "detail": "_1_lexical_analysis.tokens",
+        "documentation": {}
+    },
+    {
+        "label": "NodeVisitor",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeVisitor(Generic[T], ABC):\n    def visit(self, node: NodeAST) -> T:\n        return node.accept(self)\n    def _raise_not_implemented(self, node: NodeAST) -> NoReturn:\n        raise NotImplementedError(\n            f\"Visitor {self.__class__.__name__} does not implement visit_{node.__class__.__name__}\"\n        )\n    @abstractmethod\n    def visit_NodeProgram(self, node: NodeProgram) -> T: ...\n    def visit_NodeBlock(self, node: NodeBlock) -> T:",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeAST",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeAST(ABC):\n    __slots__ = ()\n    @abstractmethod\n    def accept(self, visitor: NodeVisitor[T]) -> T: ...\n    @abstractmethod\n    def __repr__(self) -> str: ...\nclass NodeStatement(NodeAST):\n    __slots__ = ()\nclass NodeExpression(NodeAST):\n    __slots__ = ()",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeStatement",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeStatement(NodeAST):\n    __slots__ = ()\nclass NodeExpression(NodeAST):\n    __slots__ = ()\nclass NodeArithmeticExpression(NodeExpression):\n    __slots__ = ()\nclass NodeBooleanExpression(NodeExpression):\n    __slots__ = ()\nclass NodeBlock(NodeAST):\n    __slots__ = (\"statements\",)",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeExpression",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeExpression(NodeAST):\n    __slots__ = ()\nclass NodeArithmeticExpression(NodeExpression):\n    __slots__ = ()\nclass NodeBooleanExpression(NodeExpression):\n    __slots__ = ()\nclass NodeBlock(NodeAST):\n    __slots__ = (\"statements\",)\n    def __init__(self, statements: list[NodeStatement] | None) -> None:\n        self.statements: list[NodeStatement] | None = statements",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeArithmeticExpression",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeArithmeticExpression(NodeExpression):\n    __slots__ = ()\nclass NodeBooleanExpression(NodeExpression):\n    __slots__ = ()\nclass NodeBlock(NodeAST):\n    __slots__ = (\"statements\",)\n    def __init__(self, statements: list[NodeStatement] | None) -> None:\n        self.statements: list[NodeStatement] | None = statements\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeBlock(self)",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeBooleanExpression",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeBooleanExpression(NodeExpression):\n    __slots__ = ()\nclass NodeBlock(NodeAST):\n    __slots__ = (\"statements\",)\n    def __init__(self, statements: list[NodeStatement] | None) -> None:\n        self.statements: list[NodeStatement] | None = statements\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeBlock(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(statements={self.statements})\"",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeBlock",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeBlock(NodeAST):\n    __slots__ = (\"statements\",)\n    def __init__(self, statements: list[NodeStatement] | None) -> None:\n        self.statements: list[NodeStatement] | None = statements\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeBlock(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(statements={self.statements})\"\nclass NodeProgram(NodeAST):\n    __slots__ = (\"block\",)",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeProgram",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeProgram(NodeAST):\n    __slots__ = (\"block\",)\n    def __init__(self, block: NodeBlock) -> None:\n        self.block: NodeBlock = block\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeProgram(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(block={self.block})\"\nclass NodeType(NodeAST):\n    __slots__ = (\"name\",)",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeType",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeType(NodeAST):\n    __slots__ = (\"name\",)\n    def __init__(self, token: Token) -> None:\n        self.name: str = token.type.value\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeType(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(name={self.name})\"\nclass NodeIdentifier(NodeArithmeticExpression):\n    __slots__ = (\"name\",)",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeIdentifier",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeIdentifier(NodeArithmeticExpression):\n    __slots__ = (\"name\",)\n    def __init__(self, name: str) -> None:\n        self.name: str = name\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeIdentifier(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(name={self.name})\"\nclass NodeVariableDeclaration(NodeStatement):\n    __slots__ = (\"type\", \"identifiers\", \"expressions\")",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeVariableDeclaration",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeVariableDeclaration(NodeStatement):\n    __slots__ = (\"type\", \"identifiers\", \"expressions\")\n    def __init__(\n        self,\n        var_type: NodeType,\n        identifiers: list[NodeIdentifier],\n        expressions: list[NodeExpression] | None = None,\n    ) -> None:\n        self.type: NodeType = var_type\n        self.identifiers: list[NodeIdentifier] = identifiers",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeConstantDeclaration",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeConstantDeclaration(NodeStatement):\n    __slots__ = (\"type\", \"identifiers\", \"expressions\")\n    def __init__(\n        self,\n        const_type: NodeType,\n        identifiers: list[NodeIdentifier],\n        expressions: list[NodeExpression],\n    ) -> None:\n        self.type: NodeType = const_type\n        self.identifiers: list[NodeIdentifier] = identifiers",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeAssignmentStatement",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeAssignmentStatement(NodeStatement):\n    __slots__ = (\"identifier\", \"expression\")\n    def __init__(self, identifier: NodeIdentifier, expression: NodeExpression) -> None:\n        self.identifier: NodeIdentifier = identifier\n        self.expression: NodeExpression = expression\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeAssignmentStatement(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(identifier={self.identifier}, expression={self.expression})\"\nclass NodeGiveStatement(NodeStatement):",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeGiveStatement",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeGiveStatement(NodeStatement):\n    __slots__ = (\"expression\",)\n    def __init__(self, expression: NodeExpression | None) -> None:\n        self.expression: NodeExpression | None = expression\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeGiveStatement(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(expression={self.expression})\"\nclass NodeShowStatement(NodeStatement):\n    __slots__ = (\"expression\",)",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeShowStatement",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeShowStatement(NodeStatement):\n    __slots__ = (\"expression\",)\n    def __init__(self, expression: NodeExpression) -> None:\n        self.expression: NodeExpression = expression\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeShowStatement(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(expression={self.expression})\"\nclass NodeElif(NodeAST):\n    __slots__ = (\"condition\", \"block\")",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeElif",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeElif(NodeAST):\n    __slots__ = (\"condition\", \"block\")\n    def __init__(\n        self,\n        condition: NodeBooleanExpression,\n        block: NodeBlock,\n    ) -> None:\n        self.condition: NodeBooleanExpression = condition\n        self.block: NodeBlock = block\n    def accept(self, visitor: NodeVisitor[T]) -> T:",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeElse",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeElse(NodeAST):\n    __slots__ = (\"block\",)\n    def __init__(\n        self,\n        block: NodeBlock,\n    ) -> None:\n        self.block: NodeBlock = block\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeElse(self)\n    def __repr__(self) -> str:",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeIfStatement",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeIfStatement(NodeStatement):\n    __slots__ = (\"condition\", \"block\", \"elifs\", \"else_\")\n    def __init__(\n        self,\n        condition: NodeBooleanExpression,\n        block: NodeBlock,\n        elifs: list[NodeElif] | None,\n        else_: NodeElse | None,\n    ) -> None:\n        self.condition: NodeBooleanExpression = condition",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeWhileStatement",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeWhileStatement(NodeStatement):\n    __slots__ = (\"condition\", \"block\")\n    def __init__(\n        self,\n        condition: NodeBooleanExpression,\n        block: NodeBlock,\n    ) -> None:\n        self.condition: NodeBooleanExpression = condition\n        self.block: NodeBlock = block\n    def accept(self, visitor: NodeVisitor[T]) -> T:",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeForStatement",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeForStatement(NodeStatement):\n    __slots__ = (\n        \"initial_assignment\",\n        \"termination_expression\",\n        \"step_expression\",\n        \"block\",\n    )\n    def __init__(\n        self,\n        initial_assignment: NodeAssignmentStatement,",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeSkipStatement",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeSkipStatement(NodeStatement):\n    __slots__ = ()\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeSkipStatement(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}()\"\nclass NodeStopStatement(NodeStatement):\n    __slots__ = ()\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeStopStatement(self)",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeStopStatement",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeStopStatement(NodeStatement):\n    __slots__ = ()\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeStopStatement(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}()\"\nclass NodeParameter(NodeAST):\n    __slots__ = (\"identifier\", \"type\")\n    def __init__(self, identifier: NodeIdentifier, type: NodeType) -> None:\n        self.identifier: NodeIdentifier = identifier",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeParameter",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeParameter(NodeAST):\n    __slots__ = (\"identifier\", \"type\")\n    def __init__(self, identifier: NodeIdentifier, type: NodeType) -> None:\n        self.identifier: NodeIdentifier = identifier\n        self.type: NodeType = type\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeParameter(self)\n    def __repr__(self) -> str:\n        return (\n            f\"{self.__class__.__name__}(identifier={self.identifier}, type={self.type})\"",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeFunctionDeclaration",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeFunctionDeclaration(NodeStatement):\n    __slots__ = (\"identifier\", \"parameters\", \"give_type\", \"block\")\n    def __init__(\n        self,\n        identifier: NodeIdentifier,\n        parameters: list[NodeParameter] | None,\n        give_type: NodeType,\n        block: NodeBlock,\n    ) -> None:\n        self.identifier: NodeIdentifier = identifier",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeProcedureDeclaration",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeProcedureDeclaration(NodeStatement):\n    __slots__ = (\"identifier\", \"parameters\", \"block\")\n    def __init__(\n        self,\n        identifier: NodeIdentifier,\n        parameters: list[NodeParameter] | None,\n        block: NodeBlock,\n    ) -> None:\n        self.identifier: NodeIdentifier = identifier\n        self.parameters: list[NodeParameter] | None = parameters",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeFunctionCall",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeFunctionCall(NodeArithmeticExpression):\n    __slots__ = (\"identifier\", \"arguments\")\n    def __init__(\n        self,\n        identifier: NodeIdentifier,\n        arguments: list[NodeExpression] | None,\n    ) -> None:\n        self.identifier: NodeIdentifier = identifier\n        self.arguments: list[NodeExpression] | None = arguments\n    def accept(self, visitor: NodeVisitor[T]) -> T:",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeProcedureCall",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeProcedureCall(NodeStatement):\n    __slots__ = (\"identifier\", \"arguments\")\n    def __init__(\n        self,\n        identifier: NodeIdentifier,\n        arguments: list[NodeExpression] | None,\n    ) -> None:\n        self.identifier: NodeIdentifier = identifier\n        self.arguments: list[NodeExpression] | None = arguments\n    def accept(self, visitor: NodeVisitor[T]) -> T:",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeBinaryArithmeticOperation",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeBinaryArithmeticOperation(NodeArithmeticExpression):\n    __slots__ = (\"left\", \"operator\", \"right\")\n    def __init__(\n        self,\n        left: NodeArithmeticExpression,\n        operator: str,\n        right: NodeArithmeticExpression,\n    ) -> None:\n        self.left: NodeArithmeticExpression = left\n        self.operator: str = operator",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeUnaryArithmeticOperation",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeUnaryArithmeticOperation(NodeArithmeticExpression):\n    __slots__ = (\"operator\", \"operand\")\n    def __init__(self, operator: str, operand: NodeArithmeticExpression) -> None:\n        self.operator: str = operator\n        self.operand: NodeArithmeticExpression = operand\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeUnaryArithmeticOperation(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(operator={self.operator}, operand={self.operand})\"\nclass NodeArithmeticExpressionAsBoolean(NodeBooleanExpression):",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeArithmeticExpressionAsBoolean",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeArithmeticExpressionAsBoolean(NodeBooleanExpression):\n    __slots__ = (\"expression\",)\n    def __init__(self, expression: NodeArithmeticExpression) -> None:\n        self.expression: NodeArithmeticExpression = expression\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeArithmeticExpressionAsBoolean(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(expression={self.expression})\"\nclass NodeBinaryBooleanOperation(NodeBooleanExpression):\n    __slots__ = (\"left\", \"logical_operator\", \"right\")",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeBinaryBooleanOperation",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeBinaryBooleanOperation(NodeBooleanExpression):\n    __slots__ = (\"left\", \"logical_operator\", \"right\")\n    def __init__(\n        self,\n        left: NodeBooleanExpression,\n        logical_operator: str,\n        right: NodeBooleanExpression,\n    ) -> None:\n        self.left: NodeBooleanExpression = left\n        self.logical_operator: str = logical_operator",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeUnaryBooleanOperation",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeUnaryBooleanOperation(NodeBooleanExpression):\n    __slots__ = (\"logical_operator\", \"operand\")\n    def __init__(self, logical_operator: str, operand: NodeBooleanExpression) -> None:\n        self.logical_operator: str = logical_operator\n        self.operand: NodeBooleanExpression = operand\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeUnaryBooleanOperation(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(logical_operator={self.logical_operator}, operand={self.operand})\"\nclass NodeComparisonExpression(NodeBooleanExpression):",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeComparisonExpression",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeComparisonExpression(NodeBooleanExpression):\n    __slots__ = (\"left\", \"comparator\", \"right\")\n    def __init__(\n        self,\n        left: NodeArithmeticExpression,\n        comparator: str,\n        right: NodeArithmeticExpression,\n    ) -> None:\n        self.left: NodeArithmeticExpression = left\n        self.comparator: str = comparator",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeNumberLiteral",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeNumberLiteral(NodeArithmeticExpression):\n    __slots__ = (\"lexeme\",)\n    def __init__(self, lexeme: str) -> None:\n        self.lexeme: str = lexeme\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeNumberLiteral(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(lexeme={self.lexeme})\"\nclass NodeStringLiteral(NodeArithmeticExpression):\n    __slots__ = (\"lexeme\",)",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeStringLiteral",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeStringLiteral(NodeArithmeticExpression):\n    __slots__ = (\"lexeme\",)\n    def __init__(self, lexeme: str) -> None:\n        self.lexeme: str = lexeme\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeStringLiteral(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(lexeme={self.lexeme!r})\"\nclass NodeBooleanLiteral(NodeBooleanExpression):\n    __slots__ = (\"lexeme\",)",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "NodeBooleanLiteral",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "class NodeBooleanLiteral(NodeBooleanExpression):\n    __slots__ = (\"lexeme\",)\n    def __init__(self, lexeme: str) -> None:\n        self.lexeme: str = lexeme\n    def accept(self, visitor: NodeVisitor[T]) -> T:\n        return visitor.visit_NodeBooleanLiteral(self)\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(lexeme={self.lexeme})\"",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "T",
+        "kind": 5,
+        "importPath": "_2_syntactic_analysis.ast",
+        "description": "_2_syntactic_analysis.ast",
+        "peekOfCode": "T = TypeVar(\"T\")\nclass NodeVisitor(Generic[T], ABC):\n    def visit(self, node: NodeAST) -> T:\n        return node.accept(self)\n    def _raise_not_implemented(self, node: NodeAST) -> NoReturn:\n        raise NotImplementedError(\n            f\"Visitor {self.__class__.__name__} does not implement visit_{node.__class__.__name__}\"\n        )\n    @abstractmethod\n    def visit_NodeProgram(self, node: NodeProgram) -> T: ...",
+        "detail": "_2_syntactic_analysis.ast",
+        "documentation": {}
+    },
+    {
+        "label": "SyntacticError",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.syntactic_analyser",
+        "description": "_2_syntactic_analysis.syntactic_analyser",
+        "peekOfCode": "class SyntacticError(Error):\n    __slots__ = (\"token\",)\n    def __init__(self, error_code: ErrorCode, message: str, token: Token) -> None:\n        if not error_code.name.startswith(\"SYN_\"):\n            raise ValueError(f\"{error_code} is not a valid syntactic error code\")\n        self.token: Final[Token] = token\n        super().__init__(error_code, message)\n    def __str__(self) -> str:\n        token_info = f\"{self.token.type.value}\"\n        if isinstance(self.token, TokenWithLexeme):",
+        "detail": "_2_syntactic_analysis.syntactic_analyser",
+        "documentation": {}
+    },
+    {
+        "label": "SyntacticAnalyzer",
+        "kind": 6,
+        "importPath": "_2_syntactic_analysis.syntactic_analyser",
+        "description": "_2_syntactic_analysis.syntactic_analyser",
+        "peekOfCode": "class SyntacticAnalyzer(object):\n    __slots__ = (\"_lexical_analyzer\", \"_current_token\")\n    def __init__(self, lexical_analyzer: LexicalAnalyzer) -> None:\n        self._lexical_analyzer: LexicalAnalyzer = lexical_analyzer\n        self._current_token: Token = lexical_analyzer.next_token()\n    def parse(self) -> NodeAST:\n        node: NodeProgram = self._program()\n        if self._current_token.type != TokenType.EOF:\n            raise SyntacticError(\n                ErrorCode.SYN_UNEXPECTED_TOKEN,",
+        "detail": "_2_syntactic_analysis.syntactic_analyser",
+        "documentation": {}
+    },
+    {
+        "label": "SemanticError",
+        "kind": 6,
+        "importPath": "_3_semantic_analysis.semantic_analyzer",
+        "description": "_3_semantic_analysis.semantic_analyzer",
+        "peekOfCode": "class SemanticError(Error):\n    __slots__ = ()\n    def __init__(self, error_code: ErrorCode, message: str) -> None:\n        if not error_code.name.startswith(\"SEM_\"):\n            raise ValueError(f\"{error_code} is not a valid semantic error code\")\n        super().__init__(error_code, message)\nclass SemanticAnalyzer(NodeVisitor[None]):\n    __slots__ = \"_current_scope\"\n    def __init__(self) -> None:\n        self._current_scope: ScopedSymbolTable = ScopedSymbolTable(",
+        "detail": "_3_semantic_analysis.semantic_analyzer",
+        "documentation": {}
+    },
+    {
+        "label": "SemanticAnalyzer",
+        "kind": 6,
+        "importPath": "_3_semantic_analysis.semantic_analyzer",
+        "description": "_3_semantic_analysis.semantic_analyzer",
+        "peekOfCode": "class SemanticAnalyzer(NodeVisitor[None]):\n    __slots__ = \"_current_scope\"\n    def __init__(self) -> None:\n        self._current_scope: ScopedSymbolTable = ScopedSymbolTable(\n            \"global\", ScopeType.PROGRAM, 1, None\n        )\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}()\"\n    def __str__(self) -> str:\n        return str(self._current_scope)",
+        "detail": "_3_semantic_analysis.semantic_analyzer",
+        "documentation": {}
+    },
+    {
+        "label": "Symbol",
+        "kind": 6,
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "peekOfCode": "class Symbol(ABC):\n    __slots__ = (\"identifier\",)\n    def __init__(self, identifier: str) -> None:\n        self.identifier: str = identifier\n    @abstractmethod\n    def __repr__(self) -> str: ...\n    @abstractmethod\n    def __str__(self) -> str: ...\nclass TypelessSymbol(Symbol):\n    __slots__ = ()",
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "TypelessSymbol",
+        "kind": 6,
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "peekOfCode": "class TypelessSymbol(Symbol):\n    __slots__ = ()\nclass TypedSymbol(Symbol):\n    __slots__ = (\"type\",)\n    def __init__(self, identifier: str, symbol_type: str) -> None:\n        super().__init__(identifier)\n        self.type: str = symbol_type\nclass BuiltInTypeSymbol(TypelessSymbol):\n    __slots__ = ()\n    def __repr__(self) -> str:",
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "TypedSymbol",
+        "kind": 6,
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "peekOfCode": "class TypedSymbol(Symbol):\n    __slots__ = (\"type\",)\n    def __init__(self, identifier: str, symbol_type: str) -> None:\n        super().__init__(identifier)\n        self.type: str = symbol_type\nclass BuiltInTypeSymbol(TypelessSymbol):\n    __slots__ = ()\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(identifier={self.identifier})\"\n    def __str__(self) -> str:",
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "BuiltInTypeSymbol",
+        "kind": 6,
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "peekOfCode": "class BuiltInTypeSymbol(TypelessSymbol):\n    __slots__ = ()\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}(identifier={self.identifier})\"\n    def __str__(self) -> str:\n        return f\"<BUILT-IN: {self.identifier}>\"\nclass VariableSymbol(TypedSymbol):\n    __slots__ = ()\n    def __repr__(self) -> str:\n        return (",
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "VariableSymbol",
+        "kind": 6,
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "peekOfCode": "class VariableSymbol(TypedSymbol):\n    __slots__ = ()\n    def __repr__(self) -> str:\n        return (\n            f\"{self.__class__.__name__}(identifier={self.identifier}, type={self.type})\"\n        )\n    def __str__(self) -> str:\n        return f\"<VARIABLE: {self.identifier}, {self.type}>\"\nclass ConstantSymbol(TypedSymbol):\n    __slots__ = (\"is_constant\",)",
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "ConstantSymbol",
+        "kind": 6,
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "peekOfCode": "class ConstantSymbol(TypedSymbol):\n    __slots__ = (\"is_constant\",)\n    def __init__(self, identifier: str, symbol_type: str) -> None:\n        super().__init__(identifier, symbol_type)\n        self.is_constant: bool = True\n    def __repr__(self) -> str:\n        return (\n            f\"{self.__class__.__name__}(identifier={self.identifier}, type={self.type})\"\n        )\n    def __str__(self) -> str:",
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "FunctionSymbol",
+        "kind": 6,
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "peekOfCode": "class FunctionSymbol(Symbol):\n    __slots__ = (\"parameters\", \"give_type\", \"block\")\n    def __init__(\n        self,\n        identifier: str,\n        parameters: list[VariableSymbol] | None,\n        give_type: str,\n        block: NodeBlock,\n    ) -> None:\n        super().__init__(identifier)",
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "ProcedureSymbol",
+        "kind": 6,
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "peekOfCode": "class ProcedureSymbol(Symbol):\n    __slots__ = (\"parameters\", \"block\")\n    def __init__(\n        self,\n        identifier: str,\n        parameters: list[VariableSymbol] | None,\n        block: NodeBlock,\n    ) -> None:\n        super().__init__(identifier)\n        self.parameters: list[VariableSymbol] | None = parameters",
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "ScopeType",
+        "kind": 6,
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "peekOfCode": "class ScopeType(Enum):\n    PROGRAM = \"PROGRAM\"\n    FUNCTION = \"FUNCTION\"\n    PROCEDURE = \"PROCEDURE\"\n    IF_BLOCK = \"IF_BLOCK\"\n    ELIF_BLOCK = \"ELIF_BLOCK\"\n    ELSE_BLOCK = \"ELSE_BLOCK\"\n    WHILE_BLOCK = \"WHILE_BLOCK\"\n    FOR_BLOCK = \"FOR_BLOCK\"\nclass ScopedSymbolTable(object):",
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "ScopedSymbolTable",
+        "kind": 6,
+        "importPath": "_3_semantic_analysis.symbol_table",
+        "description": "_3_semantic_analysis.symbol_table",
+        "peekOfCode": "class ScopedSymbolTable(object):\n    __slots__ = (\n        \"_symbols\",\n        \"name\",\n        \"type\",\n        \"level\",\n        \"enclosing_scope\",\n    )\n    BUILT_IN_TYPES: Final[list[BuiltInTypeSymbol]] = [\n        BuiltInTypeSymbol(TokenType.NUMBER_TYPE.value),",
+        "detail": "_3_semantic_analysis.symbol_table",
+        "documentation": {}
+    },
+    {
+        "label": "ActivationRecordType",
+        "kind": 6,
+        "importPath": "_4_interpretation.call_stack",
+        "description": "_4_interpretation.call_stack",
+        "peekOfCode": "class ActivationRecordType(Enum):\n    PROGRAM = \"PROGRAM\"\n    FUNCTION = \"FUNCTION\"\n    PROCEDURE = \"PROCEDURE\"\nclass ActivationRecord(object):\n    __slots__ = (\"name\", \"type\", \"nesting_level\", \"members\")\n    def __init__(\n        self, name: str, type: ActivationRecordType, nesting_level: int\n    ) -> None:\n        self.name: str = name",
+        "detail": "_4_interpretation.call_stack",
+        "documentation": {}
+    },
+    {
+        "label": "ActivationRecord",
+        "kind": 6,
+        "importPath": "_4_interpretation.call_stack",
+        "description": "_4_interpretation.call_stack",
+        "peekOfCode": "class ActivationRecord(object):\n    __slots__ = (\"name\", \"type\", \"nesting_level\", \"members\")\n    def __init__(\n        self, name: str, type: ActivationRecordType, nesting_level: int\n    ) -> None:\n        self.name: str = name\n        self.type: ActivationRecordType = type\n        self.nesting_level: int = nesting_level\n        self.members: dict[str, ValueType] = {}\n    def __repr__(self) -> str:",
+        "detail": "_4_interpretation.call_stack",
+        "documentation": {}
+    },
+    {
+        "label": "CallStack",
+        "kind": 6,
+        "importPath": "_4_interpretation.call_stack",
+        "description": "_4_interpretation.call_stack",
+        "peekOfCode": "class CallStack(object):\n    __slots__ = (\"_activation_records\",)\n    def __init__(self) -> None:\n        self._activation_records: list[ActivationRecord] = []\n    def push(self, record: ActivationRecord) -> None:\n        self._activation_records.append(record)\n    def pop(self) -> ActivationRecord:\n        return self._activation_records.pop()\n    def peek(self) -> ActivationRecord:\n        return self._activation_records[-1]",
+        "detail": "_4_interpretation.call_stack",
+        "documentation": {}
+    },
+    {
+        "label": "ValueType",
+        "kind": 5,
+        "importPath": "_4_interpretation.call_stack",
+        "description": "_4_interpretation.call_stack",
+        "peekOfCode": "ValueType = int | float | str | bool\nclass ActivationRecordType(Enum):\n    PROGRAM = \"PROGRAM\"\n    FUNCTION = \"FUNCTION\"\n    PROCEDURE = \"PROCEDURE\"\nclass ActivationRecord(object):\n    __slots__ = (\"name\", \"type\", \"nesting_level\", \"members\")\n    def __init__(\n        self, name: str, type: ActivationRecordType, nesting_level: int\n    ) -> None:",
+        "detail": "_4_interpretation.call_stack",
+        "documentation": {}
+    },
+    {
+        "label": "SkipException",
+        "kind": 6,
+        "importPath": "_4_interpretation.interpreter",
+        "description": "_4_interpretation.interpreter",
+        "peekOfCode": "class SkipException(Exception):\n    __slots__ = ()\nclass StopException(Exception):\n    __slots__ = ()\nclass RuntimeError(Error):\n    __slots__ = ()\n    def __init__(self, error_code: ErrorCode, message: str) -> None:\n        if not error_code.name.startswith(\"RUN_\"):\n            raise ValueError(f\"{error_code} is not a valid runtime error code\")\n        super().__init__(error_code, message)",
+        "detail": "_4_interpretation.interpreter",
+        "documentation": {}
+    },
+    {
+        "label": "StopException",
+        "kind": 6,
+        "importPath": "_4_interpretation.interpreter",
+        "description": "_4_interpretation.interpreter",
+        "peekOfCode": "class StopException(Exception):\n    __slots__ = ()\nclass RuntimeError(Error):\n    __slots__ = ()\n    def __init__(self, error_code: ErrorCode, message: str) -> None:\n        if not error_code.name.startswith(\"RUN_\"):\n            raise ValueError(f\"{error_code} is not a valid runtime error code\")\n        super().__init__(error_code, message)\nclass Interpreter(NodeVisitor[Any]):\n    __slots__ = (\"_call_stack\", \"_functions\", \"_procedures\")",
+        "detail": "_4_interpretation.interpreter",
+        "documentation": {}
+    },
+    {
+        "label": "RuntimeError",
+        "kind": 6,
+        "importPath": "_4_interpretation.interpreter",
+        "description": "_4_interpretation.interpreter",
+        "peekOfCode": "class RuntimeError(Error):\n    __slots__ = ()\n    def __init__(self, error_code: ErrorCode, message: str) -> None:\n        if not error_code.name.startswith(\"RUN_\"):\n            raise ValueError(f\"{error_code} is not a valid runtime error code\")\n        super().__init__(error_code, message)\nclass Interpreter(NodeVisitor[Any]):\n    __slots__ = (\"_call_stack\", \"_functions\", \"_procedures\")\n    DEFAULT_VALUES: Final[dict[str, ValueType]] = {\n        \"number\": 0,",
+        "detail": "_4_interpretation.interpreter",
+        "documentation": {}
+    },
+    {
+        "label": "Interpreter",
+        "kind": 6,
+        "importPath": "_4_interpretation.interpreter",
+        "description": "_4_interpretation.interpreter",
+        "peekOfCode": "class Interpreter(NodeVisitor[Any]):\n    __slots__ = (\"_call_stack\", \"_functions\", \"_procedures\")\n    DEFAULT_VALUES: Final[dict[str, ValueType]] = {\n        \"number\": 0,\n        \"string\": \"\",\n        \"boolean\": False,\n    }\n    def __init__(self) -> None:\n        self._call_stack: CallStack = CallStack()\n        self._functions: dict[str, FunctionSymbol] = {}",
+        "detail": "_4_interpretation.interpreter",
+        "documentation": {}
+    },
+    {
+        "label": "ValueType",
+        "kind": 5,
+        "importPath": "_4_interpretation.interpreter",
+        "description": "_4_interpretation.interpreter",
+        "peekOfCode": "ValueType = int | float | str | bool\nNumericType = int | float\nclass SkipException(Exception):\n    __slots__ = ()\nclass StopException(Exception):\n    __slots__ = ()\nclass RuntimeError(Error):\n    __slots__ = ()\n    def __init__(self, error_code: ErrorCode, message: str) -> None:\n        if not error_code.name.startswith(\"RUN_\"):",
+        "detail": "_4_interpretation.interpreter",
+        "documentation": {}
+    },
+    {
+        "label": "NumericType",
+        "kind": 5,
+        "importPath": "_4_interpretation.interpreter",
+        "description": "_4_interpretation.interpreter",
+        "peekOfCode": "NumericType = int | float\nclass SkipException(Exception):\n    __slots__ = ()\nclass StopException(Exception):\n    __slots__ = ()\nclass RuntimeError(Error):\n    __slots__ = ()\n    def __init__(self, error_code: ErrorCode, message: str) -> None:\n        if not error_code.name.startswith(\"RUN_\"):\n            raise ValueError(f\"{error_code} is not a valid runtime error code\")",
+        "detail": "_4_interpretation.interpreter",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "main",
+        "description": "main",
+        "peekOfCode": "def main() -> None:\n    if len(sys.argv) < 2:\n        print(\"Usage: python main.py <program_file> [--run]\")\n        return\n    filename: str = sys.argv[1]\n    run_interpreter: bool = \"--run\" in sys.argv\n    try:\n        with open(filename, \"r\") as file:\n            program_text: str = file.read()\n    except FileNotFoundError:",
+        "detail": "main",
+        "documentation": {}
+    }
+]
