@@ -15,7 +15,7 @@ class SemanticError(Error):
 
 
 class SemanticAnalyzer(NodeVisitor[None]):
-    __slots__ = "_current_scope"
+    __slots__ = ("_current_scope",)
 
     def __init__(self) -> None:
         self._current_scope: ScopedSymbolTable = ScopedSymbolTable(

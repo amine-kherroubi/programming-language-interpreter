@@ -1071,7 +1071,7 @@
         "kind": 6,
         "importPath": "_3_semantic_analysis.semantic_analyzer",
         "description": "_3_semantic_analysis.semantic_analyzer",
-        "peekOfCode": "class SemanticError(Error):\n    __slots__ = ()\n    def __init__(self, error_code: ErrorCode, message: str) -> None:\n        if not error_code.name.startswith(\"SEM_\"):\n            raise ValueError(f\"{error_code} is not a valid semantic error code\")\n        super().__init__(error_code, message)\nclass SemanticAnalyzer(NodeVisitor[None]):\n    __slots__ = \"_current_scope\"\n    def __init__(self) -> None:\n        self._current_scope: ScopedSymbolTable = ScopedSymbolTable(",
+        "peekOfCode": "class SemanticError(Error):\n    __slots__ = ()\n    def __init__(self, error_code: ErrorCode, message: str) -> None:\n        if not error_code.name.startswith(\"SEM_\"):\n            raise ValueError(f\"{error_code} is not a valid semantic error code\")\n        super().__init__(error_code, message)\nclass SemanticAnalyzer(NodeVisitor[None]):\n    __slots__ = (\"_current_scope\",)\n    def __init__(self) -> None:\n        self._current_scope: ScopedSymbolTable = ScopedSymbolTable(",
         "detail": "_3_semantic_analysis.semantic_analyzer",
         "documentation": {}
     },
@@ -1080,7 +1080,7 @@
         "kind": 6,
         "importPath": "_3_semantic_analysis.semantic_analyzer",
         "description": "_3_semantic_analysis.semantic_analyzer",
-        "peekOfCode": "class SemanticAnalyzer(NodeVisitor[None]):\n    __slots__ = \"_current_scope\"\n    def __init__(self) -> None:\n        self._current_scope: ScopedSymbolTable = ScopedSymbolTable(\n            \"global\", ScopeType.PROGRAM, 1, None\n        )\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}()\"\n    def __str__(self) -> str:\n        return str(self._current_scope)",
+        "peekOfCode": "class SemanticAnalyzer(NodeVisitor[None]):\n    __slots__ = (\"_current_scope\",)\n    def __init__(self) -> None:\n        self._current_scope: ScopedSymbolTable = ScopedSymbolTable(\n            \"global\", ScopeType.PROGRAM, 1, None\n        )\n    def __repr__(self) -> str:\n        return f\"{self.__class__.__name__}()\"\n    def __str__(self) -> str:\n        return str(self._current_scope)",
         "detail": "_3_semantic_analysis.semantic_analyzer",
         "documentation": {}
     },
