@@ -63,7 +63,7 @@ class LexemeToTokenTypeMappings(object):
     def __new__(cls):
         raise TypeError(f"{cls.__name__} cannot be instantiated")
 
-    SINGLE_CHARACTER_LEXEMS: Final = {
+    SINGLE_CHARACTER_LEXEMS: Final[dict[str, TokenType]] = {
         "{": TokenType.LEFT_BRACE,
         "}": TokenType.RIGHT_BRACE,
         "(": TokenType.LEFT_PARENTHESIS,
@@ -80,7 +80,7 @@ class LexemeToTokenTypeMappings(object):
         ">": TokenType.GREATER,
     }
 
-    MULTI_CHARACTER_OPERATORS: Final = {
+    MULTI_CHARACTER_OPERATORS: Final[dict[str, TokenType]] = {
         "->": TokenType.ARROW,
         "**": TokenType.POWER,
         "//": TokenType.FLOOR_DIVIDE,
@@ -90,7 +90,7 @@ class LexemeToTokenTypeMappings(object):
         ">=": TokenType.GREATER_EQUAL,
     }
 
-    KEYWORDS: Final = {
+    KEYWORDS: Final[dict[str, TokenType]] = {
         "let": TokenType.LET,
         "keep": TokenType.KEEP,
         "give": TokenType.GIVE,
