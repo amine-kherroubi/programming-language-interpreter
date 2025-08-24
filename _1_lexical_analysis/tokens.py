@@ -1,11 +1,12 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, unique
 from functools import cached_property
 from typing import Final
 from utils.error_handling import Error, ErrorCode
 
 
+@unique
 class TokenType(Enum):
     LEFT_BRACE = "{"
     RIGHT_BRACE = "}"

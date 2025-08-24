@@ -1,8 +1,9 @@
 from __future__ import annotations
-from enum import Enum
+from enum import Enum, unique
 from typing import Final
 
 
+@unique
 class ErrorCode(Enum):
     # Token errors
     TOK_INVALID_TOKEN_TYPE = "INVALID_TOKEN_TYPE"

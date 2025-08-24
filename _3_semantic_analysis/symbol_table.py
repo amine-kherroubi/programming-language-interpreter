@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from enum import Enum
+from enum import Enum, unique
 from typing import Final, OrderedDict
 from _1_lexical_analysis.tokens import TokenType
 from _2_syntactic_analysis.ast import NodeBlock
@@ -127,6 +127,7 @@ class ProcedureSymbol(Symbol):
         return f"<PROCEDURE: {self.identifier}({params})>"
 
 
+@unique
 class ScopeType(Enum):
     PROGRAM = "PROGRAM"
     FUNCTION = "FUNCTION"

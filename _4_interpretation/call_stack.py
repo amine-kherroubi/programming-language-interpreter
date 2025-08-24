@@ -1,9 +1,10 @@
 from __future__ import annotations
-from enum import Enum
+from enum import Enum, unique
 
 ValueType = int | float | str | bool
 
 
+@unique
 class ActivationRecordType(Enum):
     PROGRAM = "PROGRAM"
     FUNCTION = "FUNCTION"
