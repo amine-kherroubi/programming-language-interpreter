@@ -1,3 +1,4 @@
+from __future__ import annotations
 import sys
 from _1_lexical_analysis.lexical_analyzer import LexicalAnalyzer, LexicalError
 from _1_lexical_analysis.tokens import TokenError
@@ -23,18 +24,17 @@ def main() -> None:
         return
 
     try:
-        lexer = LexicalAnalyzer(program_text)
-        parser = SyntacticAnalyzer(lexer)
-        ast: NodeAST = parser.parse()
-
-        semantic_analyzer = SemanticAnalyzer()
-        semantic_analyzer.analyze(ast)
+        lexical_analyzer: LexicalAnalyzer = LexicalAnalyzer(program_text)
+        syntactic_analyzer: SyntacticAnalyzer = SyntacticAnalyzer(lexical_analyzer)
+        abstract_syntax_tree: NodeAST = syntactic_analyzer.parse()
+        semantic_analyzer: SemanticAnalyzer = SemanticAnalyzer()
+        semantic_analyzer.analyze(abstract_syntax_tree)
 
         print("Semantic analysis successfully completed.")
 
         if run_interpreter:
-            interpreter = Interpreter()
-            interpreter.interpret(ast)
+            interpreter: Interpreter = Interpreter()
+            interpreter.interpret(abstract_syntax_tree)
 
     except (
         TokenError,
