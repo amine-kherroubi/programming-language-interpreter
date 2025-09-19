@@ -1,11 +1,12 @@
 from __future__ import annotations
-from enum import Enum, unique
+from enum import StrEnum, unique
+from typing import TypeAlias
 
-ValueType = int | float | str | bool
+ValueType: TypeAlias = int | float | str | bool
 
 
 @unique
-class ActivationRecordType(Enum):
+class ActivationRecordType(StrEnum):
     PROGRAM = "PROGRAM"
     FUNCTION = "FUNCTION"
     PROCEDURE = "PROCEDURE"

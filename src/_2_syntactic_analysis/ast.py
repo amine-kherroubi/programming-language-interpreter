@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Generic, NoReturn, TypeVar
-from _1_lexical_analysis.tokens import Token
+from src._1_lexical_analysis.tokens import Token
 
 T = TypeVar("T")
 

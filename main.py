@@ -1,11 +1,14 @@
 from __future__ import annotations
 import sys
-from _1_lexical_analysis.lexical_analyzer import LexicalAnalyzer, LexicalError
-from _1_lexical_analysis.tokens import TokenError
-from _2_syntactic_analysis.syntactic_analyser import SyntacticAnalyzer, SyntacticError
-from _2_syntactic_analysis.ast import NodeAST
-from _3_semantic_analysis.semantic_analyzer import SemanticAnalyzer, SemanticError
-from _4_interpretation.interpreter import Interpreter
+from src._1_lexical_analysis.lexical_analyzer import LexicalAnalyzer, LexicalError
+from src._1_lexical_analysis.tokens import TokenError
+from src._2_syntactic_analysis.syntactic_analyser import (
+    SyntacticAnalyzer,
+    SyntacticError,
+)
+from src._2_syntactic_analysis.ast import NodeAST
+from src._3_semantic_analysis.semantic_analyzer import SemanticAnalyzer, SemanticError
+from src._4_interpretation.interpreter import Interpreter
 
 
 def main() -> None:

@@ -1,10 +1,10 @@
 from __future__ import annotations
-from enum import Enum, unique
+from enum import StrEnum, unique
 from typing import Final
 
 
 @unique
-class ErrorCode(Enum):
+class ErrorCode(StrEnum):
     # Token errors
     TOK_INVALID_TOKEN_TYPE = "INVALID_TOKEN_TYPE"
     TOK_INVALID_LEXEME = "INVALID_LEXEME"
@@ -46,7 +46,6 @@ class Error(Exception):
     __slots__ = ("error_code", "message")
 
     def __init__(self, error_code: ErrorCode, message: str) -> None:
-
         self.error_code: Final[ErrorCode] = error_code
         self.message: Final[str] = message
         super().__init__(str(self))

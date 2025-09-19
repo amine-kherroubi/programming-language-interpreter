@@ -1,5 +1,11 @@
 from __future__ import annotations
-from _2_syntactic_analysis.ast import *
+from src._2_syntactic_analysis.ast import (
+    NodeBinaryArithmeticOperation,
+    NodeUnaryArithmeticOperation,
+    NodeNumberLiteral,
+    NodeVisitor,
+    NodeAST,
+)
 
 
 class PostfixTranslator(NodeVisitor[str]):

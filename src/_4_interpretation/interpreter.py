@@ -1,22 +1,21 @@
 from __future__ import annotations
-from typing import Any, Final
-from _2_syntactic_analysis.ast import *
-from _2_syntactic_analysis.ast import NodeForStatement
-from _3_semantic_analysis.symbol_table import (
+from typing import Any, Final, TypeAlias
+from src._2_syntactic_analysis.ast import *
+from src._2_syntactic_analysis.ast import NodeForStatement
+from src._3_semantic_analysis.symbol_table import (
     FunctionSymbol,
     ProcedureSymbol,
     VariableSymbol,
 )
-from _4_interpretation.call_stack import (
+from src._4_interpretation.call_stack import (
     CallStack,
     ActivationRecord,
     ActivationRecordType,
 )
-from utils.error_handling import Error, ErrorCode
+from src.commons.error_handling import Error, ErrorCode
 
-
-ValueType = int | float | str | bool
-NumericType = int | float
+ValueType: TypeAlias = int | float | str | bool
+NumericType: TypeAlias = int | float
 
 
 class SkipException(Exception):

@@ -1,8 +1,8 @@
 from __future__ import annotations
-from _2_syntactic_analysis.ast import *
-from _2_syntactic_analysis.ast import NodeForStatement
-from _3_semantic_analysis.symbol_table import *
-from utils.error_handling import Error, ErrorCode
+from src._2_syntactic_analysis.ast import *
+from src._2_syntactic_analysis.ast import NodeForStatement
+from src._3_semantic_analysis.symbol_table import *
+from src.commons.error_handling import Error, ErrorCode
 
 
 class SemanticError(Error):

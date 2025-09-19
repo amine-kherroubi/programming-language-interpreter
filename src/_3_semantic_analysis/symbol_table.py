@@ -1,9 +1,9 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from enum import Enum, unique
+from enum import StrEnum, unique
 from typing import Final, OrderedDict
-from _1_lexical_analysis.tokens import TokenType
-from _2_syntactic_analysis.ast import NodeBlock
+from src._1_lexical_analysis.tokens import TokenType
+from src._2_syntactic_analysis.ast import NodeBlock
 
 
 class Symbol(ABC):
@@ -128,7 +128,7 @@ class ProcedureSymbol(Symbol):
 
 
 @unique
-class ScopeType(Enum):
+class ScopeType(StrEnum):
     PROGRAM = "PROGRAM"
     FUNCTION = "FUNCTION"
     PROCEDURE = "PROCEDURE"
