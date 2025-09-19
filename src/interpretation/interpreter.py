@@ -1,13 +1,13 @@
 from __future__ import annotations
 from typing import Any, Final, TypeAlias
-from src._2_syntactic_analysis.ast import *
-from src._2_syntactic_analysis.ast import NodeForStatement
-from src._3_semantic_analysis.symbol_table import (
+from src.syntactic_analysis.ast import *
+from src.syntactic_analysis.ast import NodeForStatement
+from src.semantic_analysis.symbol_table import (
     FunctionSymbol,
     ProcedureSymbol,
     VariableSymbol,
 )
-from src._4_interpretation.call_stack import (
+from src.interpretation.call_stack import (
     CallStack,
     ActivationRecord,
     ActivationRecordType,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Final
 from src.commons.error_handling import Error, ErrorCode
-from src._1_lexical_analysis.tokens import (
+from src.lexical_analysis.tokens import (
     Token,
     TokenWithLexeme,
     TokenType,

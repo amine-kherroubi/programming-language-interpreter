@@ -2,8 +2,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import StrEnum, unique
 from typing import Final, OrderedDict
-from src._1_lexical_analysis.tokens import TokenType
-from src._2_syntactic_analysis.ast import NodeBlock
+from src.lexical_analysis.tokens import TokenType
+from src.syntactic_analysis.ast import NodeBlock
 
 
 class Symbol(ABC):

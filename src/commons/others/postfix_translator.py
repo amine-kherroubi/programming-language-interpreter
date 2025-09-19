@@ -1,5 +1,5 @@
 from __future__ import annotations
-from src._2_syntactic_analysis.ast import (
+from src.syntactic_analysis.ast import (
     NodeBinaryArithmeticOperation,
     NodeUnaryArithmeticOperation,
     NodeNumberLiteral,

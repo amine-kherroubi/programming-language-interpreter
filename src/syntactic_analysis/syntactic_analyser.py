@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Final
-from src._1_lexical_analysis.lexical_analyzer import LexicalAnalyzer
-from src._1_lexical_analysis.tokens import TokenType, Token, TokenWithLexeme
-from src._2_syntactic_analysis.ast import *
+from src.lexical_analysis.lexical_analyzer import LexicalAnalyzer
+from src.lexical_analysis.tokens import TokenType, Token, TokenWithLexeme
+from src.syntactic_analysis.ast import *
 from src.commons.error_handling import Error, ErrorCode
 
 

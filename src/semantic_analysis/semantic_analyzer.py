@@ -1,7 +1,7 @@
 from __future__ import annotations
-from src._2_syntactic_analysis.ast import *
-from src._2_syntactic_analysis.ast import NodeForStatement
-from src._3_semantic_analysis.symbol_table import *
+from src.syntactic_analysis.ast import *
+from src.syntactic_analysis.ast import NodeForStatement
+from src.semantic_analysis.symbol_table import *
 from src.commons.error_handling import Error, ErrorCode
 
 
