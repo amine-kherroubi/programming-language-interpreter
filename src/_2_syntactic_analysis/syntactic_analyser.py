@@ -92,9 +92,9 @@ class SyntacticAnalyzer(object):
 
             statements.append(self._statement())
 
-            if self._current_token.type == TokenType.NEWLINE:
+            if self._current_token.type == TokenType.NEWLINE:  # type: ignore
                 self._consume(TokenType.NEWLINE)
-            elif self._current_token.type != TokenType.RIGHT_BRACE:
+            elif self._current_token.type != TokenType.RIGHT_BRACE:  # type: ignore
                 raise SyntacticError(
                     ErrorCode.SYN_UNEXPECTED_TOKEN,
                     f"Expected NEWLINE or RIGHT_BRACE, got {self._current_token.type.value}",

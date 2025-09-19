@@ -133,7 +133,7 @@ class Interpreter(NodeVisitor[Any]):
         self._procedures[node.identifier.name] = procedure_symbol
 
     def visit_NodeFunctionCall(self, node: NodeFunctionCall) -> ValueType:
-        function_symbol: FunctionSymbol = self._functions.get(node.identifier.name)
+        function_symbol: FunctionSymbol = self._functions.get(node.identifier.name)  # type: ignore
 
         function_arguments: list[ValueType] = [
             self.visit(argument) for argument in (node.arguments or [])
@@ -177,7 +177,7 @@ class Interpreter(NodeVisitor[Any]):
             )
 
     def visit_NodeProcedureCall(self, node: NodeProcedureCall) -> None:
-        procedure_symbol: ProcedureSymbol = self._procedures.get(node.identifier.name)
+        procedure_symbol: ProcedureSymbol = self._procedures.get(node.identifier.name)  # type: ignore
 
         procedure_arguments: list[ValueType] = [
             self.visit(argument) for argument in (node.arguments or [])
@@ -244,7 +244,7 @@ class Interpreter(NodeVisitor[Any]):
 
                 result = self.visit(node.block)
                 if isinstance(result, dict) and "give" in result:
-                    return result
+                    return result  # type: ignore
 
             except SkipException:
                 continue
@@ -303,7 +303,7 @@ class Interpreter(NodeVisitor[Any]):
 
                 result = self.visit(node.block)
                 if isinstance(result, dict) and "give" in result:
-                    return result
+                    return result  # type: ignore
 
                 current_activation_record[iteration_variable_name] = (
                     current_value + step_value
@@ -350,32 +350,32 @@ class Interpreter(NodeVisitor[Any]):
                 return str(left_operand) + str(right_operand)
             return left_operand + right_operand
         if binary_operator == "-":
-            return left_operand - right_operand
+            return left_operand - right_operand  # type: ignore
         if binary_operator == "*":
-            return left_operand * right_operand
+            return left_operand * right_operand  # type: ignore
         if binary_operator == "/":
             if right_operand == 0:
                 raise RuntimeError(
                     ErrorCode.RUN_DIVISION_BY_ZERO,
                     "Division by zero",
                 )
-            return left_operand / right_operand
+            return left_operand / right_operand  # type: ignore
         if binary_operator == "//":
             if right_operand == 0:
                 raise RuntimeError(
                     ErrorCode.RUN_DIVISION_BY_ZERO,
                     "Division by zero",
                 )
-            return left_operand // right_operand
+            return left_operand // right_operand  # type: ignore
         if binary_operator == "%":
             if right_operand == 0:
                 raise RuntimeError(
                     ErrorCode.RUN_DIVISION_BY_ZERO,
                     "Modulo by zero",
                 )
-            return left_operand % right_operand
+            return left_operand % right_operand  # type: ignore
         if binary_operator == "**":
-            return left_operand**right_operand
+            return left_operand**right_operand  # type: ignore
 
         raise RuntimeError(
             ErrorCode.RUN_INVALID_OPERATION,
@@ -443,13 +443,13 @@ class Interpreter(NodeVisitor[Any]):
         elif comparator == "!=":
             return left_operand != right_operand
         elif comparator == "<":
-            return left_operand < right_operand
+            return left_operand < right_operand  # type: ignore
         elif comparator == ">":
-            return left_operand > right_operand
+            return left_operand > right_operand  # type: ignore
         elif comparator == "<=":
-            return left_operand <= right_operand
+            return left_operand <= right_operand  # type: ignore
         elif comparator == ">=":
-            return left_operand >= right_operand
+            return left_operand >= right_operand  # type: ignore
         else:
             raise RuntimeError(
                 ErrorCode.RUN_INVALID_OPERATION,
