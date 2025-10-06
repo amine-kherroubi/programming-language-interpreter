@@ -293,10 +293,10 @@ class LexicalAnalyzer(object):
 
             if (
                 self.current_character
-                in LexemeToTokenTypeMappings.SINGLE_CHARACTER_LEXEMS
+                in LexemeToTokenTypeMappings.SINGLE_CHARACTER_LEXEMES
             ):
                 token_type: TokenType = (
-                    LexemeToTokenTypeMappings.SINGLE_CHARACTER_LEXEMS[
+                    LexemeToTokenTypeMappings.SINGLE_CHARACTER_LEXEMES[
                         self.current_character
                     ]
                 )
