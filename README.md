@@ -3,7 +3,7 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
-A simple custom programming language interpreter with static typing and lexical scoping. The language syntax draws inspiration from Python, C, and Ada, combining Python's keywords (`if`, `elif`, `else`, `while`, `and`, `or`, `not`) with C-style braces and Ada-like distinction between functions and procedures, along with new stylish keywords like `give`, `show`, `skip`, `stop`. The interpreter implements a four-phase architecture with lexical analysis, recursive descent parsing, semantic analysis, and tree-walking interpretation.
+A simple custom turing-complete programming language interpreter with static typing and lexical scoping. The language syntax draws inspiration from Python, C, and Ada, combining Python's keywords (`if`, `elif`, `else`, `while`, `and`, `or`, `not`) with C-style braces and Ada-like distinction between functions and procedures, along with new stylish keywords like `give`, `show`, `skip`, `stop`. The interpreter implements a four-phase architecture with lexical analysis, recursive descent parsing, semantic analysis, and tree-walking interpretation.
 
 ---
 
