@@ -102,7 +102,7 @@ while running and not finished {
 
 ## Complete Example
 
-Here's a program showcasing the language's elegance:
+Here's a program showcasing the language:
 
 ```
 {
