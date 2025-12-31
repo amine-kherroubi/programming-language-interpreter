@@ -19,7 +19,7 @@
             show "F(" + i + ") = " + value
             i = i + 1
           
-            if i > 5 {
+            if i > 15 {
                 stop  # Exit loop after 5 iterations
             }
         }
