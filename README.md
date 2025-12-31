@@ -5,7 +5,7 @@
 
 A simple custom turing-complete programming language interpreter with static typing and lexical scoping. The language syntax draws inspiration from Python, C, and Ada, combining Python's keywords (`if`, `elif`, `else`, `while`, `and`, `or`, `not`) with C-style braces and Ada-like distinction between functions and procedures, along with new stylish keywords like `give`, `show`, `skip`, `stop`. The interpreter implements a four-phase architecture with lexical analysis, recursive descent parsing, semantic analysis, and tree-walking interpretation.
 
-<img width="1854" height="1040" alt="image" src="https://github.com/user-attachments/assets/fb474c01-1ea5-4e07-904d-6ffa2a1d4d77" />
+<img width="1615" height="922" alt="image" src="https://github.com/user-attachments/assets/e7044141-effb-4704-95a7-3da21045c65b" />
 
 ---
 
