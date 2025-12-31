@@ -1,5 +1,5 @@
 {
-    keep number limit = 10
+    keep number limit = 100
     keep string title = "Fibonacci Sequence Generator"
   
     func fibonacci(number n) -> number {
@@ -19,7 +19,7 @@
             show "F(" + i + ") = " + value
             i = i + 1
           
-            if i > 15 {
+            if i > 25 {
                 stop  # Exit loop after 5 iterations
             }
         }
