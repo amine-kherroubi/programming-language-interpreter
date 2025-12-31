@@ -13,17 +13,15 @@ from src.interpretation.interpreter import Interpreter
 
 def main() -> None:
     if len(sys.argv) < 2:
-        print("Usage: python main.py <program_file> [--run]")
+        print("Usage: python main.py <program_file>")
         return
 
     filename: str = sys.argv[1]
-    run_interpreter: bool = "--run" in sys.argv
 
     try:
         with open(filename, "r") as file:
             program_text: str = file.read()
     except FileNotFoundError:
-        print(f"Error: file '{filename}' not found.")
         return
 
     try:
@@ -33,23 +31,13 @@ def main() -> None:
         semantic_analyzer: SemanticAnalyzer = SemanticAnalyzer()
         semantic_analyzer.analyze(abstract_syntax_tree)
 
-        print("Semantic analysis successfully completed.")
+        interpreter: Interpreter = Interpreter()
+        interpreter.interpret(abstract_syntax_tree)
 
-        if run_interpreter:
-            interpreter: Interpreter = Interpreter()
-            interpreter.interpret(abstract_syntax_tree)
-
-    except (
-        TokenError,
-        LexicalError,
-        SyntacticError,
-        SemanticError,
-        RuntimeError,
-    ) as error:
-        print(error)
-
-    except Exception as unknown_error:
-        print(f"Unhandled Error: {unknown_error}")
+    except (TokenError, LexicalError, SyntacticError, SemanticError, RuntimeError):
+        return
+    except Exception:
+        return
 
 
 if __name__ == "__main__":
