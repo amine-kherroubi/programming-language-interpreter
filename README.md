@@ -28,16 +28,10 @@ git clone https://github.com/amine-kherroubi/programming-language-interpreter
 cd programming-language-interpreter
 ```
 
-**Static Analysis Only** (syntax and semantic checking):
+**Interpretation** (analysis + execution):
 
 ```bash
 python main.py examples/example.lang
-```
-
-**Full Interpretation** (analysis + execution):
-
-```bash
-python main.py examples/example.lang --run
 ```
 
 ---
